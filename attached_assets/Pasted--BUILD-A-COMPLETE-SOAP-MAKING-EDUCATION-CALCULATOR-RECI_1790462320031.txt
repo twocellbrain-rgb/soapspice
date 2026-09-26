@@ -1,0 +1,2018 @@
+# BUILD A COMPLETE SOAP-MAKING EDUCATION, CALCULATOR, RECIPE & AFFILIATE PLATFORM
+
+## 1. PROJECT OBJECTIVE
+
+Build a professional, modern, mobile-responsive web application focused on soap making.
+
+The website should combine:
+
+1. Soap-making calculators
+2. Ingredient database
+3. Soap recipes
+4. Step-by-step tutorials
+5. Educational articles
+6. Soap-making glossary
+7. Troubleshooting guides
+8. Safety information
+9. Affiliate product recommendations
+10. User accounts
+11. Saved recipes and calculations
+12. Search
+13. SEO-friendly content architecture
+14. Full administrator dashboard
+15. Original/licensed visual content
+16. Future compatibility with Amazon Product Advertising API
+17. Architecture suitable for eventual deployment on Hostinger
+
+The website should be inspired by the breadth and usability of established soap-making educational websites, but DO NOT copy another site's branding, layout, text, images, recipes, code, or proprietary content.
+
+Create an original brand identity and original user experience.
+
+---
+
+# 2. DEVELOPMENT PRINCIPLES
+
+Build this as a real production application rather than a simple demonstration.
+
+Prioritize:
+
+* Accuracy
+* Maintainability
+* Security
+* Mobile responsiveness
+* Fast loading
+* SEO
+* Accessibility
+* Modular architecture
+* Database-driven content
+* Expandability
+* Clear separation between frontend, backend, database, calculator engine, content system and affiliate system
+
+Do not hard-code ingredients, recipes or affiliate products into frontend components.
+
+Everything that may change should be database-driven and manageable through the admin dashboard.
+
+---
+
+# 3. IMPORTANT CONTENT POLICY
+
+Do NOT scrape websites or copy/rewrite copyrighted articles simply to make them appear original.
+
+The content system should support legitimate research and creation of genuinely original educational material.
+
+Articles should be created from independently researched information and, where appropriate, multiple reliable sources.
+
+Allow administrators to record:
+
+* Source title
+* Source URL
+* Author
+* Publisher
+* Publication date
+* Notes
+* Attribution requirements
+
+Do not automatically copy source text.
+
+The system should support human review before publication.
+
+Do not automatically publish AI-generated articles without administrator approval.
+
+---
+
+# 4. TECHNOLOGY ARCHITECTURE
+
+Choose a modern, maintainable stack that works well in Replit and can be deployed to a conventional hosting environment.
+
+Prefer:
+
+Frontend:
+
+* React
+* TypeScript
+* Modern CSS/Tailwind or equivalent
+
+Backend:
+
+* Node.js
+* TypeScript
+* REST API or clean server architecture
+
+Database:
+
+* PostgreSQL
+
+Authentication:
+
+* Secure session-based or token-based authentication
+
+ORM:
+
+* Use a reliable ORM such as Prisma or Drizzle.
+
+Use environment variables for:
+
+* Database credentials
+* Authentication secrets
+* API keys
+* Affiliate configuration
+* Future Amazon API credentials
+
+NEVER expose secrets in frontend code.
+
+Structure the application so hosting can later be migrated from Replit to Hostinger with minimal architectural changes.
+
+---
+
+# 5. BRANDING
+
+Create an original professional soap-making brand.
+
+Do not use:
+
+* Bramble Berry branding
+* Bramble Berry logos
+* Bramble Berry text
+* Bramble Berry proprietary imagery
+* Bramble Berry proprietary layouts
+
+Use an original visual identity.
+
+The design should feel:
+
+* Premium
+* Clean
+* Warm
+* Trustworthy
+* Educational
+* Modern
+* Craft-oriented
+
+The website must look excellent on:
+
+* Desktop
+* Tablet
+* Mobile
+
+---
+
+# 6. MAIN NAVIGATION
+
+Create:
+
+HOME
+
+CALCULATORS
+
+RECIPES
+
+INGREDIENTS
+
+LEARN
+
+ARTICLES
+
+GLOSSARY
+
+TROUBLESHOOTING
+
+SAFETY
+
+RECOMMENDED PRODUCTS
+
+SEARCH
+
+ACCOUNT
+
+---
+
+# 7. HOME PAGE
+
+Create a professional homepage containing:
+
+Hero section:
+
+* Clear headline
+* Short explanation
+* Primary CTA to Soap Calculator
+* Secondary CTA to Browse Recipes
+
+Featured calculator section
+
+Featured recipes
+
+Popular ingredients
+
+Latest educational articles
+
+Popular glossary terms
+
+Troubleshooting topics
+
+Recommended equipment/products
+
+Beginner soap-making guide
+
+Safety reminder
+
+Newsletter signup
+
+Footer containing:
+
+* About
+* Contact
+* Privacy Policy
+* Terms
+* Affiliate Disclosure
+* Safety Disclaimer
+* Cookie/consent controls where required
+
+---
+
+# 8. CALCULATOR SYSTEM
+
+Create a modular calculator engine.
+
+Initial primary calculator:
+
+## COLD PROCESS SOAP CALCULATOR
+
+Design the calculator so additional calculators can later be added without rewriting the core system.
+
+Future calculator types:
+
+* Hot Process
+* Liquid Soap
+* Melt & Pour
+* Fragrance calculator
+* Batch-size calculator
+* Mold capacity calculator
+
+---
+
+# 9. COLD PROCESS CALCULATOR
+
+Allow users to create a formulation by selecting ingredients from the database.
+
+Users can enter oils by:
+
+* Percentage
+* Weight
+
+Allow switching between:
+
+* grams
+* ounces
+* pounds
+
+Allow users to specify:
+
+* Total oil weight
+* Superfat percentage
+* Lye concentration or water/lye ratio
+* NaOH
+* KOH where applicable
+* Batch size
+
+Display:
+
+* Total oil weight
+* Individual oil weights
+* Oil percentages
+* NaOH requirement
+* Water requirement
+* Superfat
+* Lye concentration
+* Total batch weight
+* Calculated formulation summary
+
+Use deterministic mathematical calculations.
+
+DO NOT ask an AI model to calculate lye quantities dynamically.
+
+---
+
+# 10. SAP DATABASE
+
+Create an ingredient database containing the information necessary for soap calculations.
+
+Each oil/butter ingredient should support:
+
+* Ingredient ID
+* Name
+* Alternate names
+* Category
+* NaOH SAP value
+* KOH SAP value
+* Typical usage range
+* Fatty acid profile
+* Hardness contribution
+* Cleansing contribution
+* Conditioning contribution
+* Bubbly/lather contribution
+* Creamy lather contribution
+* Iodine value where appropriate
+* INS value where appropriate
+* Notes
+* Description
+* Image
+* Active/inactive status
+
+The exact numerical values must be sourced from authoritative/reliable references and reviewed by an administrator.
+
+Do not invent chemical values.
+
+Store the source/reference for important technical values.
+
+---
+
+# 11. CALCULATOR VALIDATION
+
+Implement strong validation.
+
+Examples:
+
+* Oil percentages must total 100%
+* No negative quantities
+* Ingredient must have required SAP data before being used
+* Warn if unusual superfat values are entered
+* Warn if formulation parameters fall outside configured ranges
+* Prevent calculation when required data is missing
+* Clearly identify assumptions
+* Display units
+* Allow recalculation when ingredients change
+
+Include an expandable "Calculation Details" section.
+
+Show how the result was calculated without exposing unnecessary implementation code.
+
+---
+
+# 12. SAFETY
+
+Because the application deals with sodium hydroxide/potassium hydroxide, safety must be prominent.
+
+Display appropriate safety warnings around lye calculations.
+
+Create a dedicated Safety Center containing:
+
+* Lye safety
+* Personal protective equipment
+* Ventilation
+* Safe measuring
+* Safe mixing
+* Container selection
+* Storage
+* Children and pets
+* Emergency/exposure information
+* Fragrance safety
+* Essential oil considerations
+* Safe workspace preparation
+
+Include a clear statement that the calculator is an educational formulation tool and users are responsible for verifying their formulation and following appropriate safety procedures.
+
+Do not provide false claims that the calculator guarantees a safe finished product.
+
+---
+
+# 13. RECIPE BUILDER
+
+Create a recipe system connected directly to the calculator.
+
+Users should be able to:
+
+* Create recipe
+* Add ingredients
+* Set percentages
+* Set batch size
+* Set superfat
+* Set lye concentration
+* Calculate recipe
+* Save recipe
+* Edit recipe
+* Duplicate recipe
+* Scale recipe
+* Print recipe
+* Export recipe
+* Favorite recipe
+
+Recipe output should contain:
+
+* Recipe name
+* Description
+* Difficulty
+* Soap type
+* Batch size
+* Ingredients
+* Percentages
+* Weights
+* Lye information
+* Water information
+* Fragrance information
+* Equipment
+* Instructions
+* Cure information
+* Safety notes
+* Troubleshooting
+* Recommended products
+
+---
+
+# 14. RECIPE SCALING
+
+Allow users to change batch size.
+
+Example:
+
+Original:
+
+1000 g oils
+
+User changes to:
+
+2500 g oils
+
+Automatically recalculate all ingredient weights while maintaining formulation percentages.
+
+Display original and scaled values where useful.
+
+---
+
+# 15. MOLD CAPACITY CALCULATOR
+
+Create a mold calculator.
+
+Inputs:
+
+* Length
+* Width
+* Height
+* Unit
+
+Calculate estimated volume and recommended oil/batch size using a configurable methodology.
+
+Make assumptions visible.
+
+Allow the administrator to configure the calculation method.
+
+---
+
+# 16. FRAGRANCE CALCULATOR
+
+Create a fragrance calculator.
+
+Inputs:
+
+* Total oil weight
+* Fragrance percentage or selected recommended rate
+* Fragrance product
+* Optional maximum usage rate
+
+Output:
+
+* Recommended fragrance quantity
+* Percentage used
+* Weight in grams
+* Weight in ounces
+
+Store maximum usage information where available.
+
+Do not invent safety/usage limits.
+
+Allow administrators to add source/reference information.
+
+---
+
+# 17. INGREDIENT DATABASE
+
+Create ingredient pages.
+
+Categories:
+
+Oils
+
+Butters
+
+Waxes
+
+Essential Oils
+
+Fragrance Oils
+
+Colorants
+
+Clays
+
+Botanicals
+
+Additives
+
+Lye
+
+Liquids
+
+Preservatives where relevant
+
+Equipment
+
+Each ingredient page should contain:
+
+* Name
+* Description
+* Uses
+* Soap properties
+* Typical usage information
+* Relevant technical data
+* Safety information
+* Recipes using ingredient
+* Related articles
+* Related glossary terms
+* Recommended products
+
+---
+
+# 18. GLOSSARY
+
+Create a complete searchable Soap Making Glossary.
+
+Examples:
+
+* Saponification
+* SAP value
+* Superfat
+* Lye concentration
+* Lye discount
+* Trace
+* Emulsion
+* False trace
+* Gel phase
+* Cure
+* Seize
+* Soda ash
+* DOS
+* Fatty acids
+* Hardness
+* Cleansing
+* Conditioning
+* Bubbly lather
+* Creamy lather
+* INS value
+* Iodine value
+
+Every glossary term should have:
+
+* Definition
+* Expanded explanation
+* Related terms
+* Related ingredients
+* Related articles
+* Related recipes
+* Optional diagrams/images
+
+Automatically link glossary terms from relevant articles where appropriate.
+
+---
+
+# 19. ARTICLES / LEARNING CENTER
+
+Create a comprehensive educational content system.
+
+Categories:
+
+* Beginner Soap Making
+* Cold Process
+* Hot Process
+* Ingredients
+* Soap Chemistry
+* Fragrance
+* Essential Oils
+* Colorants
+* Equipment
+* Troubleshooting
+* Design Techniques
+* Safety
+* Business/Crafting
+* Advanced Soap Making
+
+Article fields:
+
+* Title
+* Slug
+* Excerpt
+* Content
+* Featured image
+* Author
+* Category
+* Tags
+* SEO title
+* SEO description
+* Canonical URL
+* Related articles
+* Related ingredients
+* Related recipes
+* Related glossary terms
+* Sources
+* Publication status
+* Draft/review/published status
+* Published date
+* Updated date
+
+---
+
+# 20. CONTENT RESEARCH SYSTEM
+
+Create an administrator content-research workflow.
+
+Admin enters:
+
+Topic:
+"What is soap trace?"
+
+The system can help organize research from approved sources.
+
+Store:
+
+* Source
+* URL
+* Author
+* Publisher
+* Date
+* Research notes
+* Key facts
+* Claims requiring verification
+
+Then provide an "Original Article Draft" workflow.
+
+The generated article must be treated as a draft.
+
+Admin must approve it before publication.
+
+Do not copy source text.
+
+Do not create articles whose purpose is merely to disguise copied material.
+
+---
+
+# 21. ORIGINAL CONTENT REQUIREMENTS
+
+Articles should:
+
+* Explain concepts in original language
+* Add useful examples
+* Include calculations/examples where appropriate
+* Link to the site's calculator
+* Link to ingredient pages
+* Link to glossary terms
+* Link to relevant recipes
+* Use original/licensed images
+* Include sources where appropriate
+
+Prioritize accuracy over publishing volume.
+
+---
+
+# 22. RECIPE CONTENT
+
+Create original recipes.
+
+Recipe categories:
+
+Beginner
+
+Cold Process
+
+Hot Process
+
+Melt & Pour
+
+Floral
+
+Citrus
+
+Herbal
+
+Exfoliating
+
+Luxury
+
+Unscented
+
+Sensitive-skin-oriented formulations
+
+Seasonal
+
+Decorative
+
+Do not make unsupported medical claims.
+
+Avoid claiming that a soap treats or cures diseases or medical conditions.
+
+---
+
+# 23. STEP-BY-STEP PROCEDURES
+
+Each recipe should support detailed step-by-step instructions.
+
+Example structure:
+
+Step 1
+Prepare workspace
+
+Step 2
+Measure ingredients
+
+Step 3
+Prepare lye solution
+
+Step 4
+Prepare oils
+
+Step 5
+Combine
+
+Step 6
+Blend to emulsion/trace
+
+Step 7
+Add fragrance/color
+
+Step 8
+Pour into mold
+
+Step 9
+Unmold
+
+Step 10
+Cut
+
+Step 11
+Cure
+
+Each step supports:
+
+* Title
+* Description
+* Image
+* Safety note
+* Tip
+* Optional video
+* Estimated time
+
+---
+
+# 24. VISUAL CONTENT
+
+Do not copy images from other websites.
+
+Support:
+
+* Original photographs
+* Properly licensed images
+* Original illustrations
+* Properly licensed stock images
+* AI-generated original illustrations where appropriate
+
+Create image records containing:
+
+* Filename
+* Alt text
+* Caption
+* Source
+* License
+* Copyright information
+* Usage rights
+* Associated article/recipe/ingredient
+
+Optimize images for web performance.
+
+Generate responsive image sizes.
+
+Use descriptive alt text.
+
+---
+
+# 25. TROUBLESHOOTING SYSTEM
+
+Create an interactive troubleshooting center.
+
+Topics:
+
+* Soap seized
+* Soap separated
+* Soap remained soft
+* Soap developed soda ash
+* Soap changed color
+* Soap developed DOS
+* Soap has oil pockets
+* Soap cracked
+* Soap overheated
+* Soap did not trace
+* False trace
+* Fragrance acceleration
+* Fragrance discoloration
+
+Allow users to choose symptoms.
+
+Then show:
+
+* Possible causes
+* What to check
+* Prevention
+* Possible corrective steps
+* Related articles
+* Related glossary terms
+
+Do not present uncertain diagnoses as facts.
+
+Use wording such as "possible causes" when appropriate.
+
+---
+
+# 26. AFFILIATE PRODUCT SYSTEM
+
+Build an internal affiliate product database.
+
+IMPORTANT:
+
+Do NOT depend on the Amazon Product Advertising API for the initial release.
+
+Do NOT scrape Amazon.
+
+The initial system must use manually managed affiliate products.
+
+Each product should support:
+
+* Product ID
+* Product name
+* Category
+* Associated ingredient
+* Description
+* Affiliate URL
+* Image
+* Price field if manually maintained
+* Brand
+* Active/inactive
+* Featured
+* Priority
+* Disclosure
+* Last verified date
+
+---
+
+# 27. AMAZON AFFILIATE PRODUCT MATCHING
+
+When a user selects an ingredient in the calculator, automatically display relevant products below the calculator.
+
+Example:
+
+User selects:
+
+Olive Oil
+
+Display:
+
+"Products related to Olive Oil"
+
+Then show manually configured affiliate products.
+
+If user selects:
+
+* Olive Oil
+* Coconut Oil
+* Shea Butter
+
+display relevant products for each.
+
+Also display equipment recommendations such as:
+
+* Digital scale
+* Stick blender
+* Soap mold
+* Safety goggles
+* Gloves
+* Thermometer
+
+The recommendation engine should be database-driven.
+
+---
+
+# 28. FUTURE AMAZON API
+
+Design the affiliate architecture with an abstraction layer.
+
+Current:
+
+ManualAffiliateProvider
+
+Future:
+
+AmazonAffiliateProvider
+
+The frontend should communicate with a generic product recommendation service rather than directly with Amazon.
+
+Therefore the system can later transition from:
+
+Manual database
+
+to:
+
+Amazon Product Advertising API
+
+without rewriting the calculator.
+
+Do not implement Amazon API access until legitimate credentials and authorization are available.
+
+---
+
+# 29. AFFILIATE DISCLOSURE
+
+Create a clear affiliate disclosure page.
+
+Also allow configurable affiliate disclosure text in relevant product sections.
+
+Do not falsely imply that recommended products are required for a recipe.
+
+Clearly distinguish:
+
+* Recipe ingredient
+* Recommended product
+* Affiliate recommendation
+
+---
+
+# 30. USER ACCOUNTS
+
+Allow users to:
+
+* Register
+* Log in
+* Log out
+* Reset password
+* Manage profile
+
+Account dashboard:
+
+My Recipes
+
+My Calculations
+
+Favorites
+
+Saved Ingredients
+
+Recently Viewed
+
+Saved Articles
+
+---
+
+# 31. SAVED RECIPES
+
+Users can save formulations.
+
+For every saved recipe store:
+
+* User
+* Recipe name
+* Ingredients
+* Percentages
+* Batch size
+* Superfat
+* Lye concentration
+* Calculated quantities
+* Notes
+* Created date
+* Updated date
+
+Allow:
+
+* Edit
+* Duplicate
+* Delete
+* Scale
+* Print
+* Export
+
+---
+
+# 32. SEARCH
+
+Create global search.
+
+Search across:
+
+* Articles
+* Recipes
+* Ingredients
+* Glossary
+* Troubleshooting
+* Products
+
+Implement relevance ranking.
+
+Provide filters.
+
+Search should be mobile friendly.
+
+---
+
+# 33. SEO
+
+Create SEO-friendly URLs.
+
+Examples:
+
+/calculators/cold-process-soap
+
+/recipes/lavender-soap
+
+/ingredients/olive-oil
+
+/glossary/superfat
+
+/articles/how-to-make-cold-process-soap
+
+/troubleshooting/soap-seized
+
+Generate:
+
+* Meta titles
+* Meta descriptions
+* Canonical URLs
+* Open Graph metadata
+* Twitter/X metadata
+* XML sitemap
+* robots.txt
+* Breadcrumb structured data
+* Article structured data where appropriate
+* Recipe structured data where appropriate
+
+Do not generate fake reviews or fake ratings.
+
+---
+
+# 34. INTERNAL LINKING
+
+Automatically recommend relevant internal links.
+
+Example:
+
+Article about superfatting links to:
+
+* Superfat glossary page
+* Cold process calculator
+* Relevant recipes
+* Ingredient pages
+
+Ingredient page links to:
+
+* Recipes containing ingredient
+* Related articles
+* Glossary
+* Affiliate products
+
+Recipe page links to:
+
+* Calculator
+* Ingredients
+* Articles
+* Products
+* Safety information
+
+---
+
+# 35. ADMIN DASHBOARD
+
+Build a professional administrator dashboard.
+
+Sections:
+
+Dashboard
+
+Ingredients
+
+Recipes
+
+Articles
+
+Glossary
+
+Troubleshooting
+
+Products
+
+Affiliate Products
+
+Images
+
+Categories
+
+Users
+
+Sources
+
+SEO
+
+Site Settings
+
+---
+
+# 36. ADMIN INGREDIENT MANAGER
+
+Admin can:
+
+* Add ingredient
+* Edit ingredient
+* Delete/deactivate ingredient
+* Add SAP values
+* Add KOH values
+* Add fatty acid information
+* Add usage range
+* Add images
+* Add sources
+* Add related articles
+* Add affiliate products
+
+Never allow an ingredient without required calculation data to be silently used in the calculator.
+
+---
+
+# 37. ADMIN RECIPE MANAGER
+
+Admin can:
+
+* Create recipe
+* Edit recipe
+* Duplicate recipe
+* Publish
+* Unpublish
+* Add images
+* Add steps
+* Add ingredients
+* Add calculator parameters
+* Add affiliate recommendations
+* Add sources
+* Add SEO metadata
+
+---
+
+# 38. ADMIN ARTICLE MANAGER
+
+Support statuses:
+
+DRAFT
+
+RESEARCH
+
+REVIEW
+
+APPROVED
+
+PUBLISHED
+
+ARCHIVED
+
+Never automatically publish generated content.
+
+---
+
+# 39. ADMIN AFFILIATE MANAGER
+
+Admin can:
+
+* Add product
+* Edit product
+* Disable product
+* Assign product to ingredient
+* Assign product to equipment category
+* Set priority
+* Set featured status
+* Update affiliate URL
+* Update image
+* Record last verification date
+
+---
+
+# 40. DATABASE STRUCTURE
+
+Create appropriate relational tables/entities.
+
+At minimum:
+
+Users
+
+Roles
+
+Ingredients
+
+IngredientCategories
+
+IngredientSources
+
+Recipes
+
+RecipeIngredients
+
+RecipeSteps
+
+Articles
+
+ArticleCategories
+
+ArticleSources
+
+GlossaryTerms
+
+TroubleshootingTopics
+
+Products
+
+ProductIngredients
+
+ProductCategories
+
+AffiliateLinks
+
+Images
+
+Favorites
+
+SavedRecipes
+
+SavedCalculations
+
+SEOData
+
+SiteSettings
+
+AuditLogs
+
+Do not duplicate information unnecessarily.
+
+Use foreign keys and appropriate indexes.
+
+---
+
+# 41. ADMIN SECURITY
+
+Implement:
+
+* Secure authentication
+* Password hashing
+* Role-based access
+* Admin-only routes
+* Input validation
+* Rate limiting where appropriate
+* CSRF protection where applicable
+* Secure headers
+* Server-side validation
+* Database parameterization
+* Protection against unauthorized admin access
+
+Never expose admin credentials in source code.
+
+---
+
+# 42. PERFORMANCE
+
+Optimize for:
+
+* Fast page load
+* Lazy-loaded images
+* Responsive images
+* Database indexing
+* Pagination
+* Caching where appropriate
+* Minimal unnecessary JavaScript
+* Efficient API calls
+
+Avoid loading the entire ingredient/product database on every page.
+
+---
+
+# 43. MOBILE DESIGN
+
+The calculator must work exceptionally well on mobile.
+
+Make controls:
+
+* Large enough to tap
+* Easy to understand
+* Clearly labeled
+
+Avoid overly wide tables.
+
+Use mobile-friendly recipe cards.
+
+---
+
+# 44. ACCESSIBILITY
+
+Follow good accessibility practices.
+
+Include:
+
+* Keyboard navigation
+* Proper labels
+* Semantic HTML
+* Good contrast
+* Alt text
+* Accessible forms
+* Focus states
+* Screen-reader-friendly controls
+
+---
+
+# 45. PRINTABLE RECIPES
+
+Add "Print Recipe."
+
+Create a clean printer-friendly version containing:
+
+* Recipe name
+* Batch size
+* Ingredients
+* Quantities
+* Instructions
+* Safety warnings
+* Notes
+
+Hide navigation and affiliate advertisements when printing.
+
+---
+
+# 46. EXPORT
+
+Allow users to export saved recipes.
+
+Initially support:
+
+* Printable page
+* PDF if practical
+* CSV for recipe data if useful
+
+Do not expose internal database credentials.
+
+---
+
+# 47. ANALYTICS
+
+Create a configurable analytics integration.
+
+Do not hard-code one analytics vendor.
+
+Allow administrator to configure:
+
+* Analytics ID
+* Search console verification
+* Advertising IDs
+
+Respect applicable privacy requirements and consent mechanisms.
+
+---
+
+# 48. ADVERTISING
+
+Leave locations for future advertising.
+
+Examples:
+
+* Article sidebar
+* Between article sections
+* Recipe page
+* Footer
+
+Do not make advertisements interfere with calculator functionality.
+
+Do not insert ads into safety warnings.
+
+---
+
+# 49. NEWSLETTER
+
+Create newsletter signup functionality.
+
+Store:
+
+* Email
+* Consent status
+* Signup date
+* Source
+
+Use double opt-in if required by the selected email provider.
+
+Do not send emails without appropriate consent.
+
+---
+
+# 50. LEGAL PAGES
+
+Create placeholders/pages for:
+
+* Privacy Policy
+* Terms of Use
+* Affiliate Disclosure
+* Cookie Policy
+* Safety Disclaimer
+* Contact
+* About
+
+Make legal text editable through the admin system where practical.
+
+---
+
+# 51. DATA SOURCING
+
+For technical soap-making data, allow administrator to record source references.
+
+Important values such as:
+
+* SAP
+* KOH values
+* Recommended usage levels
+* Fragrance limits
+* Essential oil information
+
+must not be invented.
+
+Make source verification part of the admin workflow.
+
+---
+
+# 52. ERROR HANDLING
+
+Create friendly error states.
+
+Examples:
+
+* Missing ingredient data
+* Calculation failure
+* Database unavailable
+* Invalid recipe
+* Invalid percentage
+* Product unavailable
+* Authentication error
+
+Never show raw database errors to users.
+
+Log technical errors securely for administrators.
+
+---
+
+# 53. SEED DATA
+
+Provide a carefully reviewed starter database.
+
+Include a reasonable selection of common soap-making ingredients, but clearly mark technical data as requiring verification.
+
+Starter ingredient categories:
+
+Oils:
+
+* Olive Oil
+* Coconut Oil
+* Castor Oil
+* Sunflower Oil
+* Sweet Almond Oil
+* Avocado Oil
+* Rice Bran Oil
+* Grapeseed Oil
+
+Butters:
+
+* Shea Butter
+* Cocoa Butter
+* Mango Butter
+
+Other:
+
+* Sodium Hydroxide
+* Potassium Hydroxide
+* Distilled Water
+* Kaolin Clay
+* Activated Charcoal
+
+Do not invent SAP values.
+
+Use authoritative/reliable references and make sources visible in the admin interface.
+
+---
+
+# 54. STARTER RECIPES
+
+Create several starter recipes for demonstration purposes.
+
+Examples:
+
+* Beginner Olive Oil Soap
+* Basic Olive/Coconut/Castor Soap
+* Shea Butter Soap
+* Lavender Soap
+* Charcoal Soap
+* Simple Unscented Soap
+
+All formulations must be reviewed before publication.
+
+Clearly mark demonstration content during development if calculations have not yet been independently verified.
+
+---
+
+# 55. STARTER ARTICLES
+
+Create approximately 20–30 high-quality starter article topics.
+
+Examples:
+
+* What Is Cold Process Soap?
+* What Is Trace?
+* What Is Superfat?
+* What Is Saponification?
+* What Is a SAP Value?
+* How to Calculate a Soap Recipe
+* How to Measure Soap Ingredients
+* Lye Safety Basics
+* How Long Does Cold Process Soap Cure?
+* What Is Gel Phase?
+* What Is False Trace?
+* Why Does Soap Seize?
+* Why Is My Soap Soft?
+* What Causes Soda Ash?
+* How Fragrance Oils Affect Trace
+* Essential Oils vs Fragrance Oils
+* Choosing Oils for Soap Making
+* Understanding Soap Hardness
+* Understanding Cleansing and Conditioning
+* How to Scale a Soap Recipe
+
+Create these as original educational content, not copied or disguised versions of other articles.
+
+---
+
+# 56. RECOMMENDATION ENGINE
+
+Create a generic recommendation engine.
+
+Input:
+
+Ingredient IDs
+
+Recipe ID
+
+Category
+
+User-selected products
+
+Output:
+
+Relevant products
+
+The recommendation engine should support:
+
+* Ingredient matching
+* Equipment matching
+* Category matching
+* Priority
+* Featured products
+* Active/inactive
+
+This is the foundation for future automated product integrations.
+
+---
+
+# 57. FUTURE FEATURES
+
+Design the architecture so the following can be added later:
+
+* Amazon Product Advertising API
+* More affiliate networks
+* Product price tracking
+* Product comparison
+* User reviews
+* Community recipes
+* Recipe sharing
+* Comments
+* Video tutorials
+* YouTube integration
+* Advanced formulation analysis
+* Fatty acid profile charts
+* Recipe scoring tools
+* Ingredient substitutions
+* PWA/mobile app
+* Notifications
+* Premium memberships
+
+Do not build unnecessary future features now, but make the architecture extensible.
+
+---
+
+# 58. DEVELOPMENT PHASES
+
+Build in phases.
+
+## PHASE 1 — FOUNDATION
+
+Build:
+
+* Application structure
+* Database
+* Authentication
+* Homepage
+* Navigation
+* Admin dashboard
+* Ingredient database
+* Basic SEO
+* Responsive design
+
+## PHASE 2 — CALCULATOR
+
+Build:
+
+* Cold process calculator
+* SAP engine
+* Recipe builder
+* Scaling
+* Mold calculator
+* Fragrance calculator
+* Validation
+* Safety warnings
+
+## PHASE 3 — CONTENT
+
+Build:
+
+* Recipes
+* Step-by-step procedures
+* Articles
+* Glossary
+* Troubleshooting
+* Ingredient pages
+
+## PHASE 4 — AFFILIATE SYSTEM
+
+Build:
+
+* Manual product database
+* Ingredient-product relationships
+* Product recommendation engine
+* Affiliate disclosure
+* Product management
+
+## PHASE 5 — USER FEATURES
+
+Build:
+
+* Accounts
+* Saved recipes
+* Favorites
+* Saved calculations
+* Recipe printing/export
+
+## PHASE 6 — SEO/PERFORMANCE
+
+Implement:
+
+* Structured data
+* Sitemap
+* Internal linking
+* Image optimization
+* Performance optimization
+* Accessibility
+
+## PHASE 7 — TESTING
+
+Test:
+
+* Calculator accuracy
+* Ingredient validation
+* Recipe scaling
+* Mobile layout
+* Authentication
+* Admin security
+* Affiliate links
+* SEO
+* Database integrity
+* Error handling
+
+---
+
+# 59. TESTING REQUIREMENTS
+
+Create automated and manual tests for the calculation engine.
+
+Test cases must include:
+
+* One-oil recipe
+* Multi-oil recipe
+* Different superfat levels
+* Different batch sizes
+* Percentage changes
+* Invalid percentages
+* Missing SAP values
+* Very small batches
+* Large batches
+* Unit conversions
+
+The calculator must produce deterministic results.
+
+Do not rely on AI-generated calculations.
+
+---
+
+# 60. DEPLOYMENT
+
+The final project must be structured so it can eventually be deployed outside Replit.
+
+Provide:
+
+* Production environment configuration
+* Environment variable documentation
+* Database migration instructions
+* Build instructions
+* Start command
+* Production build command
+* Backup instructions
+* Deployment documentation
+
+Do not make the production architecture dependent on Replit-only services unless absolutely necessary.
+
+Document exactly what would be required to move the application to Hostinger.
+
+---
+
+# 61. DEVELOPMENT DOCUMENTATION
+
+Create:
+
+README.md
+
+Include:
+
+* Project overview
+* Architecture
+* Technology stack
+* Local development
+* Replit development
+* Environment variables
+* Database setup
+* Database migration
+* Admin setup
+* Seed data
+* Testing
+* Production build
+* Deployment
+* Backup
+* Future Amazon API integration
+
+Also create:
+
+DATABASE.md
+
+CALCULATOR.md
+
+AFFILIATE_SYSTEM.md
+
+CONTENT_SYSTEM.md
+
+DEPLOYMENT.md
+
+---
+
+# 62. IMPORTANT UX REQUIREMENT
+
+The website should never feel like a generic AI-generated website.
+
+It should feel like a real specialist soap-making platform.
+
+Prioritize:
+
+* Clear information hierarchy
+* Beautiful typography
+* High-quality imagery
+* Excellent calculator UX
+* Useful educational content
+* Strong internal linking
+* Professional recipe cards
+* Trustworthy safety information
+
+---
+
+# 63. CALCULATOR UX
+
+Create a multi-step or clearly organized calculator.
+
+Suggested layout:
+
+STEP 1
+Select Soap Type
+
+STEP 2
+Select Ingredients
+
+STEP 3
+Set Percentages
+
+STEP 4
+Set Batch Size
+
+STEP 5
+Set Superfat
+
+STEP 6
+Set Lye/Water Parameters
+
+STEP 7
+Calculate
+
+RESULT:
+
+Recipe Summary
+
+Ingredients
+
+Lye
+
+Water
+
+Superfat
+
+Batch Weight
+
+Calculation Details
+
+Safety Information
+
+Recommended Products
+
+Save Recipe
+
+Print Recipe
+
+---
+
+# 64. AFFILIATE DISPLAY EXAMPLE
+
+If the user selects:
+
+Olive Oil
+Coconut Oil
+Shea Butter
+
+show:
+
+RECOMMENDED PRODUCTS
+
+Olive Oil
+
+[Product Card]
+Product Name
+Image
+Short description
+View on Amazon
+
+Coconut Oil
+
+[Product Card]
+Product Name
+Image
+Short description
+View on Amazon
+
+Shea Butter
+
+[Product Card]
+Product Name
+Image
+Short description
+View on Amazon
+
+Then:
+
+EQUIPMENT YOU MAY NEED
+
+Digital Scale
+Stick Blender
+Soap Mold
+Safety Goggles
+Gloves
+
+Keep affiliate recommendations clearly separate from required calculator results.
+
+---
+
+# 65. DATABASE-DRIVEN EVERYTHING
+
+Do not hard-code:
+
+* Recipes
+* Ingredients
+* Articles
+* Glossary
+* Affiliate products
+* Categories
+* Product relationships
+* Safety articles
+
+These should all be database-driven.
+
+---
+
+# 66. FINAL DEVELOPMENT REQUIREMENT
+
+Do not simply create mockups.
+
+Build a functional application.
+
+The initial release must include working:
+
+* Database
+* Authentication
+* Admin dashboard
+* Ingredient management
+* Cold-process calculator
+* Recipe builder
+* Recipe scaling
+* Article system
+* Glossary
+* Affiliate product management
+* Product recommendations
+* Search
+* Responsive frontend
+* SEO foundation
+
+Use clean modular code.
+
+Do not leave major features as fake buttons or placeholder screens.
+
+Where a feature cannot be completed in the current development stage, clearly document what remains rather than pretending it works.
+
+---
+
+# 67. PRIORITY ORDER
+
+If development must be staged because of time or complexity, prioritize in this order:
+
+1. Database architecture
+2. Ingredient/SAP system
+3. Cold-process calculation engine
+4. Recipe builder
+5. Calculator UI
+6. Admin dashboard
+7. Affiliate product matching
+8. Recipe/content system
+9. Glossary
+10. Search
+11. User accounts
+12. SEO
+13. Performance
+14. Additional calculators
+
+Accuracy of the calculation engine is more important than visual complexity.
+
+---
+
+# 68. FINAL ACCEPTANCE TEST
+
+Before considering the project complete, demonstrate this workflow:
+
+A visitor:
+
+1. Opens the website.
+2. Goes to Cold Process Calculator.
+3. Selects Olive Oil.
+4. Selects Coconut Oil.
+5. Selects Shea Butter.
+6. Sets percentages.
+7. Sets batch size.
+8. Sets superfat.
+9. Calculates the recipe.
+10. Sees ingredient quantities.
+11. Sees lye/water calculation.
+12. Sees safety information.
+13. Sees recommended Amazon affiliate products associated with the selected ingredients.
+14. Saves the recipe after logging in.
+15. Scales the recipe.
+16. Prints the recipe.
+17. Visits an ingredient page.
+18. Reads an article.
+19. Clicks a glossary term.
+20. Returns to the calculator.
+
+An administrator must be able to:
+
+1. Log into admin.
+2. Add an ingredient.
+3. Add technical data and source.
+4. Add an affiliate product.
+5. Associate it with an ingredient.
+6. Add a recipe.
+7. Add recipe steps.
+8. Add an article.
+9. Add sources.
+10. Add images.
+11. Edit SEO metadata.
+12. Publish/unpublish content.
+13. Manage users.
+14. Manage products.
+15. View basic system activity.
+
+Build this as a serious production-ready foundation for a long-term soap-making website, not as a disposable demo.

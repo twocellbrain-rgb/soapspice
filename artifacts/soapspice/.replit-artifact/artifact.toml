@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "SoapSpice"
+description = "An original soapmaking companion with a responsive homepage, a deterministic cold-process calculator, ingredient references, recipe tools, and educational guidance."
+version = "1.0.0"
+id = "artifacts/soapspice"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21688
+
+[services.development]
+run = "pnpm --filter @workspace/soapspice run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/soapspice", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/soapspice/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21688"
+BASE_PATH = "/"

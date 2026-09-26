@@ -3,13 +3,15 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: SoapSpice public ingredient catalog API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: ingredients
+    description: Public ingredient reference data
 paths:
   /healthz:
     get:
@@ -24,6 +26,59 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /ingredients:
+    get:
+      operationId: getIngredients
+      tags: [ingredients]
+      summary: List soapmaking ingredients
+      parameters:
+        - in: query
+          name: search
+          required: false
+          schema:
+            type: string
+            maxLength: 100
+        - in: query
+          name: category
+          required: false
+          schema:
+            type: string
+            enum: [oil, butter]
+      responses:
+        "200":
+          description: Source-linked ingredient reference data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Ingredient"
+  /ingredients/{ingredientId}:
+    get:
+      operationId: getIngredient
+      tags: [ingredients]
+      summary: Get a soapmaking ingredient
+      parameters:
+        - in: path
+          name: ingredientId
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 100
+      responses:
+        "200":
+          description: Ingredient reference data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ingredient"
+        "404":
+          description: Ingredient not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +88,48 @@ components:
           type: string
       required:
         - status
-
+    Ingredient:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        alternateNames:
+          type: array
+          items:
+            type: string
+        category:
+          type: string
+          enum: [oil, butter]
+        description:
+          type: string
+        naohSap:
+          type: number
+        kohSap:
+          type: number
+        sapSourceTitle:
+          type: string
+        sapSourceUrl:
+          type: string
+        verificationStatus:
+          type: string
+          enum: [source-linked-needs-review, administrator-verified]
+      required:
+        - id
+        - name
+        - alternateNames
+        - category
+        - description
+        - naohSap
+        - kohSap
+        - sapSourceTitle
+        - sapSourceUrl
+        - verificationStatus
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
