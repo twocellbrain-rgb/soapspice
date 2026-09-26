@@ -8,16 +8,37 @@ export type SapRecord = {
   naohSap: number;
 };
 
+export const GRAMS_PER_OUNCE = 28.349523125;
+// A transparent cold-process starting point, not a recipe-specific optimum.
+export const LIQUID_TO_LYE_RATIO = 2;
+
+export type FragranceRow = {
+  id: string;
+  name: string;
+  amount: number;
+  unit: 'g' | 'oz' | 'percent';
+};
+
 export type NaohFormulaInput = {
   oils: FormulaOil[];
   ingredients: Map<string, SapRecord>;
   totalOilGrams: number;
   superfat: number;
-  concentration: number;
+  fragrances?: FragranceRow[];
 };
 
+export function fragranceWeightGrams(row: FragranceRow, totalOilGrams: number): number {
+  switch (row.unit) {
+    case 'g': return row.amount;
+    case 'oz': return row.amount * GRAMS_PER_OUNCE;
+    case 'percent': return totalOilGrams * row.amount / 100;
+    default: return NaN;
+  }
+}
+
 export function validateNaohFormula(input: NaohFormulaInput): string[] {
-  const { oils, ingredients, totalOilGrams, superfat, concentration } = input;
+  const { oils, ingredients, totalOilGrams, superfat } = input;
+  const fragrances = input.fragrances ?? [];
   const errors: string[] = [];
 
   if (!Number.isFinite(totalOilGrams) || totalOilGrams <= 0) {
@@ -53,8 +74,14 @@ export function validateNaohFormula(input: NaohFormulaInput): string[] {
   if (!Number.isFinite(superfat) || superfat < 0 || superfat > 15) {
     errors.push('Superfat must be between 0% and 15% for this calculator.');
   }
-  if (!Number.isFinite(concentration) || concentration < 25 || concentration > 50) {
-    errors.push('Lye concentration must be between 25% and 50%.');
+  if (fragrances.some((row) => !row.name.trim())) {
+    errors.push('Name each fragrance before validating.');
+  }
+  if (fragrances.some((row) => !Number.isFinite(row.amount) || row.amount <= 0 || !Number.isFinite(fragranceWeightGrams(row, totalOilGrams)))) {
+    errors.push('Every fragrance needs a positive amount in grams, ounces, or percent of oils.');
+  }
+  if (fragrances.reduce((sum, row) => sum + fragranceWeightGrams(row, totalOilGrams), 0) > totalOilGrams) {
+    errors.push('Fragrance cannot weigh more than the total oils. Check the entered units.');
   }
 
   return errors;
@@ -74,14 +101,22 @@ export function calculateNaohFormula(input: NaohFormulaInput) {
   }));
   const naohBeforeSuperfat = ingredientLye.reduce((sum, oil) => sum + oil.theoreticalNaoh, 0);
   const naoh = naohBeforeSuperfat * (1 - input.superfat / 100);
-  const water = naoh * (100 / input.concentration - 1);
+  const liquid = naoh * LIQUID_TO_LYE_RATIO;
+  const fragranceDetails = (input.fragrances ?? []).map((row) => ({
+    id: row.id,
+    name: row.name.trim(),
+    weightGrams: fragranceWeightGrams(row, input.totalOilGrams),
+  }));
+  const fragranceTotalGrams = fragranceDetails.reduce((sum, row) => sum + row.weightGrams, 0);
 
   return {
     ingredientLye,
+    fragranceDetails,
+    fragranceTotalGrams,
     naohBeforeSuperfat,
     naoh,
-    water,
-    total: naoh + water,
-    batchTotal: input.totalOilGrams + naoh + water,
+    liquid,
+    total: naoh + liquid,
+    batchTotal: input.totalOilGrams + naoh + liquid + fragranceTotalGrams,
   };
 }

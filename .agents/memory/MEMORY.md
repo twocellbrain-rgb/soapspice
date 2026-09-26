@@ -1,1 +1,2 @@
 - [Soap ingredient SAP scope](soap-ingredient-sap-scope.md) — Calculator entries need an identifiable oil or butter and a published SAP; ambiguous blends need supplier data.
+- [Soap liquid guidance](soap-liquid-guidance.md) — Automatic liquid is a disclosed cold-process baseline, not an optimum inferred from SAP or fragrance weights.
