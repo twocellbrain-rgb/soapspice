@@ -1,4 +1,6 @@
+import { sql } from "drizzle-orm";
 import { db, ingredientsTable, type InsertIngredient } from "@workspace/db";
+import { expandedIngredients } from "./expanded-ingredients";
 
 const sapSourceTitle = "SoapCalc Oil List — SAP Value (KOH - NaOH)";
 const sapSourceUrl = "https://soapcalc.net/oil-list";
@@ -9,7 +11,7 @@ const starterIngredients: InsertIngredient[] = [
   {
     id: "olive-oil",
     name: "Olive Oil",
-    alternateNames: ["Olea europaea"],
+    alternateNames: ["Olea europaea", "Olive Oil - Pure"],
     category: "oil",
     description:
       "A classic base oil for cold-process soap. It contributes a mild-feeling bar and can be used as the main oil in a formulation.",
@@ -22,7 +24,7 @@ const starterIngredients: InsertIngredient[] = [
   {
     id: "coconut-oil-76",
     name: "Coconut Oil (76°)",
-    alternateNames: ["Coconut Oil, 76 deg", "Cocos nucifera"],
+    alternateNames: ["Coconut Oil, 76 deg", "Cocos nucifera", "Virgin Coconut Oil"],
     category: "oil",
     description:
       "Often used to add firmness and generous bubbles. The 76° variety is distinct from fractionated coconut oil, which has different SAP values.",
@@ -48,7 +50,7 @@ const starterIngredients: InsertIngredient[] = [
   {
     id: "shea-butter",
     name: "Shea Butter",
-    alternateNames: ["Butyrospermum parkii"],
+    alternateNames: ["Butyrospermum parkii", "Raw Shea Butter"],
     category: "butter",
     description:
       "A plant butter that contributes a creamy feel to soap. Weigh and melt solid butters fully before combining them with other oils.",
@@ -61,7 +63,7 @@ const starterIngredients: InsertIngredient[] = [
   {
     id: "cocoa-butter",
     name: "Cocoa Butter",
-    alternateNames: ["Theobroma cacao seed butter"],
+    alternateNames: ["Theobroma cacao seed butter", "Cocoa Butter Pastilles", "Deodorized Cocoa Butter Wafers", "Organic Cocoa Butter Wafers"],
     category: "butter",
     description:
       "A firm butter that can contribute to a harder finished bar and a creamy lather. Its natural scent may not remain in finished soap.",
@@ -87,7 +89,7 @@ const starterIngredients: InsertIngredient[] = [
   {
     id: "rice-bran-oil",
     name: "Rice Bran Oil (refined)",
-    alternateNames: ["Oryza sativa bran oil"],
+    alternateNames: ["Oryza sativa bran oil", "Rice Bran Oil"],
     category: "oil",
     description:
       "A versatile liquid oil used in soapmaking blends. This reference entry applies to refined rice bran oil.",
@@ -115,6 +117,13 @@ const starterIngredients: InsertIngredient[] = [
 export async function seedStarterIngredients(): Promise<void> {
   await db
     .insert(ingredientsTable)
-    .values(starterIngredients)
-    .onConflictDoNothing({ target: ingredientsTable.id });
+    .values([...starterIngredients, ...expandedIngredients])
+    .onConflictDoUpdate({
+      target: ingredientsTable.id,
+      // Only add search aliases; never overwrite reviewed SAP values, status,
+      // descriptions, or the decision to deactivate an ingredient.
+      set: {
+        alternateNames: sql<string[]>`ARRAY(SELECT DISTINCT alias FROM unnest(${ingredientsTable.alternateNames} || excluded.alternate_names) AS names(alias) ORDER BY alias)`,
+      },
+    });
 }
