@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  --background: 40 40% 97%;
+  --foreground: 197 42% 19%;
+  --border: 35 30% 87%;
+  --input: 35 30% 80%;
+  --ring: 185 74% 41%;
+  --card: 0 0% 100%;
+  --card-foreground: 197 42% 19%;
+  --card-border: 35 30% 89%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 197 42% 19%;
+  --popover-border: 35 30% 87%;
+  --primary: 184 75% 35%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 35 100% 94%;
+  --secondary-foreground: 28 73% 29%;
+  --muted: 38 28% 92%;
+  --muted-foreground: 197 16% 43%;
+  --accent: 31 97% 51%;
+  --accent-foreground: 27 74% 17%;
+  --destructive: 4 72% 49%;
+  --destructive-foreground: 0 0% 100%;
+  --sidebar: 193 46% 22%;
+  --sidebar-foreground: 40 40% 97%;
+  --sidebar-border: 193 35% 30%;
+  --sidebar-primary: 31 97% 51%;
+  --sidebar-primary-foreground: 27 74% 17%;
+  --sidebar-accent: 193 38% 28%;
+  --sidebar-accent-foreground: 40 40% 97%;
+  --sidebar-ring: 31 97% 51%;
+  --app-font-sans: 'DM Sans', sans-serif;
+  --app-font-serif: 'Fraunces', Georgia, serif;
+  --app-font-mono: 'Space Mono', monospace;
+  --font-sans: var(--app-font-sans);
+  --font-serif: var(--app-font-serif);
+  --font-mono: var(--app-font-mono);
+  --radius: 0.85rem;
+  --primary-border: hsl(var(--primary));
+  --secondary-border: hsl(var(--secondary));
+  --muted-border: hsl(var(--muted));
+  --accent-border: hsl(var(--accent));
+  --destructive-border: hsl(var(--destructive));
+  --sidebar-primary-border: hsl(var(--sidebar-primary));
+  --sidebar-accent-border: hsl(var(--sidebar-accent));
+  --shadow-card: 0 14px 35px rgba(38, 69, 70, 0.08);
+  --shadow-lift: 0 18px 45px rgba(38, 69, 70, 0.14);
+}
+
+.dark {
+  --background: 194 39% 11%;
+  --foreground: 40 40% 97%;
+  --border: 193 26% 25%;
+  --input: 193 25% 29%;
+  --card: 193 34% 16%;
+  --card-foreground: 40 40% 97%;
+  --card-border: 193 26% 25%;
+  --popover: 193 34% 16%;
+  --popover-foreground: 40 40% 97%;
+  --popover-border: 193 26% 25%;
+  --primary: 31 97% 51%;
+  --primary-foreground: 27 74% 17%;
+  --secondary: 193 27% 24%;
+  --secondary-foreground: 40 40% 97%;
+  --muted: 193 27% 24%;
+  --muted-foreground: 193 12% 70%;
+  --accent: 184 75% 45%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 4 72% 56%;
+  --destructive-foreground: 0 0% 100%;
+  --sidebar: 193 45% 9%;
+  --sidebar-foreground: 40 40% 97%;
+  --sidebar-border: 193 26% 20%;
+  --sidebar-primary: 31 97% 51%;
+  --sidebar-primary-foreground: 27 74% 17%;
+  --sidebar-accent: 193 27% 18%;
+  --sidebar-accent-foreground: 40 40% 97%;
+  --sidebar-ring: 31 97% 51%;
+}
+
+.font-display { font-family: var(--app-font-serif); }
+.font-data { font-family: var(--app-font-mono); }
+.shadow-card { box-shadow: var(--shadow-card); }
+.shadow-lift { box-shadow: var(--shadow-lift); }
+.text-balance { text-wrap: balance; }
+
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-rise { animation: rise-in 520ms cubic-bezier(.2,.8,.2,1) both; }
+.animate-rise-delay-1 { animation-delay: 90ms; }
+.animate-rise-delay-2 { animation-delay: 180ms; }
+.animate-rise-delay-3 { animation-delay: 270ms; }
