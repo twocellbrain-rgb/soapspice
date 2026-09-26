@@ -22,6 +22,7 @@ import {
 import { Link, Route, Switch, Router as WouterRouter, useLocation, useParams } from 'wouter';
 import { getGetIngredientQueryKey, useGetIngredient, useGetIngredients } from '@workspace/api-client-react';
 import logo from '@assets/soap_1790462514377.png';
+import { calculateNaohFormula, validateNaohFormula } from '@/lib/formulation';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -213,16 +214,22 @@ function CalculatorPage() {
   const [selectedId, setSelectedId] = useState('');
   const [validated, setValidated] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [saveFeedback, setSaveFeedback] = useState('');
   const [recipeName, setRecipeName] = useState('My first bar');
   const [savedRecipes, setSavedRecipes] = useState<SavedRecipe[]>(() => {
-    try { return JSON.parse(localStorage.getItem('soapspice-recipes') ?? '[]') as SavedRecipe[]; } catch { return []; }
+    try {
+      const stored: unknown = JSON.parse(localStorage.getItem('soapspice-recipes') ?? '[]');
+      return Array.isArray(stored) ? stored as SavedRecipe[] : [];
+    } catch { return []; }
   });
 
   useEffect(() => {
-    if (!seeded.current && ingredients.length >= 2) {
-      const first = ingredients[0];
-      const second = ingredients[1];
-      setOils([{ id: first.id, name: first.name, percentage: 70, weight: 700 }, { id: second.id, name: second.name, percentage: 30, weight: 300 }]);
+    if (!seeded.current && ingredients.length > 0) {
+      const requested = new URLSearchParams(window.location.search).get('ingredient');
+      const ingredient = ingredients.find((item) => item.id === requested);
+      if (ingredient) {
+        setOils([{ id: ingredient.id, name: ingredient.name, percentage: 100, weight: 1000 }]);
+      }
       seeded.current = true;
     }
   }, [ingredients]);
@@ -230,22 +237,28 @@ function CalculatorPage() {
   const ingredientMap = useMemo(() => new Map(ingredients.map((ingredient) => [ingredient.id, ingredient])), [ingredients]);
   const totalPercent = oils.reduce((sum, oil) => sum + oil.percentage, 0);
   const totalOilGrams = unit === 'oz' ? batchSize * 28.3495 : unit === 'lb' ? batchSize * 453.592 : batchSize;
-  const calculation = useMemo(() => {
-    const naohBeforeSuperfat = oils.reduce((sum, oil) => sum + oil.weight * (ingredientMap.get(oil.id)?.naohSap ?? 0), 0);
-    const naoh = naohBeforeSuperfat * (1 - superfat / 100);
-    const water = concentration > 0 ? naoh * ((100 - concentration) / concentration) : 0;
-    return { naohBeforeSuperfat, naoh, water, total: naoh + water };
-  }, [ingredientMap, oils, superfat, concentration]);
+  const formulaInput = useMemo(
+    () => ({ oils, ingredients: ingredientMap, totalOilGrams, superfat, concentration }),
+    [oils, ingredientMap, totalOilGrams, superfat, concentration],
+  );
+  const currentErrors = useMemo(() => validateNaohFormula(formulaInput), [formulaInput]);
+  const calculation = useMemo(
+    () => currentErrors.length === 0 ? calculateNaohFormula(formulaInput) : null,
+    [formulaInput, currentErrors],
+  );
+  const visibleResult = validated && validationErrors.length === 0 && currentErrors.length === 0 ? calculation : null;
 
-  const updateOils = (next: OilRow[]) => { setOils(next); setValidated(false); setValidationErrors([]); };
+  const updateOils = (next: OilRow[]) => { setOils(next); setValidated(false); setValidationErrors([]); setSaveFeedback(''); };
   const changePercent = (id: string, value: number) => updateOils(oils.map((oil) => oil.id === id ? { ...oil, percentage: value, weight: totalOilGrams * value / 100 } : oil));
   const changeWeight = (id: string, value: number) => updateOils(oils.map((oil) => oil.id === id ? { ...oil, weight: value, percentage: totalOilGrams ? (value / totalOilGrams) * 100 : 0 } : oil));
-  const updateBatch = (value: number) => { setBatchSize(value); setOils(oils.map((oil) => ({ ...oil, weight: (value * (unit === 'oz' ? 28.3495 : unit === 'lb' ? 453.592 : 1)) * oil.percentage / 100 }))); setValidated(false); };
+  const updateBatch = (value: number) => { setBatchSize(value); setOils(oils.map((oil) => ({ ...oil, weight: (value * (unit === 'oz' ? 28.3495 : unit === 'lb' ? 453.592 : 1)) * oil.percentage / 100 }))); setValidated(false); setValidationErrors([]); setSaveFeedback(''); };
   const changeUnit = (nextUnit: 'g' | 'oz' | 'lb') => {
     const grams = totalOilGrams;
     setUnit(nextUnit);
     setBatchSize(nextUnit === 'oz' ? grams / 28.3495 : nextUnit === 'lb' ? grams / 453.592 : grams);
     setValidated(false);
+    setValidationErrors([]);
+    setSaveFeedback('');
   };
   const addOil = () => {
     const ingredient = ingredientMap.get(selectedId);
@@ -255,24 +268,31 @@ function CalculatorPage() {
   };
   const removeOil = (id: string) => updateOils(oils.filter((oil) => oil.id !== id));
   const validate = () => {
-    const errors: string[] = [];
-    if (oils.length === 0) errors.push('Add at least one oil or butter.');
-    if (Math.abs(totalPercent - 100) > 0.05) errors.push(`Percentages add up to ${totalPercent.toFixed(1)}%. They must equal 100%.`);
-    if (oils.some((oil) => oil.weight <= 0)) errors.push('Every ingredient needs a weight greater than zero.');
-    if (oils.some((oil) => !ingredientMap.get(oil.id)?.naohSap)) errors.push('Every ingredient must have a valid NaOH SAP value.');
-    if (superfat < 0 || superfat > 15) errors.push('Superfat must be between 0% and 15% for this calculator.');
-    if (concentration < 25 || concentration > 50) errors.push('Lye concentration must be between 25% and 50%.');
-    setValidationErrors(errors); setValidated(true);
+    setValidationErrors(currentErrors); setValidated(true); setSaveFeedback('');
   };
   const saveRecipe = () => {
+    if (currentErrors.length || !calculation) {
+      setValidationErrors(currentErrors.length ? currentErrors : ['Please check the formula before saving.']);
+      setValidated(true);
+      setSaveFeedback('Not saved. Resolve the formula issues above and try again.');
+      return;
+    }
     const recipe: SavedRecipe = { id: `${Date.now()}`, name: recipeName.trim() || 'Untitled formula', savedAt: new Date().toISOString(), batchSize, unit, superfat, concentration, oils };
-    const next = [recipe, ...savedRecipes.filter((saved) => saved.name !== recipe.name)].slice(0, 12);
-    setSavedRecipes(next); localStorage.setItem('soapspice-recipes', JSON.stringify(next));
+    const next = [recipe, ...savedRecipes];
+    try {
+      localStorage.setItem('soapspice-recipes', JSON.stringify(next));
+      setSavedRecipes(next);
+      setValidated(true);
+      setValidationErrors([]);
+      setSaveFeedback(`Saved “${recipe.name}” in this browser.`);
+    } catch {
+      setSaveFeedback('Could not save in this browser. Storage may be full or unavailable.');
+    }
   };
   const loadRecipe = (id: string) => {
     const recipe = savedRecipes.find((saved) => saved.id === id);
     if (!recipe) return;
-    setRecipeName(recipe.name); setBatchSize(recipe.batchSize); setUnit(recipe.unit); setSuperfat(recipe.superfat); setConcentration(recipe.concentration); setOils(recipe.oils); setValidated(false);
+    setRecipeName(recipe.name); setBatchSize(recipe.batchSize); setUnit(recipe.unit); setSuperfat(recipe.superfat); setConcentration(recipe.concentration); setOils(recipe.oils); setValidated(false); setValidationErrors([]); setSaveFeedback(`Opened “${recipe.name}”. Validate it against the current catalog before printing.`);
   };
   const available = ingredients.filter((ingredient) => !oils.some((oil) => oil.id === ingredient.id));
 
@@ -280,6 +300,7 @@ function CalculatorPage() {
     <Shell>
       <section className="mx-auto max-w-7xl px-5 pb-10 pt-12 lg:px-8 lg:pt-16">
         <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end"><div className="max-w-3xl animate-rise"><div className="mb-4 flex items-center gap-3 text-xs font-bold uppercase tracking-[.18em] text-[hsl(var(--primary))]"><span className="h-2 w-2 rounded-full bg-[hsl(var(--accent))]" /> Calculator / NaOH cold process</div><h1 className="font-display text-5xl leading-[.98] tracking-[-.04em] sm:text-6xl">Turn a good idea into a <span className="text-[hsl(var(--primary))]">clear formula.</span></h1><p className="mt-5 max-w-2xl text-lg leading-8 text-[hsl(var(--muted-foreground))]">Build a bar from source-linked SAP values. This first release supports NaOH cold-process bars only.</p></div><div className="flex shrink-0 items-center gap-3 rounded-2xl border border-[hsl(var(--accent)/.35)] bg-[hsl(var(--accent)/.1)] px-4 py-3 text-sm font-bold text-[hsl(var(--accent-foreground))]"><CircleAlert size={18} /> Always wear proper safety gear.</div></div>
+        <div role="note" data-testid="notice-sap-review" className="mt-8 flex items-start gap-3 rounded-2xl border border-[hsl(var(--accent)/.35)] bg-[hsl(var(--secondary))] px-5 py-4 text-sm leading-6 text-[hsl(var(--secondary-foreground))]"><CircleAlert className="mt-0.5 shrink-0" size={18} /><span><strong>Source-linked, not yet administrator reviewed.</strong> Reference SAP values still need administrator review. Check the linked sources and independently verify the formula before handling lye.</span></div>
       </section>
       <section className="mx-auto grid max-w-7xl gap-6 px-5 pb-24 lg:grid-cols-[1.4fr_.6fr] lg:px-8">
         <div className="space-y-6">
@@ -287,16 +308,53 @@ function CalculatorPage() {
             <div className="flex flex-col justify-between gap-4 border-b border-[hsl(var(--border))] pb-6 sm:flex-row sm:items-start"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Step 01</p><h2 className="mt-2 font-display text-3xl">Choose your ingredients</h2><p className="mt-1 text-sm text-[hsl(var(--muted-foreground))]">Set the percentages first. We will keep the grams in step.</p></div><div className="flex items-center gap-2"><select value={selectedId} onChange={(event) => setSelectedId(event.target.value)} className="h-11 max-w-[190px] rounded-full border border-[hsl(var(--input))] bg-[hsl(var(--background))] px-4 text-sm outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]" data-testid="select-add-ingredient"><option value="">Add an ingredient</option>{available.map((ingredient) => <option key={ingredient.id} value={ingredient.id}>{ingredient.name}</option>)}</select><button type="button" onClick={addOil} disabled={!selectedId} className={`${buttonPrimary} h-11 px-4`} data-testid="button-add-ingredient"><Plus size={17} /> Add</button></div></div>
             {catalogQuery.isLoading && <div className="space-y-3 pt-6"><div className="h-16 animate-pulse rounded-2xl bg-[hsl(var(--muted))]" /><div className="h-16 animate-pulse rounded-2xl bg-[hsl(var(--muted))]" /></div>}
             {catalogQuery.isError && <div className="pt-6"><QueryState isLoading={false} isError onRetry={() => void catalogQuery.refetch()} /></div>}
-            {!catalogQuery.isLoading && !catalogQuery.isError && <div className="pt-6"><div className="hidden grid-cols-[1fr_100px_120px_38px] gap-3 px-3 pb-2 text-[10px] font-bold uppercase tracking-[.14em] text-[hsl(var(--muted-foreground))] sm:grid"><span>Ingredient</span><span>Percent</span><span>Weight (g)</span><span /></div>{oils.length === 0 && <div className="rounded-2xl border border-dashed border-[hsl(var(--border))] p-8 text-center text-sm text-[hsl(var(--muted-foreground))]">Choose an ingredient above to begin.</div>}{oils.map((oil) => <div key={oil.id} className="mb-3 grid gap-3 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] p-3 sm:grid-cols-[1fr_100px_120px_38px] sm:items-center"><div><div className="flex items-center gap-2 font-bold">{oil.name}<span className="rounded-full bg-[hsl(var(--secondary))] px-2 py-0.5 text-[9px] uppercase tracking-wider text-[hsl(var(--secondary-foreground))]">{ingredientMap.get(oil.id)?.category}</span></div><a href={ingredientMap.get(oil.id)?.sapSourceUrl} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-[11px] text-[hsl(var(--primary))] hover:underline" data-testid={`link-source-${oil.id}`}>SAP {ingredientMap.get(oil.id)?.naohSap.toFixed(3)} <ExternalLink size={11} /></a></div><label className="flex items-center gap-2 sm:block"><span className="text-xs text-[hsl(var(--muted-foreground))] sm:hidden">Percent</span><input type="number" min="0" step="0.1" value={Number.isFinite(oil.percentage) ? Number(oil.percentage.toFixed(2)) : 0} onChange={(event) => changePercent(oil.id, Number(event.target.value))} className="h-10 w-full rounded-xl border border-[hsl(var(--input))] bg-white px-3 text-sm font-data outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]" data-testid={`input-percent-${oil.id}`} /><span className="hidden sm:block sm:mt-1 sm:text-[10px] sm:text-[hsl(var(--muted-foreground))]">percent</span></label><label className="flex items-center gap-2 sm:block"><span className="text-xs text-[hsl(var(--muted-foreground))] sm:hidden">Weight g</span><input type="number" min="0" step="0.1" value={Number.isFinite(oil.weight) ? Number(oil.weight.toFixed(1)) : 0} onChange={(event) => changeWeight(oil.id, Number(event.target.value))} className="h-10 w-full rounded-xl border border-[hsl(var(--input))] bg-white px-3 text-sm font-data outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]" data-testid={`input-weight-${oil.id}`} /><span className="hidden sm:block sm:mt-1 sm:text-[10px] sm:text-[hsl(var(--muted-foreground))]">grams</span></label><button type="button" onClick={() => removeOil(oil.id)} className="flex h-9 w-9 items-center justify-center rounded-full text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--destructive)/.1)] hover:text-[hsl(var(--destructive))]" aria-label={`Remove ${oil.name}`} data-testid={`button-remove-${oil.id}`}><Trash2 size={16} /></button></div>)}<div className={`mt-4 flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-bold ${Math.abs(totalPercent - 100) < .05 ? 'bg-[hsl(184_75%_35%/.1)] text-[hsl(var(--primary))]' : 'bg-[hsl(var(--destructive)/.08)] text-[hsl(var(--destructive))]'}`}><span>Formula total</span><span className="font-data">{totalPercent.toFixed(1)}%</span></div></div>}
+            {!catalogQuery.isLoading && !catalogQuery.isError && <div className="pt-6"><div className="hidden grid-cols-[1fr_100px_120px_38px] gap-3 px-3 pb-2 text-[10px] font-bold uppercase tracking-[.14em] text-[hsl(var(--muted-foreground))] sm:grid"><span>Ingredient</span><span>Percent</span><span>Weight (g)</span><span /></div>{oils.length === 0 && <div className="rounded-2xl border border-dashed border-[hsl(var(--border))] p-8 text-center text-sm text-[hsl(var(--muted-foreground))]">Choose an ingredient above to begin.</div>}{oils.map((oil) => <div key={oil.id} className="mb-3 grid gap-3 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] p-3 sm:grid-cols-[1fr_100px_120px_38px] sm:items-center"><div><div className="flex items-center gap-2 font-bold">{oil.name}<span className="rounded-full bg-[hsl(var(--secondary))] px-2 py-0.5 text-[9px] uppercase tracking-wider text-[hsl(var(--secondary-foreground))]">{ingredientMap.get(oil.id)?.category}</span></div><a href={ingredientMap.get(oil.id)?.sapSourceUrl} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-[11px] text-[hsl(var(--primary))] hover:underline" data-testid={`link-source-${oil.id}`}>SAP {ingredientMap.get(oil.id)?.naohSap.toFixed(3)} <ExternalLink size={11} /></a></div><label className="flex items-center gap-2 sm:block"><span className="text-xs text-[hsl(var(--muted-foreground))] sm:hidden">Percent</span><input type="number" min="0" step="0.1" value={Number.isFinite(oil.percentage) ? Number(oil.percentage.toFixed(2)) : 0} onChange={(event) => changePercent(oil.id, Number(event.target.value))} className="h-10 w-full rounded-xl border border-[hsl(var(--input))] bg-white px-3 text-sm font-data outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]" data-testid={`input-percent-${oil.id}`} /><span className="hidden sm:block sm:mt-1 sm:text-[10px] sm:text-[hsl(var(--muted-foreground))]">percent</span></label><label className="flex items-center gap-2 sm:block"><span className="text-xs text-[hsl(var(--muted-foreground))] sm:hidden">Weight g</span><input type="number" min="0" step="0.1" value={Number.isFinite(oil.weight) ? Number(oil.weight.toFixed(1)) : 0} onChange={(event) => changeWeight(oil.id, Number(event.target.value))} className="h-10 w-full rounded-xl border border-[hsl(var(--input))] bg-white px-3 text-sm font-data outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]" data-testid={`input-weight-${oil.id}`} /><span className="hidden sm:block sm:mt-1 sm:text-[10px] sm:text-[hsl(var(--muted-foreground))]">grams</span></label><button type="button" onClick={() => removeOil(oil.id)} className="flex h-9 w-9 items-center justify-center rounded-full text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--destructive)/.1)] hover:text-[hsl(var(--destructive))]" aria-label={`Remove ${oil.name}`} data-testid={`button-remove-${oil.id}`}><Trash2 size={16} /></button></div>)}<div className={`mt-4 flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-bold ${Math.abs(totalPercent - 100) <= .01 ? 'bg-[hsl(184_75%_35%/.1)] text-[hsl(var(--primary))]' : 'bg-[hsl(var(--destructive)/.08)] text-[hsl(var(--destructive))]'}`}><span>Formula total</span><span className="font-data">{totalPercent.toFixed(1)}%</span></div></div>}
           </div>
           <div className="print-card rounded-3xl border border-[hsl(var(--border))] bg-white p-5 shadow-card sm:p-7"><p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Step 02</p><h2 className="mt-2 font-display text-3xl">Set the batch</h2><div className="mt-6 grid gap-5 sm:grid-cols-3"><label className="block"><span className="mb-2 block text-xs font-bold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">Total oil weight</span><input type="number" min="1" value={batchSize} onChange={(event) => updateBatch(Number(event.target.value))} className="h-12 w-full rounded-xl border border-[hsl(var(--input))] bg-[hsl(var(--background))] px-4 font-data outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]" data-testid="input-batch-size" /></label><label className="block"><span className="mb-2 block text-xs font-bold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">Weight unit</span><select value={unit} onChange={(event) => changeUnit(event.target.value as 'g' | 'oz' | 'lb')} className="h-12 w-full rounded-xl border border-[hsl(var(--input))] bg-[hsl(var(--background))] px-4 text-sm font-bold outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]" data-testid="select-weight-unit"><option value="g">Grams</option><option value="oz">Ounces</option><option value="lb">Pounds</option></select></label><div className="rounded-xl bg-[hsl(var(--secondary))] p-3"><span className="block text-xs font-bold uppercase tracking-wider text-[hsl(var(--secondary-foreground))]">Working total</span><strong className="mt-1 block font-data text-xl text-[hsl(var(--secondary-foreground))]">{totalOilGrams.toFixed(1)} g</strong><span className="text-xs text-[hsl(var(--secondary-foreground)/.7)]">converted for the math</span></div></div></div>
-          <div className="print-card rounded-3xl border border-[hsl(var(--border))] bg-white p-5 shadow-card sm:p-7"><p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Step 03</p><h2 className="mt-2 font-display text-3xl">Dial in the lye solution</h2><div className="mt-6 grid gap-5 sm:grid-cols-2"><label className="block"><span className="mb-2 flex justify-between text-xs font-bold uppercase tracking-wider text-[hsl(var(--muted-foreground))]"><span>Superfat</span><span className="font-data text-[hsl(var(--primary))]">{superfat}%</span></span><input type="range" min="0" max="15" step="0.5" value={superfat} onChange={(event) => { setSuperfat(Number(event.target.value)); setValidated(false); }} className="w-full accent-[hsl(var(--primary))]" data-testid="input-superfat" /><div className="mt-2 flex justify-between text-xs text-[hsl(var(--muted-foreground))]"><span>0%</span><span>15%</span></div></label><label className="block"><span className="mb-2 flex justify-between text-xs font-bold uppercase tracking-wider text-[hsl(var(--muted-foreground))]"><span>Lye concentration</span><span className="font-data text-[hsl(var(--primary))]">{concentration}%</span></span><input type="range" min="25" max="50" step="1" value={concentration} onChange={(event) => { setConcentration(Number(event.target.value)); setValidated(false); }} className="w-full accent-[hsl(var(--primary))]" data-testid="input-concentration" /><div className="mt-2 flex justify-between text-xs text-[hsl(var(--muted-foreground))]"><span>25%</span><span>50%</span></div></label></div><div className="mt-6 rounded-2xl border border-[hsl(var(--accent)/.3)] bg-[hsl(var(--accent)/.08)] p-4 text-sm leading-6 text-[hsl(var(--accent-foreground))]"><strong>Safety first.</strong> Add lye to water, never water to lye. Wear eye protection, gloves, and long sleeves, and work with ventilation.</div></div>
+          <div className="print-card rounded-3xl border border-[hsl(var(--border))] bg-white p-5 shadow-card sm:p-7">
+            <p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Step 03</p>
+            <h2 className="mt-2 font-display text-3xl">Dial in the lye solution</h2>
+            <div className="mt-6 grid gap-5 sm:grid-cols-2">
+              <label className="block"><span className="mb-2 flex justify-between text-xs font-bold uppercase tracking-wider text-[hsl(var(--muted-foreground))]"><span>Superfat</span><span className="font-data text-[hsl(var(--primary))]">{superfat}%</span></span><input type="range" min="0" max="15" step="0.5" value={superfat} onChange={(event) => { setSuperfat(Number(event.target.value)); setValidated(false); setValidationErrors([]); setSaveFeedback(''); }} className="w-full accent-[hsl(var(--primary))]" data-testid="input-superfat" /><div className="mt-2 flex justify-between text-xs text-[hsl(var(--muted-foreground))]"><span>0%</span><span>15%</span></div></label>
+              <label className="block"><span className="mb-2 flex justify-between text-xs font-bold uppercase tracking-wider text-[hsl(var(--muted-foreground))]"><span>Lye concentration</span><span className="font-data text-[hsl(var(--primary))]">{concentration}%</span></span><input type="range" min="25" max="50" step="1" value={concentration} onChange={(event) => { setConcentration(Number(event.target.value)); setValidated(false); setValidationErrors([]); setSaveFeedback(''); }} className="w-full accent-[hsl(var(--primary))]" data-testid="input-concentration" /><div className="mt-2 flex justify-between text-xs text-[hsl(var(--muted-foreground))]"><span>25%</span><span>50%</span></div></label>
+            </div>
+            {superfat > 10 && <div role="status" data-testid="status-high-superfat" className="mt-5 flex gap-3 rounded-2xl border border-[hsl(var(--accent)/.4)] bg-[hsl(var(--accent)/.1)] p-4 text-sm leading-6 text-[hsl(var(--secondary-foreground))]"><CircleAlert size={19} className="mt-0.5 shrink-0" /><span><strong>High-superfat advisory.</strong> Above 10% superfat can leave a softer bar and more unsaponified oils. Consider testing a small batch and checking shelf life.</span></div>}
+            <div className="mt-6 rounded-2xl border border-[hsl(var(--accent)/.3)] bg-[hsl(var(--accent)/.08)] p-4 text-sm leading-6 text-[hsl(var(--accent-foreground))]"><strong>Safety first.</strong> Add lye to water, never water to lye. Wear eye protection, gloves, and long sleeves, and work with ventilation.</div>
+          </div>
           <div className="print-card rounded-3xl border border-[hsl(var(--primary)/.3)] bg-[hsl(var(--primary)/.06)] p-5 sm:p-7"><div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Step 04</p><h2 className="mt-2 font-display text-3xl">Check your formula</h2><p className="mt-2 max-w-lg text-sm text-[hsl(var(--muted-foreground))]">Validate the percentages and SAP inputs before you print or save this batch.</p></div><button type="button" onClick={validate} className={`${buttonPrimary} shrink-0`} data-testid="button-validate-formula"><Check size={17} /> Validate formula</button></div>{validated && <div className={`mt-5 rounded-2xl p-4 text-sm ${validationErrors.length ? 'bg-[hsl(var(--destructive)/.1)] text-[hsl(var(--destructive))]' : 'bg-[hsl(184_75%_35%/.12)] text-[hsl(var(--primary))]'}`}>{validationErrors.length ? <ul className="list-disc space-y-1 pl-5">{validationErrors.map((error) => <li key={error}>{error}</li>)}</ul> : <div className="flex items-center gap-2 font-bold"><Check size={17} /> Looks good. This formula is ready to review below.</div>}</div>}</div>
         </div>
         <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
-          <div className="print-card rounded-3xl bg-[hsl(193_46%_22%)] p-6 text-[hsl(var(--background))] shadow-lift sm:p-7"><div className="flex items-center justify-between"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--accent))]">Your formula</p><h2 className="mt-2 font-display text-3xl">NaOH + water</h2></div><Beaker className="text-[hsl(var(--accent))]" size={25} /></div><div className="mt-8 space-y-4"><div className="flex items-end justify-between border-b border-white/15 pb-4"><span className="text-sm text-white/65">Sodium hydroxide</span><strong className="font-data text-3xl text-[hsl(var(--accent))]">{calculation.naoh.toFixed(1)} g</strong></div><div className="flex items-end justify-between border-b border-white/15 pb-4"><span className="text-sm text-white/65">Distilled water</span><strong className="font-data text-3xl">{calculation.water.toFixed(1)} g</strong></div><div className="flex items-end justify-between pt-1"><span className="text-sm text-white/65">Lye solution</span><strong className="font-data text-xl">{calculation.total.toFixed(1)} g</strong></div></div><div className="mt-7 rounded-2xl bg-white/10 p-4 text-xs leading-5 text-white/70">Based on {calculation.naohBeforeSuperfat.toFixed(1)} g NaOH at 0% superfat, reduced by {superfat}% superfat, then calculated at {concentration}% concentration.</div></div>
-          <div className="rounded-3xl border border-[hsl(var(--border))] bg-white p-6 shadow-card"><div className="flex items-center gap-2 text-[hsl(var(--primary))]"><ShieldCheck size={17} /><h2 className="font-bold">Save this batch</h2></div><input value={recipeName} onChange={(event) => setRecipeName(event.target.value)} className="mt-4 h-11 w-full rounded-xl border border-[hsl(var(--input))] bg-[hsl(var(--background))] px-3 text-sm outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]" placeholder="Recipe name" data-testid="input-recipe-name" /><button type="button" onClick={saveRecipe} className={`${buttonPrimary} mt-3 w-full`} data-testid="button-save-recipe">Save in this browser</button>{savedRecipes.length > 0 && <div className="mt-5 border-t border-[hsl(var(--border))] pt-4"><p className="text-xs font-bold uppercase tracking-[.14em] text-[hsl(var(--muted-foreground))]">Saved formulas</p><div className="mt-2 space-y-1">{savedRecipes.map((recipe) => <button type="button" key={recipe.id} onClick={() => loadRecipe(recipe.id)} className="flex w-full items-center justify-between rounded-xl px-2 py-2 text-left text-sm font-bold hover:bg-[hsl(var(--secondary))]" data-testid={`button-load-recipe-${recipe.id}`}><span className="truncate">{recipe.name}</span><span className="ml-2 text-xs text-[hsl(var(--muted-foreground))]">{new Date(recipe.savedAt).toLocaleDateString()}</span></button>)}</div></div>}</div>
-          <button type="button" onClick={() => window.print()} className={`${buttonQuiet} print-hide w-full`} data-testid="button-print-formula"><Printer size={17} /> Print formula</button>
+          <div className="print-card rounded-3xl bg-[hsl(193_46%_22%)] p-6 text-[hsl(var(--background))] shadow-lift sm:p-7">
+            <div className="flex items-center justify-between"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--accent))]">Your formula</p><h2 className="mt-2 font-display text-3xl">NaOH + water</h2></div><Beaker className="text-[hsl(var(--accent))]" size={25} /></div>
+            {visibleResult ? (
+              <div data-testid="result-validated-formula">
+                <div className="mt-8 space-y-4">
+                  <div className="flex items-end justify-between border-b border-white/15 pb-4"><span className="text-sm text-white/65">Sodium hydroxide</span><strong className="font-data text-3xl text-[hsl(var(--accent))]" data-testid="result-naoh">{visibleResult.naoh.toFixed(1)} g</strong></div>
+                  <div className="flex items-end justify-between border-b border-white/15 pb-4"><span className="text-sm text-white/65">Distilled water</span><strong className="font-data text-3xl" data-testid="result-water">{visibleResult.water.toFixed(1)} g</strong></div>
+                  <div className="flex items-end justify-between border-b border-white/15 pb-4"><span className="text-sm text-white/65">Lye solution</span><strong className="font-data text-xl">{visibleResult.total.toFixed(1)} g</strong></div>
+                  <div className="flex items-end justify-between"><span className="text-sm text-white/65">Pre-saponification batch</span><strong className="font-data text-xl" data-testid="result-batch-total">{visibleResult.batchTotal.toFixed(1)} g</strong></div>
+                </div>
+                <div className="mt-7 rounded-2xl bg-white/10 p-4 text-xs leading-5 text-white/80">Calculated with source-linked NaOH SAP values. These references still need administrator review; this is not an approval of the recipe.</div>
+              </div>
+            ) : <div role="status" data-testid="status-formula-placeholder" className="mt-8 rounded-2xl border border-dashed border-white/30 bg-white/10 p-5 text-sm leading-6 text-white/80">Your NaOH and water amounts will appear here after you add oils and explicitly validate a complete formula. Changes to a validated recipe require a new check.</div>}
+          </div>
+          {visibleResult && <details className="print-card group rounded-3xl border border-[hsl(var(--border))] bg-white p-6 shadow-card" data-testid="details-calculation">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-bold text-[hsl(var(--foreground))]" data-testid="summary-calculation-details"><span className="flex items-center gap-2"><FlaskConical size={18} className="text-[hsl(var(--primary))]" /> Calculation details</span><span className="text-xs font-medium text-[hsl(var(--primary))] group-open:hidden">Show breakdown +</span><span className="hidden text-xs font-medium text-[hsl(var(--primary))] group-open:inline">Hide breakdown −</span></summary>
+            <div className="mt-5 space-y-4 border-t border-[hsl(var(--border))] pt-5 text-sm">
+              <p className="text-xs font-bold uppercase tracking-[.14em] text-[hsl(var(--muted-foreground))]">NaOH before superfat · ingredient by ingredient</p>
+              {visibleResult.ingredientLye.map((line) => {
+                const ingredient = ingredientMap.get(line.id);
+                return <div key={line.id} className="border-b border-[hsl(var(--border))] pb-3" data-testid={`detail-sap-${line.id}`}><div className="flex justify-between gap-3"><span className="font-bold">{ingredient?.name ?? line.id}</span><span className="shrink-0 font-data">{line.theoreticalNaoh.toFixed(2)} g</span></div><p className="mt-1 font-data text-xs text-[hsl(var(--muted-foreground))]">{line.weight.toFixed(2)} g oil × {line.sap.toFixed(4)} g NaOH/g oil</p>{ingredient && <a href={ingredient.sapSourceUrl} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-xs text-[hsl(var(--primary))] hover:underline" data-testid={`link-detail-source-${line.id}`}>{ingredient.sapSourceTitle} · review pending <ExternalLink size={11} /></a>}</div>;
+              })}
+              <div className="flex justify-between gap-3"><span>Theoretical NaOH, 0% superfat</span><strong className="font-data">{visibleResult.naohBeforeSuperfat.toFixed(2)} g</strong></div>
+              <div className="flex justify-between gap-3"><span>NaOH after {superfat}% superfat<br /><span className="text-xs text-[hsl(var(--muted-foreground))]">{visibleResult.naohBeforeSuperfat.toFixed(2)} × (1 − {superfat}/100)</span></span><strong className="font-data">{visibleResult.naoh.toFixed(2)} g</strong></div>
+              <div className="flex justify-between gap-3"><span>Water at {concentration}% lye concentration<br /><span className="text-xs text-[hsl(var(--muted-foreground))]">{visibleResult.naoh.toFixed(2)} × (100/{concentration} − 1)</span></span><strong className="font-data">{visibleResult.water.toFixed(2)} g</strong></div>
+              <div className="flex justify-between gap-3 border-t border-[hsl(var(--border))] pt-4"><span>Total oils</span><strong className="font-data">{totalOilGrams.toFixed(2)} g</strong></div>
+              <div className="flex justify-between gap-3"><span>Total before saponification<br /><span className="text-xs text-[hsl(var(--muted-foreground))]">oils + NaOH + water</span></span><strong className="font-data">{visibleResult.batchTotal.toFixed(2)} g</strong></div>
+            </div>
+          </details>}
+          <div className="rounded-3xl border border-[hsl(var(--border))] bg-white p-6 shadow-card"><div className="flex items-center gap-2 text-[hsl(var(--primary))]"><ShieldCheck size={17} /><h2 className="font-bold">Save this batch</h2></div><input value={recipeName} onChange={(event) => { setRecipeName(event.target.value); setSaveFeedback(''); }} className="mt-4 h-11 w-full rounded-xl border border-[hsl(var(--input))] bg-[hsl(var(--background))] px-3 text-sm outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]" placeholder="Recipe name" data-testid="input-recipe-name" /><button type="button" onClick={saveRecipe} className={`${buttonPrimary} mt-3 w-full`} data-testid="button-save-recipe">Save in this browser</button>{saveFeedback && <p role="status" className={`mt-3 rounded-xl p-3 text-sm ${saveFeedback.startsWith('Saved') ? 'bg-[hsl(var(--primary)/.1)] text-[hsl(var(--primary))]' : 'bg-[hsl(var(--accent)/.12)] text-[hsl(var(--secondary-foreground))]'}`} data-testid="status-save-feedback">{saveFeedback}</p>}{savedRecipes.length > 0 && <div className="mt-5 border-t border-[hsl(var(--border))] pt-4"><p className="text-xs font-bold uppercase tracking-[.14em] text-[hsl(var(--muted-foreground))]">Saved formulas</p><div className="mt-2 space-y-1">{savedRecipes.map((recipe) => <button type="button" key={recipe.id} onClick={() => loadRecipe(recipe.id)} className="flex w-full items-center justify-between rounded-xl px-2 py-2 text-left text-sm font-bold hover:bg-[hsl(var(--secondary))]" data-testid={`button-load-recipe-${recipe.id}`}><span className="truncate">{recipe.name}</span><span className="ml-2 text-xs text-[hsl(var(--muted-foreground))]">{new Date(recipe.savedAt).toLocaleDateString()}</span></button>)}</div></div>}</div>
+          <button type="button" onClick={() => { if (visibleResult) window.print(); }} disabled={!visibleResult} className={`${buttonQuiet} print-hide w-full disabled:cursor-not-allowed disabled:opacity-45`} data-testid="button-print-formula"><Printer size={17} /> Print formula</button>
           <div className="rounded-3xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] p-6"><div className="flex items-center gap-2 text-[hsl(var(--secondary-foreground))]"><CircleAlert size={17} /><h2 className="font-bold">A note on the numbers</h2></div><p className="mt-3 text-sm leading-6 text-[hsl(var(--secondary-foreground)/.8)]">SAP values are linked to their sources, but still need administrator review. Treat every result as a starting point and verify your process independently.</p></div>
         </aside>
       </section>
@@ -306,6 +364,37 @@ function CalculatorPage() {
 
 function Router() {
   const [location] = useLocation();
+  useEffect(() => {
+    let title: string;
+    let description: string;
+    if (location === '/') {
+      title = 'SoapSpice | Make soap with more confidence';
+      description = 'Explore source-linked soapmaking ingredients and build clear NaOH cold-process bar formulas with SoapSpice.';
+    } else if (location === '/calculators/cold-process-soap') {
+      title = 'Cold-Process Soap Calculator | SoapSpice';
+      description = 'Calculate NaOH and water for cold-process bar soap from source-linked oil and butter SAP values. Review your formula and lye safety guidance.';
+    } else if (location === '/ingredients') {
+      title = 'Soapmaking Ingredient Catalog | SoapSpice';
+      description = 'Search oils and butters for cold-process soapmaking, with descriptions, NaOH SAP values, and linked reference sources.';
+    } else if (location.startsWith('/ingredients/')) {
+      const slug = location.slice('/ingredients/'.length);
+      let decoded = slug;
+      try { decoded = decodeURIComponent(slug); } catch { /* Keep the slug if malformed. */ }
+      const ingredientName = decoded.replace(/[-_]+/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
+      title = `${ingredientName} Soapmaking Ingredient | SoapSpice`;
+      description = `Explore ${ingredientName} for cold-process soapmaking, including its source-linked NaOH SAP value and ingredient details.`;
+    } else {
+      title = 'Page not found | SoapSpice';
+      description = 'Explore SoapSpice ingredients and the NaOH cold-process soap calculator.';
+    }
+    document.title = title;
+    for (const selector of ['meta[name="description"]', 'meta[property="og:description"]', 'meta[name="twitter:description"]']) {
+      document.querySelector<HTMLMetaElement>(selector)?.setAttribute('content', description);
+    }
+    for (const selector of ['meta[property="og:title"]', 'meta[name="twitter:title"]']) {
+      document.querySelector<HTMLMetaElement>(selector)?.setAttribute('content', title);
+    }
+  }, [location]);
   return <ErrorBoundary resetKey={location}><Switch><Route path="/" component={Home} /><Route path="/calculators/cold-process-soap" component={CalculatorPage} /><Route path="/ingredients" component={IngredientsPage} /><Route path="/ingredients/:ingredientId" component={IngredientDetailPage} /><Route component={NotFound} /></Switch></ErrorBoundary>;
 }
 
