@@ -1,0 +1,77 @@
+I checked their current calculator and documentation. Their calculator takes oil weight + oil composition + superfat, then calculates the required NaOH and liquid. They also account for 97% NaOH purity for solid soap.
+
+What Bramble Berry appears to be doing
+
+Their calculator is essentially working from a standard liquid amount based on the finished recipe, rather than asking you to choose a lye concentration.
+
+Bramble Berry states that a typical recipe uses about 22% liquid, and their water-discounting instructions say to take the calculator's water amount and multiply it by the desired discount.
+
+So, for example, if the calculator gives:
+
+Oils = 1,000 g
+NaOH = 135 g
+Liquid = 220 g
+
+that's approximately:
+
+$$ 220/1000 = 22\% $$
+
+of the oil weight.
+
+Why this is important for your SoapSpice calculator
+
+If you're trying to reproduce the Bramble Berry-style calculator, you could structure it like this:
+
+Step 1 — Oils → theoretical NaOH
+
+$$ NaOH_{theoretical} = \sum(Oil_i \times SAP_i) $$
+
+Step 2 — Apply superfat
+
+$$ NaOH_{adjusted} = NaOH_{theoretical}\times(1-SF) $$
+
+Step 3 — Account for NaOH purity
+
+If using Bramble Berry's 97% assumption:
+
+$$ NaOH_{actual} = \frac{NaOH_{adjusted}}{0.97} $$
+
+Step 4 — Calculate liquid
+
+A Bramble-Berry-style starting point can be represented approximately as:
+
+$$ Liquid \approx Oils \times 0.22 $$
+
+Then a water discount can be applied:
+
+$$ Liquid_{discounted} = Liquid \times (1-Discount) $$
+
+For example, 1,000 g oils:
+
+22% liquid
+
+$$ 1000\times0.22=220g $$
+
+With a 10% water discount:
+
+$$ 220\times0.90=198g $$
+
+Bramble Berry specifically recommends starting around a 10% discount and says not to exceed 15% for their method.
+
+One important correction to my previous answer
+
+My earlier explanation using lye concentration is the more flexible soap-formulation approach. Bramble Berry's public calculator appears to hide that complexity from the user and gives you the liquid amount automatically.
+
+That's actually a very good approach for SoapSpice.
+
+You could have two modes:
+
+Simple Mode
+
+Enter oils → choose superfat → SoapSpice calculates lye + liquid automatically.
+
+Advanced Mode
+
+Choose lye concentration (e.g. 28–40%) → SoapSpice calculates liquid.
+
+That would make SoapSpice much more powerful than simply copying a fixed water/lye ratio
