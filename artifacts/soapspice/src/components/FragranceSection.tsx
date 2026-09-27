@@ -162,7 +162,7 @@ export default function FragranceSection({
 
       <div role="note" className="mt-4 flex items-start gap-3 rounded-2xl border border-[hsl(var(--accent)/.35)] bg-[hsl(var(--accent)/.1)] px-4 py-3 text-xs leading-5 text-[hsl(var(--accent-foreground))]">
         <CircleAlert size={18} className="mt-0.5 shrink-0" aria-hidden="true" />
-        <p><strong>Check before making.</strong> Fragrance usage limits vary by material and supplier. Check your supplier guidance and the applicable IFRA maximum usage rate for your specific fragrance and soap application. This section tracks fragrance weight only; it does not change the NaOH calculation.</p>
+        <p><strong>Check before making.</strong> Fragrance usage limits vary by material and supplier. Check your supplier guidance and the applicable IFRA maximum usage rate for your specific fragrance and soap application. Fragrance changes the batch-based liquid estimate, but never the NaOH calculation.</p>
       </div>
     </section>
   );

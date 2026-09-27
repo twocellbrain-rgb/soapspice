@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { calculateNaohFormula, fragranceWeightGrams, GRAMS_PER_OUNCE, validateNaohFormula, type NaohFormulaInput } from './formulation.ts';
+import { calculateNaohFormula, fragranceWeightGrams, GRAMS_PER_OUNCE, LIQUID_BATCH_FRACTION, validateNaohFormula, type NaohFormulaInput } from './formulation.ts';
 
 const ingredients = new Map([
   ['olive', { naohSap: 0.135 }],
@@ -22,12 +22,13 @@ function near(actual: number, expected: number): void {
   assert.ok(Math.abs(actual - expected) < 1e-9, `${actual} should equal ${expected}`);
 }
 
-test('single-oil NaOH and liquid use source SAP, superfat, and the stated 2:1 baseline', () => {
+test('single-oil NaOH uses 100% purity and liquid is 22% of the complete batch', () => {
   const result = calculateNaohFormula(oneOil());
   near(result.naohBeforeSuperfat, 135);
   near(result.naoh, 128.25);
-  near(result.liquid, 128.25 * 2);
+  near(result.liquid, (1000 + 128.25) * LIQUID_BATCH_FRACTION / (1 - LIQUID_BATCH_FRACTION));
   near(result.batchTotal, 1000 + result.naoh + result.liquid);
+  near(result.liquid / result.batchTotal, LIQUID_BATCH_FRACTION);
 });
 
 test('multi-oil formula sums per-oil SAP contributions before the lye discount', () => {
@@ -55,7 +56,7 @@ test('superfat changes NaOH and recommended liquid, not theoretical SAP', () => 
   assert.ok(withDiscount.liquid < withoutDiscount.liquid);
 });
 
-test('fragrance amounts in grams, ounces, and percent contribute to batch mass but never to NaOH or liquid', () => {
+test('fragrance amounts in grams, ounces, and percent contribute to batch and liquid estimate but not NaOH', () => {
   const base = calculateNaohFormula(oneOil());
   const fragrances = [
     { id: 'a', name: 'Lavender', amount: 10, unit: 'g' as const },
@@ -66,8 +67,9 @@ test('fragrance amounts in grams, ounces, and percent contribute to batch mass b
   near(fragranceWeightGrams(fragrances[1], 1000), GRAMS_PER_OUNCE);
   near(scented.fragranceTotalGrams, 10 + GRAMS_PER_OUNCE + 15);
   near(scented.naoh, base.naoh);
-  near(scented.liquid, base.liquid);
-  near(scented.batchTotal, base.batchTotal + scented.fragranceTotalGrams);
+  near(scented.liquid - base.liquid, scented.fragranceTotalGrams * LIQUID_BATCH_FRACTION / (1 - LIQUID_BATCH_FRACTION));
+  near(scented.batchTotal, base.batchTotal + scented.fragranceTotalGrams + (scented.liquid - base.liquid));
+  near(scented.liquid / scented.batchTotal, LIQUID_BATCH_FRACTION);
 });
 
 test('fragrance names, units and positive amounts are required', () => {

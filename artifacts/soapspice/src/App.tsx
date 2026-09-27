@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { Link, Route, Switch, Router as WouterRouter, useLocation, useParams } from 'wouter';
 import { getGetIngredientQueryKey, useGetIngredient, useGetIngredients } from '@workspace/api-client-react';
-import { calculateNaohFormula, GRAMS_PER_OUNCE, LIQUID_TO_LYE_RATIO, validateNaohFormula, type FragranceRow } from '@/lib/formulation';
+import { calculateNaohFormula, GRAMS_PER_OUNCE, LIQUID_BATCH_FRACTION, validateNaohFormula, type FragranceRow } from '@/lib/formulation';
 import FragranceSection from '@/components/FragranceSection';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
@@ -64,6 +64,7 @@ type SavedRecipe = {
   liquidType?: LiquidType;
   customLiquid?: string;
   oilInputUnit?: OilInputUnit;
+  liquidMethod?: 'batch-22';
 };
 
 type OilInputUnit = 'percent' | 'g' | 'oz';
@@ -332,7 +333,7 @@ function CalculatorPage() {
         : 'Not saved. Validate the current formula before saving.');
       return;
     }
-    const recipe: SavedRecipe = { id: `${Date.now()}`, name: recipeName.trim() || 'Untitled formula', savedAt: new Date().toISOString(), batchSize, unit, superfat, oils, fragrances, liquidType, customLiquid, oilInputUnit };
+    const recipe: SavedRecipe = { id: `${Date.now()}`, name: recipeName.trim() || 'Untitled formula', savedAt: new Date().toISOString(), batchSize, unit, superfat, oils, fragrances, liquidType, customLiquid, oilInputUnit, liquidMethod: 'batch-22' };
     const next = [recipe, ...savedRecipes];
     try {
       localStorage.setItem('soapspice-recipes', JSON.stringify(next));
@@ -353,9 +354,10 @@ function CalculatorPage() {
     setOils(recipe.oils); setFragrances(recipe.fragrances ?? []);
     setLiquidType(recipe.liquidType ?? 'distilled-water'); setCustomLiquid(recipe.customLiquid ?? '');
     setOilInputUnit(recipe.oilInputUnit ?? 'percent'); setValidated(false); setValidatedFingerprint(''); setValidationErrors([]);
-    setLegacyLiquidNotice(typeof recipe.concentration === 'number'
-      ? `This saved formula used ${recipe.concentration}% lye concentration. Its liquid amount now uses the 2:1 liquid-to-lye baseline and will change. Review before making soap.`
-      : '');
+    setLegacyLiquidNotice(recipe.liquidMethod === 'batch-22' ? ''
+      : typeof recipe.concentration === 'number'
+        ? `This saved formula used ${recipe.concentration}% lye concentration. Its liquid amount now uses the 22%-of-total-batch estimate and may change. Review before making soap.`
+        : 'This saved formula used the earlier 2:1 liquid-to-NaOH baseline. Its liquid amount now uses the 22%-of-total-batch estimate and may change. Review before making soap.');
     setSaveFeedback(`Opened “${recipe.name}”. Validate it against the current catalog before printing.`);
   };
   const available = ingredients.filter((ingredient) => !oils.some((oil) => oil.id === ingredient.id));
@@ -402,7 +404,7 @@ function CalculatorPage() {
               <label className="block"><span className="mb-2 block text-xs font-bold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">Liquid for lye solution</span><select value={liquidType} onChange={(event) => { setLiquidType(event.target.value as LiquidType); setValidated(false); setValidationErrors([]); setSaveFeedback(''); }} className="h-12 w-full rounded-xl border border-[hsl(var(--input))] bg-[hsl(var(--background))] px-4 text-sm font-bold outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]" data-testid="select-liquid-type"><option value="distilled-water">Distilled water</option><option value="goat-milk">Goat milk</option><option value="cow-milk">Cow milk</option><option value="other">Other liquid</option></select></label>
             </div>
             {liquidType === 'other' && <label className="mt-4 block"><span className="mb-2 block text-xs font-bold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">Liquid name</span><input type="text" value={customLiquid} onChange={(event) => { setCustomLiquid(event.target.value); setValidated(false); setValidationErrors([]); setSaveFeedback(''); }} placeholder="e.g. Coconut milk" className="h-11 w-full rounded-xl border border-[hsl(var(--input))] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]" data-testid="input-custom-liquid" /></label>}
-            <div role="note" className="mt-5 rounded-2xl bg-[hsl(var(--secondary))] p-4 text-sm leading-6 text-[hsl(var(--secondary-foreground))]" data-testid="notice-liquid-ratio"><strong>Automatic starting amount:</strong> 2 parts liquid by weight to 1 part NaOH. The calculator uses the oil SAP values and superfat to find NaOH, then multiplies that weight by 2 for liquid. Oils and fragrances alone cannot determine a unique optimal liquid ratio; follow a tested recipe if it needs a different one.</div>
+            <div role="note" className="mt-5 rounded-2xl bg-[hsl(var(--secondary))] p-4 text-sm leading-6 text-[hsl(var(--secondary-foreground))]" data-testid="notice-liquid-ratio"><strong>Automatic starting estimate:</strong> Liquid is approximately 22% of the complete batch before saponification (oils + NaOH + fragrance + liquid), not 22% of oils alone. Oil SAP values and superfat determine NaOH assuming 100% pure lye; fragrance adds to batch weight and changes this liquid estimate slightly, but never the NaOH amount. This is our approximation of a typical liquid share, not a verified Bramble Berry formula or a recipe-specific optimum. Check your lye label and follow a tested recipe.</div>
             {legacyLiquidNotice && <div role="alert" className="mt-4 rounded-2xl border border-[hsl(var(--destructive)/.3)] bg-[hsl(var(--destructive)/.08)] p-4 text-sm leading-6 text-[hsl(var(--destructive))]" data-testid="notice-legacy-liquid">{legacyLiquidNotice}</div>}
             {liquidType !== 'distilled-water' && <div role="note" className="mt-4 rounded-2xl border border-[hsl(var(--accent)/.4)] bg-[hsl(var(--accent)/.1)] p-4 text-sm leading-6 text-[hsl(var(--secondary-foreground))]"><strong>Milk and other liquids need extra care.</strong> Sugars and fats are not included in this lye calculation. Use a tested method for your chosen liquid and check the supplier or recipe guidance before making soap.</div>}
             {superfat > 10 && <div role="status" data-testid="status-high-superfat" className="mt-5 flex gap-3 rounded-2xl border border-[hsl(var(--accent)/.4)] bg-[hsl(var(--accent)/.1)] p-4 text-sm leading-6 text-[hsl(var(--secondary-foreground))]"><CircleAlert size={19} className="mt-0.5 shrink-0" /><span><strong>High-superfat advisory.</strong> Above 10% superfat can leave a softer bar and more unsaponified oils. Consider testing a small batch and checking shelf life.</span></div>}
@@ -419,11 +421,11 @@ function CalculatorPage() {
                 <div className="mt-8 space-y-4">
                   <div className="flex items-end justify-between gap-2 border-b border-white/15 pb-4"><span className="text-sm text-white/65">Sodium hydroxide (NaOH)</span><strong className="text-right font-data text-2xl text-[hsl(var(--accent))]" data-testid="result-naoh">{visibleResult.naoh.toFixed(1)} g<span className="block text-sm font-normal text-white/75">{(visibleResult.naoh / GRAMS_PER_OUNCE).toFixed(2)} oz</span></strong></div>
                   <div className="flex items-end justify-between gap-2 border-b border-white/15 pb-4"><span className="text-sm text-white/65" data-testid="text-liquid-type">{liquidName}</span><strong className="text-right font-data text-2xl" data-testid="result-liquid">{visibleResult.liquid.toFixed(1)} g<span className="block text-sm font-normal text-white/75">{(visibleResult.liquid / GRAMS_PER_OUNCE).toFixed(2)} oz</span></strong></div>
-                  <div className="flex items-end justify-between gap-2 border-b border-white/15 pb-4"><span className="text-sm text-white/65">Lye + liquid (2:1 by weight)</span><strong className="font-data text-xl">{visibleResult.total.toFixed(1)} g</strong></div>
+                  <div className="flex items-end justify-between gap-2 border-b border-white/15 pb-4"><span className="text-sm text-white/65">Lye + liquid</span><strong className="font-data text-xl">{visibleResult.total.toFixed(1)} g</strong></div>
                   {visibleResult.fragranceTotalGrams > 0 && <div className="flex items-end justify-between gap-2 border-b border-white/15 pb-4"><span className="text-sm text-white/65">Fragrance total</span><strong className="text-right font-data text-xl" data-testid="result-fragrance-total">{visibleResult.fragranceTotalGrams.toFixed(1)} g<span className="block text-sm font-normal text-white/75">{(visibleResult.fragranceTotalGrams / GRAMS_PER_OUNCE).toFixed(2)} oz</span></strong></div>}
                   <div className="flex items-end justify-between gap-2"><span className="text-sm text-white/65">Pre-saponification batch</span><strong className="text-right font-data text-xl" data-testid="result-batch-total">{visibleResult.batchTotal.toFixed(1)} g<span className="block text-sm font-normal text-white/75">{(visibleResult.batchTotal / GRAMS_PER_OUNCE).toFixed(2)} oz</span></strong></div>
                 </div>
-                <div className="mt-7 rounded-2xl bg-white/10 p-4 text-xs leading-5 text-white/80">Liquid uses a 2:1 starting ratio, not an ingredient-optimized result. SAP references still need review, and fragrance usage limits must be checked separately. This is not an approval of the recipe.</div>
+                <div className="mt-7 rounded-2xl bg-white/10 p-4 text-xs leading-5 text-white/80">Liquid targets about 22% of the pre-saponification batch, not a recipe-specific optimum. NaOH assumes 100% purity. Verify your lye label and SAP references; fragrance usage limits must be checked separately. This is not an approval of the recipe.</div>
               </div>
             ) : <div role="status" data-testid="status-formula-placeholder" className="mt-8 rounded-2xl border border-dashed border-white/30 bg-white/10 p-5 text-sm leading-6 text-white/80">Your NaOH, chosen liquid, and fragrance totals will appear here after you add oils and explicitly validate a complete formula. Changes to a validated recipe require a new check.</div>}
           </div>
@@ -437,8 +439,8 @@ function CalculatorPage() {
               })}
               <div className="flex justify-between gap-3"><span>Theoretical NaOH, 0% superfat</span><strong className="font-data">{visibleResult.naohBeforeSuperfat.toFixed(2)} g</strong></div>
               <div className="flex justify-between gap-3"><span>NaOH after {superfat}% superfat<br /><span className="text-xs text-[hsl(var(--muted-foreground))]">{visibleResult.naohBeforeSuperfat.toFixed(2)} × (1 − {superfat}/100)</span></span><strong className="font-data">{visibleResult.naoh.toFixed(2)} g</strong></div>
-              <div className="flex justify-between gap-3"><span>{liquidName} at {LIQUID_TO_LYE_RATIO}:1 liquid-to-NaOH<br /><span className="text-xs text-[hsl(var(--muted-foreground))]">{visibleResult.naoh.toFixed(2)} g NaOH × {LIQUID_TO_LYE_RATIO}</span></span><strong className="font-data">{visibleResult.liquid.toFixed(2)} g</strong></div>
-              {visibleResult.fragranceDetails.map((row) => <div key={row.id} className="flex justify-between gap-3"><span>{row.name} fragrance<br /><span className="text-xs text-[hsl(var(--muted-foreground))]">Added weight only; no NaOH added</span></span><strong className="font-data">{row.weightGrams.toFixed(2)} g</strong></div>)}
+              <div className="flex justify-between gap-3"><span>{liquidName} · {LIQUID_BATCH_FRACTION * 100}% of full batch<br /><span className="text-xs text-[hsl(var(--muted-foreground))]">({totalOilGrams.toFixed(2)} g oils + {visibleResult.naoh.toFixed(2)} g NaOH + {visibleResult.fragranceTotalGrams.toFixed(2)} g fragrance) × 22 / 78</span></span><strong className="shrink-0 font-data">{visibleResult.liquid.toFixed(2)} g</strong></div>
+              {visibleResult.fragranceDetails.map((row) => <div key={row.id} className="flex justify-between gap-3"><span>{row.name} fragrance<br /><span className="text-xs text-[hsl(var(--muted-foreground))]">Included in liquid estimate; no NaOH added</span></span><strong className="font-data">{row.weightGrams.toFixed(2)} g</strong></div>)}
               <div className="flex justify-between gap-3 border-t border-[hsl(var(--border))] pt-4"><span>Total oils</span><strong className="font-data">{totalOilGrams.toFixed(2)} g</strong></div>
               <div className="flex justify-between gap-3"><span>Total fragrance</span><strong className="font-data">{visibleResult.fragranceTotalGrams.toFixed(2)} g</strong></div>
               <div className="flex justify-between gap-3"><span>Total before saponification<br /><span className="text-xs text-[hsl(var(--muted-foreground))]">oils + NaOH + liquid + fragrance</span></span><strong className="font-data">{visibleResult.batchTotal.toFixed(2)} g</strong></div>

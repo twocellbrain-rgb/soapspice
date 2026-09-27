@@ -9,8 +9,9 @@ export type SapRecord = {
 };
 
 export const GRAMS_PER_OUNCE = 28.349523125;
-// A transparent cold-process starting point, not a recipe-specific optimum.
-export const LIQUID_TO_LYE_RATIO = 2;
+// Approximate typical liquid share of the complete pre-saponification batch.
+// This is our own disclosed starting model, not Bramble Berry's published formula.
+export const LIQUID_BATCH_FRACTION = 0.22;
 
 export type FragranceRow = {
   id: string;
@@ -101,13 +102,14 @@ export function calculateNaohFormula(input: NaohFormulaInput) {
   }));
   const naohBeforeSuperfat = ingredientLye.reduce((sum, oil) => sum + oil.theoreticalNaoh, 0);
   const naoh = naohBeforeSuperfat * (1 - input.superfat / 100);
-  const liquid = naoh * LIQUID_TO_LYE_RATIO;
   const fragranceDetails = (input.fragrances ?? []).map((row) => ({
     id: row.id,
     name: row.name.trim(),
     weightGrams: fragranceWeightGrams(row, input.totalOilGrams),
   }));
   const fragranceTotalGrams = fragranceDetails.reduce((sum, row) => sum + row.weightGrams, 0);
+  // liquid = fraction × (oils + NaOH + fragrances + liquid)
+  const liquid = (input.totalOilGrams + naoh + fragranceTotalGrams) * LIQUID_BATCH_FRACTION / (1 - LIQUID_BATCH_FRACTION);
 
   return {
     ingredientLye,
