@@ -6,12 +6,18 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './adminIngredient';
 export * from './error';
 export * from './getIngredientsCategory';
 export * from './getIngredientsParams';
 export * from './healthStatus';
 export * from './ingredient';
+export * from './ingredientApproval';
 export * from './ingredientCategory';
+export * from './ingredientEdit';
+export * from './ingredientEditCategory';
+export * from './ingredientStaff';
+export * from './ingredientStaffRole';
 export * from './ingredientVerificationStatus';
 export * from './legacyRecipeInput';
 export * from './legacyRecipeInputLiquidMethod';

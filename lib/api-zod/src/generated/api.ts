@@ -437,7 +437,8 @@ export const GetIngredientsResponseItem = zod.object({
   "kohSap": zod.number(),
   "sapSourceTitle": zod.string(),
   "sapSourceUrl": zod.string(),
-  "verificationStatus": zod.enum(['source-linked-needs-review', 'administrator-verified'])
+  "sapProvenance": zod.string(),
+  "verificationStatus": zod.enum(['draft', 'source-linked-needs-review', 'administrator-verified'])
 })
 export const GetIngredientsResponse = zod.array(GetIngredientsResponseItem)
 
@@ -463,7 +464,229 @@ export const GetIngredientResponse = zod.object({
   "kohSap": zod.number(),
   "sapSourceTitle": zod.string(),
   "sapSourceUrl": zod.string(),
-  "verificationStatus": zod.enum(['source-linked-needs-review', 'administrator-verified'])
+  "sapProvenance": zod.string(),
+  "verificationStatus": zod.enum(['draft', 'source-linked-needs-review', 'administrator-verified'])
 })
+
+
+/**
+ * @summary Check my ingredient staff access
+ */
+export const GetIngredientStaffResponse = zod.object({
+  "role": zod.enum(['editor', 'reviewer'])
+})
+
+
+/**
+ * @summary List all ingredients including drafts and inactive records
+ */
+export const listAdminIngredientsResponseTwoRevisionMin = 0;
+
+
+
+export const ListAdminIngredientsResponseItem = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "alternateNames": zod.array(zod.string()),
+  "category": zod.enum(['oil', 'butter']),
+  "description": zod.string(),
+  "naohSap": zod.number(),
+  "kohSap": zod.number(),
+  "sapSourceTitle": zod.string(),
+  "sapSourceUrl": zod.string(),
+  "sapProvenance": zod.string(),
+  "verificationStatus": zod.enum(['draft', 'source-linked-needs-review', 'administrator-verified'])
+}).and(zod.object({
+  "active": zod.boolean(),
+  "reviewedBy": zod.string().nullable(),
+  "reviewedAt": zod.coerce.date().nullable(),
+  "lastEditedBy": zod.string().nullable(),
+  "revision": zod.number().int().min(listAdminIngredientsResponseTwoRevisionMin)
+}))
+export const ListAdminIngredientsResponse = zod.array(ListAdminIngredientsResponseItem)
+
+
+/**
+ * @summary Create a draft or source-linked ingredient
+ */
+export const createAdminIngredientBodyIdMax = 100;
+
+
+export const createAdminIngredientBodyIdRegExp = new RegExp('^[a-z0-9]+(?:-[a-z0-9]+)*$');
+export const createAdminIngredientBodyNameMax = 120;
+
+export const createAdminIngredientBodyAlternateNamesItemMax = 120;
+
+export const createAdminIngredientBodyDescriptionMax = 2000;
+
+export const createAdminIngredientBodyNaohSapExclusiveMin = 0;
+export const createAdminIngredientBodyNaohSapMax = 0.5;
+
+export const createAdminIngredientBodyKohSapExclusiveMin = 0;
+export const createAdminIngredientBodyKohSapMax = 0.7;
+
+export const createAdminIngredientBodySapSourceTitleMax = 300;
+
+export const createAdminIngredientBodySapSourceUrlMax = 2000;
+
+export const createAdminIngredientBodySapProvenanceMax = 2000;
+
+
+
+export const CreateAdminIngredientBody = zod.object({
+  "id": zod.string().max(createAdminIngredientBodyIdMax).regex(createAdminIngredientBodyIdRegExp),
+  "name": zod.string().min(1).max(createAdminIngredientBodyNameMax),
+  "alternateNames": zod.array(zod.string().min(1).max(createAdminIngredientBodyAlternateNamesItemMax)),
+  "category": zod.enum(['oil', 'butter']),
+  "description": zod.string().min(1).max(createAdminIngredientBodyDescriptionMax),
+  "naohSap": zod.number().gt(createAdminIngredientBodyNaohSapExclusiveMin).max(createAdminIngredientBodyNaohSapMax),
+  "kohSap": zod.number().gt(createAdminIngredientBodyKohSapExclusiveMin).max(createAdminIngredientBodyKohSapMax),
+  "sapSourceTitle": zod.string().max(createAdminIngredientBodySapSourceTitleMax),
+  "sapSourceUrl": zod.string().max(createAdminIngredientBodySapSourceUrlMax),
+  "sapProvenance": zod.string().max(createAdminIngredientBodySapProvenanceMax),
+  "active": zod.boolean()
+})
+
+export const createAdminIngredientResponseTwoRevisionMin = 0;
+
+
+
+export const CreateAdminIngredientResponse = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "alternateNames": zod.array(zod.string()),
+  "category": zod.enum(['oil', 'butter']),
+  "description": zod.string(),
+  "naohSap": zod.number(),
+  "kohSap": zod.number(),
+  "sapSourceTitle": zod.string(),
+  "sapSourceUrl": zod.string(),
+  "sapProvenance": zod.string(),
+  "verificationStatus": zod.enum(['draft', 'source-linked-needs-review', 'administrator-verified'])
+}).and(zod.object({
+  "active": zod.boolean(),
+  "reviewedBy": zod.string().nullable(),
+  "reviewedAt": zod.coerce.date().nullable(),
+  "lastEditedBy": zod.string().nullable(),
+  "revision": zod.number().int().min(createAdminIngredientResponseTwoRevisionMin)
+}))
+
+
+/**
+ * @summary Edit an ingredient and clear its prior approval
+ */
+export const editAdminIngredientPathIngredientIdMax = 100;
+
+
+
+export const EditAdminIngredientParams = zod.object({
+  "ingredientId": zod.coerce.string().min(1).max(editAdminIngredientPathIngredientIdMax)
+})
+
+export const editAdminIngredientBodyIdMax = 100;
+
+
+export const editAdminIngredientBodyIdRegExp = new RegExp('^[a-z0-9]+(?:-[a-z0-9]+)*$');
+export const editAdminIngredientBodyNameMax = 120;
+
+export const editAdminIngredientBodyAlternateNamesItemMax = 120;
+
+export const editAdminIngredientBodyDescriptionMax = 2000;
+
+export const editAdminIngredientBodyNaohSapExclusiveMin = 0;
+export const editAdminIngredientBodyNaohSapMax = 0.5;
+
+export const editAdminIngredientBodyKohSapExclusiveMin = 0;
+export const editAdminIngredientBodyKohSapMax = 0.7;
+
+export const editAdminIngredientBodySapSourceTitleMax = 300;
+
+export const editAdminIngredientBodySapSourceUrlMax = 2000;
+
+export const editAdminIngredientBodySapProvenanceMax = 2000;
+
+
+
+export const EditAdminIngredientBody = zod.object({
+  "id": zod.string().max(editAdminIngredientBodyIdMax).regex(editAdminIngredientBodyIdRegExp),
+  "name": zod.string().min(1).max(editAdminIngredientBodyNameMax),
+  "alternateNames": zod.array(zod.string().min(1).max(editAdminIngredientBodyAlternateNamesItemMax)),
+  "category": zod.enum(['oil', 'butter']),
+  "description": zod.string().min(1).max(editAdminIngredientBodyDescriptionMax),
+  "naohSap": zod.number().gt(editAdminIngredientBodyNaohSapExclusiveMin).max(editAdminIngredientBodyNaohSapMax),
+  "kohSap": zod.number().gt(editAdminIngredientBodyKohSapExclusiveMin).max(editAdminIngredientBodyKohSapMax),
+  "sapSourceTitle": zod.string().max(editAdminIngredientBodySapSourceTitleMax),
+  "sapSourceUrl": zod.string().max(editAdminIngredientBodySapSourceUrlMax),
+  "sapProvenance": zod.string().max(editAdminIngredientBodySapProvenanceMax),
+  "active": zod.boolean()
+})
+
+export const editAdminIngredientResponseTwoRevisionMin = 0;
+
+
+
+export const EditAdminIngredientResponse = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "alternateNames": zod.array(zod.string()),
+  "category": zod.enum(['oil', 'butter']),
+  "description": zod.string(),
+  "naohSap": zod.number(),
+  "kohSap": zod.number(),
+  "sapSourceTitle": zod.string(),
+  "sapSourceUrl": zod.string(),
+  "sapProvenance": zod.string(),
+  "verificationStatus": zod.enum(['draft', 'source-linked-needs-review', 'administrator-verified'])
+}).and(zod.object({
+  "active": zod.boolean(),
+  "reviewedBy": zod.string().nullable(),
+  "reviewedAt": zod.coerce.date().nullable(),
+  "lastEditedBy": zod.string().nullable(),
+  "revision": zod.number().int().min(editAdminIngredientResponseTwoRevisionMin)
+}))
+
+
+/**
+ * @summary Reviewer approves a cited SAP value
+ */
+export const approveAdminIngredientPathIngredientIdMax = 100;
+
+
+
+export const ApproveAdminIngredientParams = zod.object({
+  "ingredientId": zod.coerce.string().min(1).max(approveAdminIngredientPathIngredientIdMax)
+})
+
+export const approveAdminIngredientBodyExpectedRevisionMin = 0;
+
+
+
+export const ApproveAdminIngredientBody = zod.object({
+  "expectedRevision": zod.number().int().min(approveAdminIngredientBodyExpectedRevisionMin)
+})
+
+export const approveAdminIngredientResponseTwoRevisionMin = 0;
+
+
+
+export const ApproveAdminIngredientResponse = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "alternateNames": zod.array(zod.string()),
+  "category": zod.enum(['oil', 'butter']),
+  "description": zod.string(),
+  "naohSap": zod.number(),
+  "kohSap": zod.number(),
+  "sapSourceTitle": zod.string(),
+  "sapSourceUrl": zod.string(),
+  "sapProvenance": zod.string(),
+  "verificationStatus": zod.enum(['draft', 'source-linked-needs-review', 'administrator-verified'])
+}).and(zod.object({
+  "active": zod.boolean(),
+  "reviewedBy": zod.string().nullable(),
+  "reviewedAt": zod.coerce.date().nullable(),
+  "lastEditedBy": zod.string().nullable(),
+  "revision": zod.number().int().min(approveAdminIngredientResponseTwoRevisionMin)
+}))
 
 

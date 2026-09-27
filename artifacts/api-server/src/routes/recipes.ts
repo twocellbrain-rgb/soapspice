@@ -1,6 +1,6 @@
 import { Router, type IRouter, type Request, type Response, type NextFunction } from "express";
 import { getAuth } from "@clerk/express";
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray, or } from "drizzle-orm";
 import { db, ingredientsTable, recipesTable, type RecipeOil, type Recipe } from "@workspace/db";
 import {
   CreateRecipeBody, ImportRecipeBody, UpdateRecipeBody,
@@ -38,7 +38,10 @@ async function prepare(data: Input, legacy = false): Promise<{ oils: RecipeOil[]
   }
   const ids = data.oils.map(o => o.id);
   if (new Set(ids).size !== ids.length) return { oils: [], error: "Each ingredient can appear only once" };
-  const records = await db.select().from(ingredientsTable).where(and(inArray(ingredientsTable.id, ids), eq(ingredientsTable.active, true)));
+  const records = await db.select().from(ingredientsTable).where(and(
+    inArray(ingredientsTable.id, ids), eq(ingredientsTable.active, true),
+    or(eq(ingredientsTable.verificationStatus, "source-linked-needs-review"), eq(ingredientsTable.verificationStatus, "administrator-verified")),
+  ));
   const catalog = new Map(records.map(record => [record.id, record]));
   if (!legacy) {
     if (ids.some(id => !catalog.has(id) || !Number.isFinite(catalog.get(id)!.naohSap) || catalog.get(id)!.naohSap <= 0 || catalog.get(id)!.naohSap >= 1))

@@ -123,7 +123,7 @@ export async function seedStarterIngredients(): Promise<void> {
       // Only add search aliases; never overwrite reviewed SAP values, status,
       // descriptions, or the decision to deactivate an ingredient.
       set: {
-        alternateNames: sql<string[]>`ARRAY(SELECT DISTINCT alias FROM unnest(${ingredientsTable.alternateNames} || excluded.alternate_names) AS names(alias) ORDER BY alias)`,
+        alternateNames: sql<string[]>`CASE WHEN ${ingredientsTable.verificationStatus} = 'administrator-verified' THEN ${ingredientsTable.alternateNames} ELSE ARRAY(SELECT DISTINCT alias FROM unnest(${ingredientsTable.alternateNames} || excluded.alternate_names) AS names(alias) ORDER BY alias) END`,
       },
     });
 }

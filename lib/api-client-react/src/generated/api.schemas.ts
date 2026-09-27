@@ -266,6 +266,7 @@ export type IngredientVerificationStatus = typeof IngredientVerificationStatus[k
 
 
 export const IngredientVerificationStatus = {
+  draft: 'draft',
   'source-linked-needs-review': 'source-linked-needs-review',
   'administrator-verified': 'administrator-verified',
 } as const;
@@ -280,7 +281,86 @@ export interface Ingredient {
   kohSap: number;
   sapSourceTitle: string;
   sapSourceUrl: string;
+  sapProvenance: string;
   verificationStatus: IngredientVerificationStatus;
+}
+
+export type AdminIngredient = Ingredient & ({
+  active: boolean;
+  /** @nullable */
+  reviewedBy: string | null;
+  /** @nullable */
+  reviewedAt: string | null;
+  /** @nullable */
+  lastEditedBy: string | null;
+  /** @minimum 0 */
+  revision: number;
+});
+
+export interface IngredientApproval {
+  /** @minimum 0 */
+  expectedRevision: number;
+}
+
+export type IngredientStaffRole = typeof IngredientStaffRole[keyof typeof IngredientStaffRole];
+
+
+export const IngredientStaffRole = {
+  editor: 'editor',
+  reviewer: 'reviewer',
+} as const;
+
+export interface IngredientStaff {
+  role: IngredientStaffRole;
+}
+
+export type IngredientEditCategory = typeof IngredientEditCategory[keyof typeof IngredientEditCategory];
+
+
+export const IngredientEditCategory = {
+  oil: 'oil',
+  butter: 'butter',
+} as const;
+
+export interface IngredientEdit {
+  /**
+     * @maxLength 100
+     * @pattern ^[a-z0-9]+(?:-[a-z0-9]+)*$
+     */
+  id: string;
+  /**
+     * @minLength 1
+     * @maxLength 120
+     */
+  name: string;
+  /**
+     * @items.minLength 1
+     * @items.maxLength 120
+     */
+  alternateNames: string[];
+  category: IngredientEditCategory;
+  /**
+     * @minLength 1
+     * @maxLength 2000
+     */
+  description: string;
+  /**
+     * @maximum 0.5
+     * @exclusiveMinimum 0
+     */
+  naohSap: number;
+  /**
+     * @maximum 0.7
+     * @exclusiveMinimum 0
+     */
+  kohSap: number;
+  /** @maxLength 300 */
+  sapSourceTitle: string;
+  /** @maxLength 2000 */
+  sapSourceUrl: string;
+  /** @maxLength 2000 */
+  sapProvenance: string;
+  active: boolean;
 }
 
 export interface Error {

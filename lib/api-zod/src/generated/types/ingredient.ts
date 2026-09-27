@@ -18,5 +18,6 @@ export interface Ingredient {
   kohSap: number;
   sapSourceTitle: string;
   sapSourceUrl: string;
+  sapProvenance: string;
   verificationStatus: IngredientVerificationStatus;
 }

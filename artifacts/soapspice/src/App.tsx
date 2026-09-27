@@ -22,10 +22,11 @@ import {
   X,
 } from 'lucide-react';
 import { Link, Route, Switch, Redirect, Router as WouterRouter, useLocation, useParams } from 'wouter';
-import { getGetIngredientQueryKey, useGetIngredient, useGetIngredients, useListRecipes, getListRecipesQueryKey, createRecipe, updateRecipe, deleteRecipe, importRecipe } from '@workspace/api-client-react';
+import { getGetIngredientQueryKey, useGetIngredient, useGetIngredients, useGetIngredientStaff, getGetIngredientStaffQueryKey, useListRecipes, getListRecipesQueryKey, createRecipe, updateRecipe, deleteRecipe, importRecipe } from '@workspace/api-client-react';
 import type { RecipeInput, Recipe } from '@workspace/api-client-react';
 import { calculateNaohFormula, GRAMS_PER_OUNCE, LIQUID_BATCH_FRACTION, oilWeightTotal, percentagesFromWeights, validateNaohFormula, type FragranceRow } from '@/lib/formulation';
 import FragranceSection from '@/components/FragranceSection';
+import IngredientAdmin from '@/components/IngredientAdmin';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -79,6 +80,7 @@ type Ingredient = {
   kohSap: number;
   sapSourceTitle: string;
   sapSourceUrl: string;
+  sapProvenance: string;
   verificationStatus: 'source-linked-needs-review' | 'administrator-verified';
 };
 
@@ -107,9 +109,12 @@ type SavedRecipe = {
 
 function AccountNav() {
   const { signOut } = useClerk();
+  const { isSignedIn } = useAuth();
+  const staff = useGetIngredientStaff({ query: { queryKey: getGetIngredientStaffQueryKey(), enabled: Boolean(isSignedIn), retry: false } });
   return <>
     <Show when="signed-in">
       <Link href="/my-formulas" onClick={() => {}} >My formulas</Link>
+      {staff.data && <Link href="/ingredient-admin">Review ingredients</Link>}
       <button type="button" onClick={() => signOut({ redirectUrl: basePath || '/' })}>Sign out</button>
     </Show>
     <Show when="signed-out">
@@ -545,7 +550,7 @@ function CalculatorPage() {
     <Shell>
       <section className="sc-calculator-intro mx-auto max-w-7xl px-5 pb-10 pt-12 lg:px-8 lg:pt-16">
         <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end"><div className="max-w-3xl animate-rise"><div className="mb-4 flex items-center gap-3 text-xs font-bold uppercase tracking-[.18em] text-[hsl(var(--primary))]"><span className="h-2 w-2 rounded-full bg-[hsl(var(--accent))]" /> Calculator / NaOH cold process</div><h1 className="font-display text-5xl leading-[.98] tracking-[-.04em] sm:text-6xl">Turn a good idea into a <span className="text-[hsl(var(--primary))]">clear formula.</span></h1><p className="mt-5 max-w-2xl text-lg leading-8 text-[hsl(var(--muted-foreground))]">Build a bar from source-linked SAP values. This first release supports NaOH cold-process bars only.</p></div><div className="flex shrink-0 items-center gap-3 rounded-2xl border border-[hsl(var(--accent)/.35)] bg-[hsl(var(--accent)/.1)] px-4 py-3 text-sm font-bold text-[hsl(var(--accent-foreground))]"><CircleAlert size={18} /> Always wear proper safety gear.</div></div>
-        <div role="note" data-testid="notice-sap-review" className="mt-8 flex items-start gap-3 rounded-2xl border border-[hsl(var(--accent)/.35)] bg-[hsl(var(--secondary))] px-5 py-4 text-sm leading-6 text-[hsl(var(--secondary-foreground))]"><CircleAlert className="mt-0.5 shrink-0" size={18} /><span><strong>Source-linked, not yet administrator reviewed.</strong> Reference SAP values still need administrator review. Check the linked sources and independently verify the formula before handling lye.</span></div>
+        <div role="note" data-testid="notice-sap-review" className="mt-8 flex items-start gap-3 rounded-2xl border border-[hsl(var(--accent)/.35)] bg-[hsl(var(--secondary))] px-5 py-4 text-sm leading-6 text-[hsl(var(--secondary-foreground))]"><CircleAlert className="mt-0.5 shrink-0" size={18} /><span>{ingredients.length === 0 || ingredients.some(item => item.verificationStatus !== 'administrator-verified') ? <><strong>Source-linked, not yet administrator reviewed.</strong> Reference SAP values still need administrator review. </> : <><strong>Catalog SAP values reviewed.</strong> Supplier-specific values may differ. </>}Check the linked sources and independently verify the formula before handling lye.</span></div>
       </section>
       <section className="mx-auto grid max-w-7xl gap-6 px-5 pb-24 lg:grid-cols-[1.4fr_.6fr] lg:px-8">
         <div className="space-y-6">
@@ -614,7 +619,7 @@ function CalculatorPage() {
               <p className="text-xs font-bold uppercase tracking-[.14em] text-[hsl(var(--muted-foreground))]">NaOH before superfat · ingredient by ingredient</p>
               {visibleResult.ingredientLye.map((line) => {
                 const ingredient = ingredientMap.get(line.id);
-                return <div key={line.id} className="border-b border-[hsl(var(--border))] pb-3" data-testid={`detail-sap-${line.id}`}><div className="flex justify-between gap-3"><span className="font-bold">{ingredient?.name ?? line.id}</span><span className="shrink-0 font-data">{line.theoreticalNaoh.toFixed(2)} g</span></div><p className="mt-1 font-data text-xs text-[hsl(var(--muted-foreground))]">{line.weight.toFixed(2)} g oil × {line.sap.toFixed(4)} g NaOH/g oil</p>{ingredient && <a href={ingredient.sapSourceUrl} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-xs text-[hsl(var(--primary))] hover:underline" data-testid={`link-detail-source-${line.id}`}>{ingredient.sapSourceTitle} · review pending <ExternalLink size={11} /></a>}</div>;
+                return <div key={line.id} className="border-b border-[hsl(var(--border))] pb-3" data-testid={`detail-sap-${line.id}`}><div className="flex justify-between gap-3"><span className="font-bold">{ingredient?.name ?? line.id}</span><span className="shrink-0 font-data">{line.theoreticalNaoh.toFixed(2)} g</span></div><p className="mt-1 font-data text-xs text-[hsl(var(--muted-foreground))]">{line.weight.toFixed(2)} g oil × {line.sap.toFixed(4)} g NaOH/g oil</p>{ingredient && <a href={ingredient.sapSourceUrl} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-xs text-[hsl(var(--primary))] hover:underline" data-testid={`link-detail-source-${line.id}`}>{ingredient.sapSourceTitle} · {ingredient.verificationStatus === 'administrator-verified' ? 'SAP reviewed' : 'review pending'} <ExternalLink size={11} /></a>}</div>;
               })}
               <div className="flex justify-between gap-3"><span>Theoretical NaOH, 0% superfat</span><strong className="font-data">{visibleResult.naohBeforeSuperfat.toFixed(2)} g</strong></div>
               <div className="flex justify-between gap-3"><span>NaOH after {superfat}% superfat<br /><span className="text-xs text-[hsl(var(--muted-foreground))]">{visibleResult.naohBeforeSuperfat.toFixed(2)} × (1 − {superfat}/100)</span></span><strong className="font-data">{visibleResult.naoh.toFixed(2)} g</strong></div>
@@ -658,7 +663,7 @@ function CalculatorPage() {
           </div>
           <button type="button" onClick={exportFormula} disabled={!visibleResult || !isSignedIn} className={`${buttonQuiet} print-hide w-full disabled:opacity-45`}>Export validated formula (.json)</button>
           <button type="button" onClick={() => { if (visibleResult) window.print(); }} disabled={!visibleResult} className={`${buttonQuiet} print-hide w-full disabled:cursor-not-allowed disabled:opacity-45`} data-testid="button-print-formula"><Printer size={17} /> Print formula</button>
-          <div className="rounded-3xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] p-6"><div className="flex items-center gap-2 text-[hsl(var(--secondary-foreground))]"><CircleAlert size={17} /><h2 className="font-bold">A note on the numbers</h2></div><p className="mt-3 text-sm leading-6 text-[hsl(var(--secondary-foreground)/.8)]">SAP values are linked to their sources, but still need administrator review. Treat every result as a starting point and verify your process independently.</p></div>
+          <div className="rounded-3xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] p-6"><div className="flex items-center gap-2 text-[hsl(var(--secondary-foreground))]"><CircleAlert size={17} /><h2 className="font-bold">A note on the numbers</h2></div><p className="mt-3 text-sm leading-6 text-[hsl(var(--secondary-foreground)/.8)]">{ingredients.some(item => item.verificationStatus !== 'administrator-verified') || ingredients.length === 0 ? 'SAP values are linked to their sources, but still need administrator review.' : 'Catalog SAP values have been reviewed, but supplier specifications may differ.'} Treat every result as a starting point and verify your process independently.</p></div>
         </aside>
       </section>
     </Shell>
@@ -705,6 +710,7 @@ function Router() {
     <Route path="/my-formulas"><><Show when="signed-in"><CalculatorPage /></Show><Show when="signed-out"><Redirect to="/" /></Show></></Route>
     <Route path="/calculators/cold-process-soap" component={CalculatorPage} />
     <Route path="/ingredients" component={IngredientsPage} />
+    <Route path="/ingredient-admin" component={IngredientAdmin} />
     <Route path="/ingredients/:ingredientId" component={IngredientDetailPage} />
     <Route component={NotFound} />
   </Switch></ErrorBoundary>;

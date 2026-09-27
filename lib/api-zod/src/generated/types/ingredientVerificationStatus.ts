@@ -10,6 +10,7 @@ export type IngredientVerificationStatus = typeof IngredientVerificationStatus[k
 
 
 export const IngredientVerificationStatus = {
+  draft: 'draft',
   'source-linked-needs-review': 'source-linked-needs-review',
   'administrator-verified': 'administrator-verified',
 } as const;

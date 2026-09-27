@@ -20,10 +20,14 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AdminIngredient,
   Error,
   GetIngredientsParams,
   HealthStatus,
   Ingredient,
+  IngredientApproval,
+  IngredientEdit,
+  IngredientStaff,
   LegacyRecipeInput,
   Recipe,
   RecipeInput
@@ -787,4 +791,424 @@ export function useGetIngredient<TData = Awaited<ReturnType<typeof getIngredient
 
 
 
+
+export const getGetIngredientStaffUrl = () => {
+
+
+
+
+  return `/api/ingredient-admin/me`
+}
+
+/**
+ * @summary Check my ingredient staff access
+ */
+export const getIngredientStaff = async ( options?: Parameters<typeof customFetch>[1]): Promise<IngredientStaff> => {
+
+  return customFetch<IngredientStaff>(getGetIngredientStaffUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetIngredientStaffQueryKey = () => {
+    return [
+    `/api/ingredient-admin/me`
+    ] as const;
+    }
+
+
+export const getGetIngredientStaffQueryOptions = <TData = Awaited<ReturnType<typeof getIngredientStaff>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getIngredientStaff>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetIngredientStaffQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getIngredientStaff>>> = ({ signal }) => getIngredientStaff({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getIngredientStaff>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetIngredientStaffQueryResult = NonNullable<Awaited<ReturnType<typeof getIngredientStaff>>>
+export type GetIngredientStaffQueryError = ErrorType<void>
+
+
+/**
+ * @summary Check my ingredient staff access
+ */
+
+export function useGetIngredientStaff<TData = Awaited<ReturnType<typeof getIngredientStaff>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getIngredientStaff>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetIngredientStaffQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListAdminIngredientsUrl = () => {
+
+
+
+
+  return `/api/ingredient-admin`
+}
+
+/**
+ * @summary List all ingredients including drafts and inactive records
+ */
+export const listAdminIngredients = async ( options?: Parameters<typeof customFetch>[1]): Promise<AdminIngredient[]> => {
+
+  return customFetch<AdminIngredient[]>(getListAdminIngredientsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAdminIngredientsQueryKey = () => {
+    return [
+    `/api/ingredient-admin`
+    ] as const;
+    }
+
+
+export const getListAdminIngredientsQueryOptions = <TData = Awaited<ReturnType<typeof listAdminIngredients>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAdminIngredients>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAdminIngredientsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAdminIngredients>>> = ({ signal }) => listAdminIngredients({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAdminIngredients>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAdminIngredientsQueryResult = NonNullable<Awaited<ReturnType<typeof listAdminIngredients>>>
+export type ListAdminIngredientsQueryError = ErrorType<void>
+
+
+/**
+ * @summary List all ingredients including drafts and inactive records
+ */
+
+export function useListAdminIngredients<TData = Awaited<ReturnType<typeof listAdminIngredients>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAdminIngredients>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAdminIngredientsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateAdminIngredientUrl = () => {
+
+
+
+
+  return `/api/ingredient-admin`
+}
+
+/**
+ * @summary Create a draft or source-linked ingredient
+ */
+export const createAdminIngredient = async (ingredientEdit: IngredientEdit, options?: Parameters<typeof customFetch>[1]): Promise<AdminIngredient> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<AdminIngredient>(getCreateAdminIngredientUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(ingredientEdit)
+  }
+);}
+
+
+
+
+
+export const getCreateAdminIngredientMutationKey = () => ['createAdminIngredient'] as const;
+
+export const getCreateAdminIngredientMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAdminIngredient>>, TError,CreateAdminIngredientMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createAdminIngredient>>, TError,CreateAdminIngredientMutationVariables, TContext> => {
+
+const mutationKey = getCreateAdminIngredientMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createAdminIngredient>>, CreateAdminIngredientMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createAdminIngredient(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateAdminIngredientMutationResult = NonNullable<Awaited<ReturnType<typeof createAdminIngredient>>>
+    export type CreateAdminIngredientMutationBody = BodyType<IngredientEdit>
+    export type CreateAdminIngredientMutationError = ErrorType<void>
+    export type CreateAdminIngredientMutationVariables = {data: BodyType<IngredientEdit>}
+
+    /**
+ * @summary Create a draft or source-linked ingredient
+ */
+export const useCreateAdminIngredient = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAdminIngredient>>, TError,CreateAdminIngredientMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createAdminIngredient>>,
+        TError,
+        CreateAdminIngredientMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateAdminIngredientMutationOptions(options));
+    }
+
+export const getEditAdminIngredientUrl = (ingredientId: string,) => {
+
+
+
+
+  return `/api/ingredient-admin/${ingredientId}`
+}
+
+/**
+ * @summary Edit an ingredient and clear its prior approval
+ */
+export const editAdminIngredient = async (ingredientId: string,
+    ingredientEdit: IngredientEdit, options?: Parameters<typeof customFetch>[1]): Promise<AdminIngredient> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<AdminIngredient>(getEditAdminIngredientUrl(ingredientId),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(ingredientEdit)
+  }
+);}
+
+
+
+
+
+export const getEditAdminIngredientMutationKey = () => ['editAdminIngredient'] as const;
+
+export const getEditAdminIngredientMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof editAdminIngredient>>, TError,EditAdminIngredientMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof editAdminIngredient>>, TError,EditAdminIngredientMutationVariables, TContext> => {
+
+const mutationKey = getEditAdminIngredientMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof editAdminIngredient>>, EditAdminIngredientMutationVariables> = (props) => {
+          const {ingredientId,data} = props ?? {};
+
+          return  editAdminIngredient(ingredientId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type EditAdminIngredientMutationResult = NonNullable<Awaited<ReturnType<typeof editAdminIngredient>>>
+    export type EditAdminIngredientMutationBody = BodyType<IngredientEdit>
+    export type EditAdminIngredientMutationError = ErrorType<void>
+    export type EditAdminIngredientMutationVariables = {ingredientId: string;data: BodyType<IngredientEdit>}
+
+    /**
+ * @summary Edit an ingredient and clear its prior approval
+ */
+export const useEditAdminIngredient = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof editAdminIngredient>>, TError,EditAdminIngredientMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof editAdminIngredient>>,
+        TError,
+        EditAdminIngredientMutationVariables,
+        TContext
+      > => {
+      return useMutation(getEditAdminIngredientMutationOptions(options));
+    }
+
+export const getApproveAdminIngredientUrl = (ingredientId: string,) => {
+
+
+
+
+  return `/api/ingredient-admin/${ingredientId}/approve`
+}
+
+/**
+ * @summary Reviewer approves a cited SAP value
+ */
+export const approveAdminIngredient = async (ingredientId: string,
+    ingredientApproval: IngredientApproval, options?: Parameters<typeof customFetch>[1]): Promise<AdminIngredient> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<AdminIngredient>(getApproveAdminIngredientUrl(ingredientId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(ingredientApproval)
+  }
+);}
+
+
+
+
+
+export const getApproveAdminIngredientMutationKey = () => ['approveAdminIngredient'] as const;
+
+export const getApproveAdminIngredientMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof approveAdminIngredient>>, TError,ApproveAdminIngredientMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof approveAdminIngredient>>, TError,ApproveAdminIngredientMutationVariables, TContext> => {
+
+const mutationKey = getApproveAdminIngredientMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof approveAdminIngredient>>, ApproveAdminIngredientMutationVariables> = (props) => {
+          const {ingredientId,data} = props ?? {};
+
+          return  approveAdminIngredient(ingredientId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ApproveAdminIngredientMutationResult = NonNullable<Awaited<ReturnType<typeof approveAdminIngredient>>>
+    export type ApproveAdminIngredientMutationBody = BodyType<IngredientApproval>
+    export type ApproveAdminIngredientMutationError = ErrorType<void>
+    export type ApproveAdminIngredientMutationVariables = {ingredientId: string;data: BodyType<IngredientApproval>}
+
+    /**
+ * @summary Reviewer approves a cited SAP value
+ */
+export const useApproveAdminIngredient = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof approveAdminIngredient>>, TError,ApproveAdminIngredientMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof approveAdminIngredient>>,
+        TError,
+        ApproveAdminIngredientMutationVariables,
+        TContext
+      > => {
+      return useMutation(getApproveAdminIngredientMutationOptions(options));
+    }
 

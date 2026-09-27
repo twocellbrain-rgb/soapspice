@@ -37,6 +37,12 @@ SoapSpice is a staged soapmaking website; its first working slice has an ingredi
 - Ingredients and SAP values are database-backed and source-linked, while browser-saved formulas remain local until account-backed persistence is implemented.
 - Starter SAP entries remain labeled as needing administrator review. Do not present their results as certified safe recipes.
 
+## Ingredient review access
+
+- Ingredient administration is at `/ingredient-admin`. It requires a signed-in Clerk account and a row in `soap_ingredient_staff`; signing up alone does not grant access. The denied-access screen shows the account's Clerk user ID for provisioning.
+- A database administrator grants access in the development database with `INSERT INTO soap_ingredient_staff (user_id, role) VALUES ('<Clerk user ID>', 'editor');` or the role `reviewer`. Never grant staff roles through a public endpoint or client metadata. Apply grants separately to the production database through an authorized operational process; publishing schema changes does not grant users access.
+- Editors can create drafts and source-linked records, and editing clears approval. Source-linked edits require a source title, HTTP(S) URL, and provenance explaining the value and ingredient variant. Only a different reviewer can approve a record. Starter values still need provenance added by an editor before they can be approved. Drafts are hidden from the public catalog and calculator; pending records are visibly labeled, not verified.
+
 ## Product
 
 The homepage leads to a calculator and a searchable ingredient catalog. Users can validate, scale, print, and save a NaOH formula in the current browser.

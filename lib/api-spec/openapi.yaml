@@ -12,6 +12,8 @@ tags:
     description: Health operations
   - name: ingredients
     description: Public ingredient reference data
+  - name: ingredient administration
+    description: Authenticated staff-only editing and review
   - name: recipes
     description: Private maker formulas
 paths:
@@ -191,6 +193,105 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /ingredient-admin/me:
+    get:
+      operationId: getIngredientStaff
+      tags: [ingredient administration]
+      summary: Check my ingredient staff access
+      responses:
+        "200":
+          description: Staff role
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IngredientStaff"
+        "401": { description: Sign in required }
+        "403": { description: Staff access required }
+  /ingredient-admin:
+    get:
+      operationId: listAdminIngredients
+      tags: [ingredient administration]
+      summary: List all ingredients including drafts and inactive records
+      responses:
+        "200":
+          description: Staff catalog
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AdminIngredient" }
+        "401": { description: Sign in required }
+        "403": { description: Staff access required }
+    post:
+      operationId: createAdminIngredient
+      tags: [ingredient administration]
+      summary: Create a draft or source-linked ingredient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/IngredientEdit" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminIngredient" }
+        "400": { description: Invalid input }
+        "401": { description: Sign in required }
+        "403": { description: Staff access required }
+        "409": { description: Ingredient ID already exists }
+  /ingredient-admin/{ingredientId}:
+    put:
+      operationId: editAdminIngredient
+      tags: [ingredient administration]
+      summary: Edit an ingredient and clear its prior approval
+      parameters:
+        - in: path
+          name: ingredientId
+          required: true
+          schema: { type: string, minLength: 1, maxLength: 100 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/IngredientEdit" }
+      responses:
+        "200":
+          description: Edited
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminIngredient" }
+        "400": { description: Invalid input }
+        "401": { description: Sign in required }
+        "403": { description: Staff access required }
+        "404": { description: Ingredient not found }
+  /ingredient-admin/{ingredientId}/approve:
+    post:
+      operationId: approveAdminIngredient
+      tags: [ingredient administration]
+      summary: Reviewer approves a cited SAP value
+      parameters:
+        - in: path
+          name: ingredientId
+          required: true
+          schema: { type: string, minLength: 1, maxLength: 100 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/IngredientApproval" }
+      responses:
+        "200":
+          description: Approved
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminIngredient" }
+        "400": { description: Missing provenance or citation }
+        "401": { description: Sign in required }
+        "403": { description: Reviewer access required }
+        "404": { description: Ingredient not found }
+        "409": { description: Ingredient changed since reviewer loaded it }
 components:
   schemas:
     RecipeOilInput:
@@ -323,9 +424,11 @@ components:
           type: string
         sapSourceUrl:
           type: string
+        sapProvenance:
+          type: string
         verificationStatus:
           type: string
-          enum: [source-linked-needs-review, administrator-verified]
+          enum: [draft, source-linked-needs-review, administrator-verified]
       required:
         - id
         - name
@@ -336,7 +439,47 @@ components:
         - kohSap
         - sapSourceTitle
         - sapSourceUrl
+        - sapProvenance
         - verificationStatus
+    AdminIngredient:
+      allOf:
+        - $ref: "#/components/schemas/Ingredient"
+        - type: object
+          required: [active, reviewedBy, reviewedAt, lastEditedBy, revision]
+          properties:
+            active: { type: boolean }
+            reviewedBy: { type: ["string", "null"] }
+            reviewedAt: { type: ["string", "null"], format: date-time }
+            lastEditedBy: { type: ["string", "null"] }
+            revision: { type: integer, minimum: 0 }
+    IngredientApproval:
+      type: object
+      required: [expectedRevision]
+      properties:
+        expectedRevision: { type: integer, minimum: 0 }
+    IngredientStaff:
+      type: object
+      required: [role]
+      properties:
+        role: { type: string, enum: [editor, reviewer] }
+    IngredientEdit:
+      type: object
+      additionalProperties: false
+      required: [id, name, alternateNames, category, description, naohSap, kohSap, sapSourceTitle, sapSourceUrl, sapProvenance, active]
+      properties:
+        id: { type: string, pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$", maxLength: 100 }
+        name: { type: string, minLength: 1, maxLength: 120 }
+        alternateNames:
+          type: array
+          items: { type: string, minLength: 1, maxLength: 120 }
+        category: { type: string, enum: [oil, butter] }
+        description: { type: string, minLength: 1, maxLength: 2000 }
+        naohSap: { type: number, exclusiveMinimum: 0, maximum: 0.5 }
+        kohSap: { type: number, exclusiveMinimum: 0, maximum: 0.7 }
+        sapSourceTitle: { type: string, maxLength: 300 }
+        sapSourceUrl: { type: string, maxLength: 2000 }
+        sapProvenance: { type: string, maxLength: 2000 }
+        active: { type: boolean }
     Error:
       type: object
       properties:
