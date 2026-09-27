@@ -108,19 +108,19 @@ type SavedRecipe = {
   liquidMethod?: 'batch-22';
 };
 
-function AccountNav() {
+function AccountNav({ onNavigate }: { onNavigate: () => void }) {
   const { signOut } = useClerk();
   const { isSignedIn } = useAuth();
   const staff = useGetIngredientStaff({ query: { queryKey: getGetIngredientStaffQueryKey(), enabled: Boolean(isSignedIn), retry: false } });
   return <>
     <Show when="signed-in">
-      <Link href="/my-formulas" onClick={() => {}} >My formulas</Link>
-      {staff.data && <Link href="/ingredient-admin">Review ingredients</Link>}
-      <button type="button" onClick={() => signOut({ redirectUrl: basePath || '/' })}>Sign out</button>
+      <Link href="/my-formulas" onClick={onNavigate}>My formulas</Link>
+      {staff.data && <Link href="/ingredient-admin" onClick={onNavigate}>Review ingredients</Link>}
+      <button type="button" onClick={() => { onNavigate(); void signOut({ redirectUrl: basePath || '/' }); }}>Sign out</button>
     </Show>
     <Show when="signed-out">
-      <Link href="/sign-in">Sign in</Link>
-      <Link href="/sign-up">Create account</Link>
+      <Link href="/sign-in" onClick={onNavigate}>Sign in</Link>
+      <Link href="/sign-up" onClick={onNavigate}>Create account</Link>
     </Show>
   </>;
 }
@@ -138,6 +138,8 @@ const buttonQuiet = 'inline-flex items-center justify-center gap-2 rounded-full 
 
 function Shell({ children }: { children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [location] = useLocation();
+  const closeMenu = () => setMenuOpen(false);
   return (
     <div className="soap-shell">
       <div className="sc-ribbon" aria-label="Create, calculate, craft">
@@ -153,11 +155,11 @@ function Shell({ children }: { children: ReactNode }) {
             {menuOpen ? <X size={21} /> : <Menu size={21} />}
           </button>
           <nav className={`sc-nav${menuOpen ? ' is-open' : ''}`} aria-label="Main navigation">
-            <Link href="/calculators/cold-process-soap" onClick={() => setMenuOpen(false)} data-testid="link-calculator">Calculator</Link>
-            <Link href="/ingredients" onClick={() => setMenuOpen(false)} data-testid="link-ingredients">Ingredient catalog</Link>
-            <Link href="/soapmaking-glossary" onClick={() => setMenuOpen(false)} data-testid="link-glossary">Glossary</Link>
-            <AccountNav />
-            <Link href="/calculators/cold-process-soap" onClick={() => setMenuOpen(false)} data-testid="link-start-formula" className="sc-nav-cta">Start a formula <ArrowRight size={16} /></Link>
+            <Link href="/calculators/cold-process-soap" onClick={closeMenu} aria-current={location === '/calculators/cold-process-soap' || location === '/my-formulas' ? 'page' : undefined} data-testid="link-calculator">Calculator</Link>
+            <Link href="/ingredients" onClick={closeMenu} aria-current={location === '/ingredients' || location.startsWith('/ingredients/') ? 'page' : undefined} data-testid="link-ingredients">Ingredient catalog</Link>
+            <Link href="/soapmaking-glossary" onClick={closeMenu} aria-current={location === '/soapmaking-glossary' ? 'page' : undefined} data-testid="link-glossary">Glossary</Link>
+            <AccountNav onNavigate={closeMenu} />
+            <Link href="/calculators/cold-process-soap" onClick={closeMenu} data-testid="link-start-formula" className="sc-nav-cta">Start a formula <ArrowRight size={16} /></Link>
           </nav>
         </div>
       </header>
