@@ -2,3 +2,4 @@
 - [Soap liquid guidance](soap-liquid-guidance.md) — Automatic liquid is a disclosed cold-process baseline, not an optimum inferred from SAP or fragrance weights.
 - [Legacy formula migration](legacy-formula-migration.md) — imported browser formulas remain drafts; originals stay intact because old saves lack historical SAP snapshots.
 - [SoapSpice preview API routing](soapspice-preview-api-routing.md) — Test API-backed calculator flows through the artifact preview proxy, not the frontend's direct dev-server port.
+- [Soap fragrance guidance](soap-fragrance-guidance.md) — Keep batch scent-strength suggestions separate from supplier-specific IFRA screening and blend safety.

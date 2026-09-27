@@ -17,6 +17,11 @@ export const listRecipesResponseFragrancesItemNameMax = 120;
 
 export const listRecipesResponseFragrancesItemAmountExclusiveMin = 0;
 
+export const listRecipesResponseFragrancesItemIfraMaxPercentMin = 0;
+export const listRecipesResponseFragrancesItemIfraMaxPercentMax = 100;
+
+export const listRecipesResponseFragrancesItemIfraSourceUrlMax = 500;
+
 
 
 export const ListRecipesResponseItem = zod.object({
@@ -30,7 +35,9 @@ export const ListRecipesResponseItem = zod.object({
   "id": zod.string().min(1).max(listRecipesResponseFragrancesItemIdMax),
   "name": zod.string().min(1).max(listRecipesResponseFragrancesItemNameMax),
   "amount": zod.number().gt(listRecipesResponseFragrancesItemAmountExclusiveMin),
-  "unit": zod.enum(['g', 'oz', 'percent'])
+  "unit": zod.enum(['g', 'oz', 'percent']),
+  "ifraMaxPercent": zod.number().min(listRecipesResponseFragrancesItemIfraMaxPercentMin).max(listRecipesResponseFragrancesItemIfraMaxPercentMax).optional().describe('Supplier IFRA maximum for this exact fragrance and bar-soap application, as a percentage of finished product.'),
+  "ifraSourceUrl": zod.string().url().max(listRecipesResponseFragrancesItemIfraSourceUrlMax).optional()
 })).optional(),
   "liquidType": zod.enum(['distilled-water', 'goat-milk', 'cow-milk', 'other']).optional(),
   "customLiquid": zod.string().optional(),
@@ -69,6 +76,11 @@ export const createRecipeBodyFragrancesItemNameMax = 120;
 
 export const createRecipeBodyFragrancesItemAmountExclusiveMin = 0;
 
+export const createRecipeBodyFragrancesItemIfraMaxPercentMin = 0;
+export const createRecipeBodyFragrancesItemIfraMaxPercentMax = 100;
+
+export const createRecipeBodyFragrancesItemIfraSourceUrlMax = 500;
+
 export const createRecipeBodyFragrancesMax = 50;
 
 export const createRecipeBodyCustomLiquidMax = 120;
@@ -96,7 +108,9 @@ export const CreateRecipeBody = zod.object({
   "id": zod.string().min(1).max(createRecipeBodyFragrancesItemIdMax),
   "name": zod.string().min(1).max(createRecipeBodyFragrancesItemNameMax),
   "amount": zod.number().gt(createRecipeBodyFragrancesItemAmountExclusiveMin),
-  "unit": zod.enum(['g', 'oz', 'percent'])
+  "unit": zod.enum(['g', 'oz', 'percent']),
+  "ifraMaxPercent": zod.number().min(createRecipeBodyFragrancesItemIfraMaxPercentMin).max(createRecipeBodyFragrancesItemIfraMaxPercentMax).optional().describe('Supplier IFRA maximum for this exact fragrance and bar-soap application, as a percentage of finished product.'),
+  "ifraSourceUrl": zod.string().url().max(createRecipeBodyFragrancesItemIfraSourceUrlMax).optional()
 })).max(createRecipeBodyFragrancesMax).optional(),
   "liquidType": zod.enum(['distilled-water', 'goat-milk', 'cow-milk', 'other']).optional(),
   "customLiquid": zod.string().max(createRecipeBodyCustomLiquidMax).optional(),
@@ -116,6 +130,11 @@ export const createRecipeResponseFragrancesItemNameMax = 120;
 
 export const createRecipeResponseFragrancesItemAmountExclusiveMin = 0;
 
+export const createRecipeResponseFragrancesItemIfraMaxPercentMin = 0;
+export const createRecipeResponseFragrancesItemIfraMaxPercentMax = 100;
+
+export const createRecipeResponseFragrancesItemIfraSourceUrlMax = 500;
+
 
 
 export const CreateRecipeResponse = zod.object({
@@ -129,7 +148,9 @@ export const CreateRecipeResponse = zod.object({
   "id": zod.string().min(1).max(createRecipeResponseFragrancesItemIdMax),
   "name": zod.string().min(1).max(createRecipeResponseFragrancesItemNameMax),
   "amount": zod.number().gt(createRecipeResponseFragrancesItemAmountExclusiveMin),
-  "unit": zod.enum(['g', 'oz', 'percent'])
+  "unit": zod.enum(['g', 'oz', 'percent']),
+  "ifraMaxPercent": zod.number().min(createRecipeResponseFragrancesItemIfraMaxPercentMin).max(createRecipeResponseFragrancesItemIfraMaxPercentMax).optional().describe('Supplier IFRA maximum for this exact fragrance and bar-soap application, as a percentage of finished product.'),
+  "ifraSourceUrl": zod.string().url().max(createRecipeResponseFragrancesItemIfraSourceUrlMax).optional()
 })).optional(),
   "liquidType": zod.enum(['distilled-water', 'goat-milk', 'cow-milk', 'other']).optional(),
   "customLiquid": zod.string().optional(),
@@ -169,6 +190,11 @@ export const importRecipeBodyFragrancesItemNameMax = 120;
 
 export const importRecipeBodyFragrancesItemAmountExclusiveMin = 0;
 
+export const importRecipeBodyFragrancesItemIfraMaxPercentMin = 0;
+export const importRecipeBodyFragrancesItemIfraMaxPercentMax = 100;
+
+export const importRecipeBodyFragrancesItemIfraSourceUrlMax = 500;
+
 export const importRecipeBodyFragrancesMax = 50;
 
 export const importRecipeBodyCustomLiquidMax = 120;
@@ -197,7 +223,9 @@ export const ImportRecipeBody = zod.object({
   "id": zod.string().min(1).max(importRecipeBodyFragrancesItemIdMax),
   "name": zod.string().min(1).max(importRecipeBodyFragrancesItemNameMax),
   "amount": zod.number().gt(importRecipeBodyFragrancesItemAmountExclusiveMin),
-  "unit": zod.enum(['g', 'oz', 'percent'])
+  "unit": zod.enum(['g', 'oz', 'percent']),
+  "ifraMaxPercent": zod.number().min(importRecipeBodyFragrancesItemIfraMaxPercentMin).max(importRecipeBodyFragrancesItemIfraMaxPercentMax).optional().describe('Supplier IFRA maximum for this exact fragrance and bar-soap application, as a percentage of finished product.'),
+  "ifraSourceUrl": zod.string().url().max(importRecipeBodyFragrancesItemIfraSourceUrlMax).optional()
 })).max(importRecipeBodyFragrancesMax).optional(),
   "liquidType": zod.enum(['distilled-water', 'goat-milk', 'cow-milk', 'other']).optional(),
   "customLiquid": zod.string().max(importRecipeBodyCustomLiquidMax).optional(),
@@ -217,6 +245,11 @@ export const importRecipeResponseFragrancesItemNameMax = 120;
 
 export const importRecipeResponseFragrancesItemAmountExclusiveMin = 0;
 
+export const importRecipeResponseFragrancesItemIfraMaxPercentMin = 0;
+export const importRecipeResponseFragrancesItemIfraMaxPercentMax = 100;
+
+export const importRecipeResponseFragrancesItemIfraSourceUrlMax = 500;
+
 
 
 export const ImportRecipeResponse = zod.object({
@@ -230,7 +263,9 @@ export const ImportRecipeResponse = zod.object({
   "id": zod.string().min(1).max(importRecipeResponseFragrancesItemIdMax),
   "name": zod.string().min(1).max(importRecipeResponseFragrancesItemNameMax),
   "amount": zod.number().gt(importRecipeResponseFragrancesItemAmountExclusiveMin),
-  "unit": zod.enum(['g', 'oz', 'percent'])
+  "unit": zod.enum(['g', 'oz', 'percent']),
+  "ifraMaxPercent": zod.number().min(importRecipeResponseFragrancesItemIfraMaxPercentMin).max(importRecipeResponseFragrancesItemIfraMaxPercentMax).optional().describe('Supplier IFRA maximum for this exact fragrance and bar-soap application, as a percentage of finished product.'),
+  "ifraSourceUrl": zod.string().url().max(importRecipeResponseFragrancesItemIfraSourceUrlMax).optional()
 })).optional(),
   "liquidType": zod.enum(['distilled-water', 'goat-milk', 'cow-milk', 'other']).optional(),
   "customLiquid": zod.string().optional(),
@@ -262,6 +297,11 @@ export const getRecipeResponseFragrancesItemNameMax = 120;
 
 export const getRecipeResponseFragrancesItemAmountExclusiveMin = 0;
 
+export const getRecipeResponseFragrancesItemIfraMaxPercentMin = 0;
+export const getRecipeResponseFragrancesItemIfraMaxPercentMax = 100;
+
+export const getRecipeResponseFragrancesItemIfraSourceUrlMax = 500;
+
 
 
 export const GetRecipeResponse = zod.object({
@@ -275,7 +315,9 @@ export const GetRecipeResponse = zod.object({
   "id": zod.string().min(1).max(getRecipeResponseFragrancesItemIdMax),
   "name": zod.string().min(1).max(getRecipeResponseFragrancesItemNameMax),
   "amount": zod.number().gt(getRecipeResponseFragrancesItemAmountExclusiveMin),
-  "unit": zod.enum(['g', 'oz', 'percent'])
+  "unit": zod.enum(['g', 'oz', 'percent']),
+  "ifraMaxPercent": zod.number().min(getRecipeResponseFragrancesItemIfraMaxPercentMin).max(getRecipeResponseFragrancesItemIfraMaxPercentMax).optional().describe('Supplier IFRA maximum for this exact fragrance and bar-soap application, as a percentage of finished product.'),
+  "ifraSourceUrl": zod.string().url().max(getRecipeResponseFragrancesItemIfraSourceUrlMax).optional()
 })).optional(),
   "liquidType": zod.enum(['distilled-water', 'goat-milk', 'cow-milk', 'other']).optional(),
   "customLiquid": zod.string().optional(),
@@ -317,6 +359,11 @@ export const updateRecipeBodyFragrancesItemNameMax = 120;
 
 export const updateRecipeBodyFragrancesItemAmountExclusiveMin = 0;
 
+export const updateRecipeBodyFragrancesItemIfraMaxPercentMin = 0;
+export const updateRecipeBodyFragrancesItemIfraMaxPercentMax = 100;
+
+export const updateRecipeBodyFragrancesItemIfraSourceUrlMax = 500;
+
 export const updateRecipeBodyFragrancesMax = 50;
 
 export const updateRecipeBodyCustomLiquidMax = 120;
@@ -344,7 +391,9 @@ export const UpdateRecipeBody = zod.object({
   "id": zod.string().min(1).max(updateRecipeBodyFragrancesItemIdMax),
   "name": zod.string().min(1).max(updateRecipeBodyFragrancesItemNameMax),
   "amount": zod.number().gt(updateRecipeBodyFragrancesItemAmountExclusiveMin),
-  "unit": zod.enum(['g', 'oz', 'percent'])
+  "unit": zod.enum(['g', 'oz', 'percent']),
+  "ifraMaxPercent": zod.number().min(updateRecipeBodyFragrancesItemIfraMaxPercentMin).max(updateRecipeBodyFragrancesItemIfraMaxPercentMax).optional().describe('Supplier IFRA maximum for this exact fragrance and bar-soap application, as a percentage of finished product.'),
+  "ifraSourceUrl": zod.string().url().max(updateRecipeBodyFragrancesItemIfraSourceUrlMax).optional()
 })).max(updateRecipeBodyFragrancesMax).optional(),
   "liquidType": zod.enum(['distilled-water', 'goat-milk', 'cow-milk', 'other']).optional(),
   "customLiquid": zod.string().max(updateRecipeBodyCustomLiquidMax).optional(),
@@ -364,6 +413,11 @@ export const updateRecipeResponseFragrancesItemNameMax = 120;
 
 export const updateRecipeResponseFragrancesItemAmountExclusiveMin = 0;
 
+export const updateRecipeResponseFragrancesItemIfraMaxPercentMin = 0;
+export const updateRecipeResponseFragrancesItemIfraMaxPercentMax = 100;
+
+export const updateRecipeResponseFragrancesItemIfraSourceUrlMax = 500;
+
 
 
 export const UpdateRecipeResponse = zod.object({
@@ -377,7 +431,9 @@ export const UpdateRecipeResponse = zod.object({
   "id": zod.string().min(1).max(updateRecipeResponseFragrancesItemIdMax),
   "name": zod.string().min(1).max(updateRecipeResponseFragrancesItemNameMax),
   "amount": zod.number().gt(updateRecipeResponseFragrancesItemAmountExclusiveMin),
-  "unit": zod.enum(['g', 'oz', 'percent'])
+  "unit": zod.enum(['g', 'oz', 'percent']),
+  "ifraMaxPercent": zod.number().min(updateRecipeResponseFragrancesItemIfraMaxPercentMin).max(updateRecipeResponseFragrancesItemIfraMaxPercentMax).optional().describe('Supplier IFRA maximum for this exact fragrance and bar-soap application, as a percentage of finished product.'),
+  "ifraSourceUrl": zod.string().url().max(updateRecipeResponseFragrancesItemIfraSourceUrlMax).optional()
 })).optional(),
   "liquidType": zod.enum(['distilled-water', 'goat-milk', 'cow-milk', 'other']).optional(),
   "customLiquid": zod.string().optional(),

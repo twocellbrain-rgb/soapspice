@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { calculateNaohFormula, fragranceWeightGrams, GRAMS_PER_OUNCE, LIQUID_BATCH_FRACTION, oilWeightTotal, percentagesFromWeights, validateNaohFormula, type NaohFormulaInput } from './formulation.ts';
+import { calculateNaohFormula, combinedScentStrength, fragranceIfraScreen, fragranceScentGuide, fragranceWeightGrams, GRAMS_PER_OUNCE, LIQUID_BATCH_FRACTION, oilWeightTotal, percentagesFromWeights, validateNaohFormula, type NaohFormulaInput } from './formulation.ts';
 
 const ingredients = new Map([
   ['olive', { naohSap: 0.135 }],
@@ -92,6 +92,45 @@ test('fragrance names, units and positive amounts are required', () => {
   assert.ok(validateNaohFormula(oneOil({ fragrances: [{ id: 'a', name: '', amount: 2, unit: 'percent' }] })).some((error) => error.includes('Name')));
   assert.ok(validateNaohFormula(oneOil({ fragrances: [{ id: 'a', name: 'Rose', amount: -1, unit: 'oz' }] })).some((error) => error.includes('positive')));
   assert.ok(validateNaohFormula(oneOil({ fragrances: [{ id: 'a', name: 'Rose', amount: 150, unit: 'percent' }] })).some((error) => error.includes('more than')));
+});
+
+test('scent levels scale from unscented complete-batch weight and do not change with entered scent amount', () => {
+  const base = calculateNaohFormula(oneOil());
+  const first = fragranceScentGuide({ id: 'rose', name: 'Rose', amount: 25, unit: 'g', ifraMaxPercent: 7 }, 1000, base.naoh);
+  const changed = fragranceScentGuide({ id: 'rose', name: 'Rose', amount: 80, unit: 'g', ifraMaxPercent: 7 }, 1000, base.naoh);
+  near(first.unscentedBatchGrams, (1000 + base.naoh) / (1 - LIQUID_BATCH_FRACTION));
+  near(first.tiers[0].grams, first.unscentedBatchGrams / 16);
+  near(first.tiers[1].grams, first.unscentedBatchGrams * 0.7 / 16);
+  near(first.tiers[2].grams, first.unscentedBatchGrams * 0.35 / 16);
+  near(first.maximumGrams!, 70);
+  assert.equal(first.exceeds, false);
+  assert.equal(changed.exceeds, true);
+  assert.equal(first.tiers[0].exceeds, true);
+  assert.equal(first.tiers[1].exceeds, false);
+  near(changed.tiers[1].grams, first.tiers[1].grams);
+});
+
+test('missing, zero, and invalid IFRA rates cannot be mistaken for a safe maximum', () => {
+  const fragrance = { id: 'rose', name: 'Rose', amount: 10, unit: 'g' as const };
+  assert.equal(fragranceIfraScreen(fragrance, 1000).maximumGrams, null);
+  assert.equal(fragranceIfraScreen({ ...fragrance, ifraMaxPercent: 0 }, 1000).exceeds, true);
+  assert.ok(validateNaohFormula(oneOil({ fragrances: [{ ...fragrance, ifraMaxPercent: -1 }] })).some(e => e.includes('IFRA maximum')));
+  assert.ok(validateNaohFormula(oneOil({ fragrances: [{ ...fragrance, ifraMaxPercent: 101 }] })).some(e => e.includes('IFRA maximum')));
+  assert.ok(validateNaohFormula(oneOil({ fragrances: [{ ...fragrance, ifraSourceUrl: 'javascript:alert(1)' }] })).some(e => e.includes('IFRA source')));
+  assert.deepEqual(validateNaohFormula(oneOil({ fragrances: [{ ...fragrance, ifraMaxPercent: 5, ifraSourceUrl: 'https://supplier.example/ifra.pdf' }] })), []);
+});
+
+test('two fragrances at the medium guide each add up to above strong, not medium', () => {
+  const base = calculateNaohFormula(oneOil());
+  const mediumGrams = fragranceScentGuide({ id: 'a', name: 'A', amount: 1, unit: 'g' }, 1000, base.naoh).tiers[1].grams;
+  const combined = combinedScentStrength([
+    { id: 'a', name: 'A', amount: mediumGrams, unit: 'g' },
+    { id: 'b', name: 'B', amount: mediumGrams, unit: 'g' },
+  ], 1000, base.naoh);
+  near(combined.ouncesPerPound, 1.4);
+  assert.equal(combined.strengthLabel, 'Above strong');
+  const one = combinedScentStrength([{ id: 'a', name: 'A', amount: mediumGrams, unit: 'g' }], 1000, base.naoh);
+  assert.equal(one.strengthLabel, 'At medium');
 });
 
 test('scaling from 1000 g to 2500 g preserves the formulation ratios', () => {

@@ -4,7 +4,7 @@ import { z } from "zod/v4";
 
 export type RecipeOil = { id: string; name: string; percentage: number; weight: number; savedSap: number | null };
 export type RecipeExtras = {
-  fragrances?: { id: string; name: string; amount: number; unit: "g" | "oz" | "percent" }[];
+  fragrances?: { id: string; name: string; amount: number; unit: "g" | "oz" | "percent"; ifraMaxPercent?: number; ifraSourceUrl?: string }[];
   liquidType?: "distilled-water" | "goat-milk" | "cow-milk" | "other";
   customLiquid?: string;
   oilInputUnit?: "percent" | "g" | "oz";

@@ -24,12 +24,22 @@ export const GRAMS_PER_OUNCE = 28.349523125;
 // Approximate typical liquid share of the complete pre-saponification batch.
 // This is our own disclosed starting model, not Bramble Berry's published formula.
 export const LIQUID_BATCH_FRACTION = 0.22;
+// Bramble Berry publishes 0.7 oz/lb of total cold-process soap as a general
+// medium-strength reference. Mild and strong are SoapSpice guide levels, not
+// fragrance-specific recommendations from Bramble Berry.
+export const SCENT_GUIDE_OZ_PER_LB = [
+  { label: 'Strong', ouncesPerPound: 1 },
+  { label: 'Medium', ouncesPerPound: 0.7 },
+  { label: 'Mild', ouncesPerPound: 0.35 },
+] as const;
 
 export type FragranceRow = {
   id: string;
   name: string;
   amount: number;
   unit: 'g' | 'oz' | 'percent';
+  ifraMaxPercent?: number;
+  ifraSourceUrl?: string;
 };
 
 export type NaohFormulaInput = {
@@ -46,6 +56,72 @@ export function fragranceWeightGrams(row: FragranceRow, totalOilGrams: number): 
     case 'oz': return row.amount * GRAMS_PER_OUNCE;
     case 'percent': return totalOilGrams * row.amount / 100;
     default: return NaN;
+  }
+}
+
+export function fragranceIfraScreen(row: FragranceRow, totalOilGrams: number) {
+  // IFRA certificates express a limit for finished product. Oil weight is a
+  // conservative screening base while the cured soap weight is unknown.
+  const maximumGrams = row.ifraMaxPercent == null || !Number.isFinite(row.ifraMaxPercent) ||
+    row.ifraMaxPercent < 0 || row.ifraMaxPercent > 100
+    ? null : totalOilGrams * row.ifraMaxPercent / 100;
+  const enteredGrams = fragranceWeightGrams(row, totalOilGrams);
+  return {
+    maximumGrams,
+    enteredGrams,
+    exceeds: maximumGrams !== null && enteredGrams > maximumGrams + 1e-9,
+  };
+}
+
+function unscentedGuideBatchGrams(totalOilGrams: number, naohGrams: number): number {
+  return (totalOilGrams + naohGrams) / (1 - LIQUID_BATCH_FRACTION);
+}
+
+export function combinedScentStrength(fragrances: FragranceRow[], totalOilGrams: number, naohGrams: number) {
+  const totalGrams = fragrances.reduce((sum, row) => sum + fragranceWeightGrams(row, totalOilGrams), 0);
+  const guideBatchGrams = unscentedGuideBatchGrams(totalOilGrams, naohGrams);
+  const ouncesPerPound = totalGrams / guideBatchGrams * 16;
+  const mild = SCENT_GUIDE_OZ_PER_LB[2].ouncesPerPound;
+  const medium = SCENT_GUIDE_OZ_PER_LB[1].ouncesPerPound;
+  const strong = SCENT_GUIDE_OZ_PER_LB[0].ouncesPerPound;
+  const closeTo = (value: number) => Math.abs(ouncesPerPound - value) < 1e-9;
+  const strengthLabel = closeTo(mild) ? 'At mild'
+    : closeTo(medium) ? 'At medium'
+    : closeTo(strong) ? 'At strong'
+    : ouncesPerPound < mild ? 'Below mild'
+    : ouncesPerPound < medium ? 'Between mild and medium'
+    : ouncesPerPound < strong ? 'Between medium and strong'
+    : 'Above strong';
+  return { totalGrams, guideBatchGrams, ouncesPerPound, strengthLabel };
+}
+
+export function fragranceScentGuide(row: FragranceRow, totalOilGrams: number, naohGrams: number) {
+  // Bramble Berry's cold-process guide uses total soap weight (oils, liquid,
+  // lye). Use the unscented baseline so adding fragrance never raises its own
+  // recommendation. The existing liquid model is kept unchanged.
+  const unscentedBatchGrams = unscentedGuideBatchGrams(totalOilGrams, naohGrams);
+  const screen = fragranceIfraScreen(row, totalOilGrams);
+  return {
+    ...screen,
+    unscentedBatchGrams,
+    tiers: SCENT_GUIDE_OZ_PER_LB.map((tier) => {
+      const grams = unscentedBatchGrams * tier.ouncesPerPound / 16;
+      return {
+        ...tier,
+        grams,
+        percentOfBatch: tier.ouncesPerPound / 16 * 100,
+        exceeds: screen.maximumGrams !== null && grams > screen.maximumGrams + 1e-9,
+      };
+    }),
+  };
+}
+
+function validHttpUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' || url.protocol === 'http:';
+  } catch {
+    return false;
   }
 }
 
@@ -95,6 +171,14 @@ export function validateNaohFormula(input: NaohFormulaInput): string[] {
   }
   if (fragrances.reduce((sum, row) => sum + fragranceWeightGrams(row, totalOilGrams), 0) > totalOilGrams) {
     errors.push('Fragrance cannot weigh more than the total oils. Check the entered units.');
+  }
+  if (fragrances.some((row) => row.ifraMaxPercent != null &&
+    (!Number.isFinite(row.ifraMaxPercent) || row.ifraMaxPercent < 0 || row.ifraMaxPercent > 100))) {
+    errors.push('An IFRA maximum must be a percentage from 0% to 100%. Use 0% if the fragrance is not permitted in soap.');
+  }
+  if (fragrances.some((row) => row.ifraSourceUrl?.trim() &&
+    (row.ifraSourceUrl.length > 500 || !validHttpUrl(row.ifraSourceUrl)))) {
+    errors.push('Each IFRA source link must be a valid http or https URL of at most 500 characters.');
   }
 
   return errors;

@@ -21,4 +21,12 @@ export interface RecipeFragrance {
   /** @exclusiveMinimum 0 */
   amount: number;
   unit: RecipeFragranceUnit;
+  /**
+     * Supplier IFRA maximum for this exact fragrance and bar-soap application, as a percentage of finished product.
+     * @minimum 0
+     * @maximum 100
+     */
+  ifraMaxPercent?: number;
+  /** @maxLength 500 */
+  ifraSourceUrl?: string;
 }

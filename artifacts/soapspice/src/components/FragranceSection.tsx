@@ -1,6 +1,6 @@
 import { CircleAlert, Plus, Sparkles, Trash2 } from 'lucide-react';
 import type { FragranceRow } from '@/lib/formulation';
-import { fragranceWeightGrams } from '@/lib/formulation';
+import { fragranceIfraScreen, fragranceWeightGrams } from '@/lib/formulation';
 
 type FragranceSectionProps = {
   fragrances: FragranceRow[];
@@ -77,6 +77,7 @@ export default function FragranceSection({
           </div>
         ) : fragrances.map((row, index) => {
           const grams = fragranceWeightGrams(row, totalOilGrams);
+          const ifra = fragranceIfraScreen(row, totalOilGrams);
           return (
             <div
               key={row.id}
@@ -144,6 +145,57 @@ export default function FragranceSection({
                   </select>
                 </div>
               </div>
+              <div className="mt-4 grid gap-4 border-t border-[hsl(var(--border))] pt-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor={`fragrance-ifra-${row.id}`} className="mb-2 block text-xs font-bold text-[hsl(var(--foreground))]">Supplier IFRA maximum for bar soap (%)</label>
+                  <input
+                    id={`fragrance-ifra-${row.id}`}
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="any"
+                    inputMode="decimal"
+                    value={row.ifraMaxPercent ?? ''}
+                    onChange={(event) => updateRow(row.id, { ifraMaxPercent: event.target.value === '' ? undefined : Number(event.target.value) })}
+                    placeholder="From this fragrance’s IFRA statement"
+                    className={`${fieldClass} font-data`}
+                    data-testid={`input-fragrance-ifra-${row.id}`}
+                  />
+                  <p className="mt-1 text-[11px] leading-4 text-[hsl(var(--muted-foreground))]">Use the rate for this exact fragrance and soap application, as % of finished product. Enter 0 if not permitted.</p>
+                </div>
+                <div>
+                  <label htmlFor={`fragrance-ifra-source-${row.id}`} className="mb-2 block text-xs font-bold text-[hsl(var(--foreground))]">Supplier IFRA document link <span className="font-normal text-[hsl(var(--muted-foreground))]">(optional)</span></label>
+                  <input
+                    id={`fragrance-ifra-source-${row.id}`}
+                    type="url"
+                    maxLength={500}
+                    value={row.ifraSourceUrl ?? ''}
+                    onChange={(event) => updateRow(row.id, { ifraSourceUrl: event.target.value || undefined })}
+                    placeholder="https://supplier.example/ifra.pdf"
+                    className={fieldClass}
+                    data-testid={`input-fragrance-ifra-source-${row.id}`}
+                  />
+                </div>
+              </div>
+              {row.ifraMaxPercent === undefined ? (
+                <p className="mt-3 text-xs font-medium text-[hsl(var(--muted-foreground))]" data-testid={`status-ifra-input-${row.id}`}>
+                  IFRA maximum not supplied. This fragrance cannot be safety-screened yet.
+                </p>
+              ) : ifra.maximumGrams === null ? (
+                <p role="alert" className="mt-3 rounded-xl bg-[hsl(var(--destructive)/.1)] px-3 py-2 text-xs font-bold text-[hsl(var(--destructive))]" data-testid={`status-ifra-input-${row.id}`}>
+                  Enter an IFRA maximum from 0% to 100% for this fragrance’s bar-soap application.
+                </p>
+              ) : totalOilGrams > 0 && row.amount > 0 ? (
+                <p
+                  role={ifra.exceeds ? 'alert' : 'status'}
+                  className={`mt-3 rounded-xl px-3 py-2 text-xs font-bold ${ifra.exceeds ? 'bg-[hsl(var(--destructive)/.1)] text-[hsl(var(--destructive))]' : 'bg-[hsl(var(--primary)/.08)] text-[hsl(var(--primary))]'}`}
+                  data-testid={`status-ifra-input-${row.id}`}
+                >
+                  {ifra.exceeds
+                    ? `Above the conservative IFRA screen by ${(ifra.enteredGrams - ifra.maximumGrams!).toFixed(2)} g. Reduce the fragrance or verify finished-product usage with the supplier.`
+                    : `Within the conservative IFRA screen of ${ifra.maximumGrams!.toFixed(2)} g for this oil weight. Verify the finished bar with the supplier.`}
+                </p>
+              ) : null}
               <div className="mt-4 flex items-center justify-between gap-3 border-t border-[hsl(var(--border))] pt-3 text-xs text-[hsl(var(--muted-foreground))]">
                 <span>Converted weight</span>
                 <strong className="font-data text-sm text-[hsl(var(--primary))]" data-testid={`text-fragrance-grams-${row.id}`}>
@@ -162,7 +214,7 @@ export default function FragranceSection({
 
       <div role="note" className="mt-4 flex items-start gap-3 rounded-2xl border border-[hsl(var(--accent)/.35)] bg-[hsl(var(--accent)/.1)] px-4 py-3 text-xs leading-5 text-[hsl(var(--accent-foreground))]">
         <CircleAlert size={18} className="mt-0.5 shrink-0" aria-hidden="true" />
-        <p><strong>Check before making.</strong> Fragrance usage limits vary by material and supplier. Check your supplier guidance and the applicable IFRA maximum usage rate for your specific fragrance and soap application. Fragrance changes the batch-based liquid estimate, but never the NaOH calculation.</p>
+        <p><strong>Check before making.</strong> A generic scent name has no reliable IFRA rate. Add the maximum from the supplier’s statement for this exact fragrance and bar-soap application; a missing rate stays unverified. Our conservative screen uses oil weight because cured soap weight is not known. Blending fragrances may introduce shared restricted ingredients and needs separate supplier review. Fragrance changes the liquid estimate, never NaOH.</p>
       </div>
     </section>
   );

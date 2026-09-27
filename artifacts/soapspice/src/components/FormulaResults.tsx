@@ -1,5 +1,6 @@
 import { Check, FileSpreadsheet } from 'lucide-react';
-import { GRAMS_PER_OUNCE, type FragranceRow } from '@/lib/formulation';
+import { fragranceIfraScreen, GRAMS_PER_OUNCE, type FragranceRow } from '@/lib/formulation';
+import FragranceGuide from './FragranceGuide';
 
 type OilResultRow = {
   id: string;
@@ -54,7 +55,7 @@ export default function FormulaResults({
       <header className="flex flex-col justify-between gap-4 border-b border-[hsl(var(--border))] pb-5 sm:flex-row sm:items-center">
         <div>
           <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">
-            <Check size={15} aria-hidden="true" /> Validated formula
+            <Check size={15} aria-hidden="true" /> Lye math checked
           </p>
           <h2 id="formula-results-heading" className="mt-2 font-display text-3xl">Your batch at a glance</h2>
           <p className="mt-1 text-sm text-[hsl(var(--muted-foreground))]">
@@ -174,10 +175,10 @@ export default function FormulaResults({
         <section aria-labelledby="results-fragrance-heading" className="min-w-0 2xl:col-span-2">
           <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
             <h3 id="results-fragrance-heading" className="font-bold text-[hsl(var(--foreground))]">Fragrance inputs</h3>
-            <span className="text-xs text-[hsl(var(--muted-foreground))]">Supplier and IFRA limits are not checked by this calculator.</span>
+             <span className="text-xs text-[hsl(var(--muted-foreground))]">Only supplier limits you enter are screened below.</span>
           </div>
           <div className="overflow-x-auto rounded-2xl border border-[hsl(var(--border))]">
-            <table className="w-full min-w-[590px] border-collapse text-left" data-testid="table-fragrance-inputs">
+            <table className="w-full min-w-[720px] border-collapse text-left" data-testid="table-fragrance-inputs">
               <caption className="sr-only">Entered fragrance amounts and converted weights</caption>
               <thead className="bg-[hsl(var(--background))]">
                 <tr>
@@ -186,12 +187,13 @@ export default function FormulaResults({
                   <th scope="col" className={`${header} text-right`}>Grams</th>
                   <th scope="col" className={`${header} text-right`}>Ounces</th>
                   <th scope="col" className={`${header} text-right`}>% of oils</th>
+                  <th scope="col" className={header}>IFRA screen</th>
                 </tr>
               </thead>
               <tbody>
                 {fragrances.length === 0 ? (
                   <tr className="border-t border-[hsl(var(--border))]">
-                    <td colSpan={5} className={`${cell} text-[hsl(var(--muted-foreground))]`}>No fragrance added · unscented batch</td>
+                    <td colSpan={6} className={`${cell} text-[hsl(var(--muted-foreground))]`}>No fragrance added · unscented batch</td>
                   </tr>
                 ) : fragrances.map((fragrance) => {
                   const grams = fragrance.unit === 'g'
@@ -200,6 +202,7 @@ export default function FormulaResults({
                       ? fragrance.amount * GRAMS_PER_OUNCE
                       : totalOilGrams * fragrance.amount / 100;
                   const percent = totalOilGrams > 0 ? grams / totalOilGrams * 100 : 0;
+                  const screen = fragranceIfraScreen(fragrance, totalOilGrams);
                   return (
                     <tr key={fragrance.id} className="border-t border-[hsl(var(--border))]" data-testid={`result-fragrance-${fragrance.id}`}>
                       <th scope="row" className={`${cell} font-medium`}>{fragrance.name}</th>
@@ -207,6 +210,9 @@ export default function FormulaResults({
                       <td className={`${cell} text-right font-data`}>{mass(grams, 'g')}</td>
                       <td className={`${cell} text-right font-data`}>{mass(grams, 'oz')}</td>
                       <td className={`${cell} text-right font-data`}>{percent.toFixed(2)}%</td>
+                      <td className={`${cell} whitespace-nowrap ${screen.exceeds ? 'font-bold text-[hsl(var(--destructive))]' : ''}`} data-testid={`result-ifra-${fragrance.id}`}>
+                        {screen.maximumGrams === null ? 'Not checked' : screen.exceeds ? 'Above limit' : 'Within screen'}
+                      </td>
                     </tr>
                   );
                 })}
@@ -214,6 +220,7 @@ export default function FormulaResults({
             </table>
           </div>
         </section>
+        <FragranceGuide fragrances={fragrances} totalOilGrams={totalOilGrams} naohGrams={result.naoh} />
       </div>
     </section>
   );

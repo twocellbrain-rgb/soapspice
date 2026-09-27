@@ -393,6 +393,12 @@ components:
         name: { type: string, minLength: 1, maxLength: 120 }
         amount: { type: number, exclusiveMinimum: 0 }
         unit: { type: string, enum: [g, oz, percent] }
+        ifraMaxPercent:
+          type: number
+          minimum: 0
+          maximum: 100
+          description: Supplier IFRA maximum for this exact fragrance and bar-soap application, as a percentage of finished product.
+        ifraSourceUrl: { type: string, format: uri, maxLength: 500 }
     HealthStatus:
       type: object
       properties:
