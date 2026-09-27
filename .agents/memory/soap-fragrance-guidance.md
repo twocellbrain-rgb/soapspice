@@ -8,3 +8,9 @@ For SoapSpice fragrance guidance, use Bramble Berry's published 0.7 oz per pound
 **Why:** The user directed us to use Bramble Berry's calculator as a reference, but published general scent guidance and supplier IFRA finished-product limits answer different questions. Cured-bar mass and restricted constituents of blended fragrances are not known to this calculator.
 
 **How to apply:** Preserve this distinction whenever changing fragrance calculations, copy, exports, or saved recipes. Show missing supplier rates as unverified and do not imply that independently passing fragrance limits makes a blend compliant.
+
+Do not depend on live server-side scraping of Bramble Berry documents to supply calculator limits. Their product pages link exact-SKU IFRA statements, but direct HTTP requests from this workspace received a Cloudflare challenge in September 2026. Prefer a dated, source-linked exact-product selection or a supplier-supported data feed; keep an unlisted fragrance unverified rather than matching by scent name.
+
+**Why:** A runtime lookup blocked by the supplier can silently leave users with missing or stale safety information. Product names are not stable identifiers across suppliers or reformulations.
+
+**How to apply:** Check current supplier availability before expanding the lookup. Preserve the statement link and assessment date, and prompt makers to confirm the latest document before using a stored rate.

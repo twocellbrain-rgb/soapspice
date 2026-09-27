@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { calculateNaohFormula, combinedScentStrength, fragranceIfraScreen, fragranceScentGuide, fragranceWeightGrams, GRAMS_PER_OUNCE, LIQUID_BATCH_FRACTION, oilWeightTotal, percentagesFromWeights, validateNaohFormula, type NaohFormulaInput } from './formulation.ts';
+import { BRAMBLE_BERRY_FRAGRANCES, chooseSupplierFragrance, renameFragrance, selectedSupplierFragrance } from './supplier-fragrances.ts';
 
 const ingredients = new Map([
   ['olive', { naohSap: 0.135 }],
@@ -131,6 +132,36 @@ test('two fragrances at the medium guide each add up to above strong, not medium
   assert.equal(combined.strengthLabel, 'Above strong');
   const one = combinedScentStrength([{ id: 'a', name: 'A', amount: mediumGrams, unit: 'g' }], 1000, base.naoh);
   assert.equal(one.strengthLabel, 'At medium');
+});
+
+test('the documented supplier selection follows exact product identity, not a similar scent name', () => {
+  const empty = { id: 'first', name: '', amount: 4, unit: 'percent' as const };
+  assert.equal(selectedSupplierFragrance({ ...empty, name: 'Lavender Fragrance Oil' }), undefined);
+  const selected = chooseSupplierFragrance(empty, 'V000266');
+  assert.equal(selected.name, 'Lavender and Cedar Fragrance Oil');
+  assert.equal(selected.ifraMaxPercent, 6.08);
+  assert.equal(selectedSupplierFragrance(selected)?.sku, 'V000266');
+  assert.deepEqual(validateNaohFormula(oneOil({ fragrances: [selected] })), []);
+  const renamed = renameFragrance(selected, 'Lavender from another supplier');
+  assert.equal(renamed.ifraMaxPercent, undefined);
+  assert.equal(renamed.ifraSourceUrl, undefined);
+  assert.equal(selectedSupplierFragrance(renamed), undefined);
+  const manual = chooseSupplierFragrance(selected, '');
+  assert.equal(manual.name, selected.name);
+  assert.equal(manual.ifraMaxPercent, undefined);
+  assert.equal(manual.ifraSourceUrl, undefined);
+  assert.equal(selectedSupplierFragrance({ ...selected, ifraMaxPercent: 7 }), undefined);
+});
+
+test('all catalog entries have distinct SKUs and source links that identify the matching statement', () => {
+  assert.equal(new Set(BRAMBLE_BERRY_FRAGRANCES.map((p) => p.sku)).size, BRAMBLE_BERRY_FRAGRANCES.length);
+  for (const product of BRAMBLE_BERRY_FRAGRANCES) {
+    assert.ok(product.ifraMaxPercent >= 0 && product.ifraMaxPercent <= 100);
+    assert.match(product.productUrl, new RegExp(`/${product.sku}\\.html$`));
+    assert.ok(product.ifraUrl.includes(`ifra51_eu_prop65_${product.sku}_`));
+    assert.ok(product.ifraUrl.length <= 500);
+    assert.match(product.assessedOn, /^\d{4}-\d{2}-\d{2}$/);
+  }
 });
 
 test('scaling from 1000 g to 2500 g preserves the formulation ratios', () => {

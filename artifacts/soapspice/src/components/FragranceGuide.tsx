@@ -1,5 +1,6 @@
 import { CircleAlert } from 'lucide-react';
 import { combinedScentStrength, fragranceScentGuide, GRAMS_PER_OUNCE, type FragranceRow } from '@/lib/formulation';
+import { selectedSupplierFragrance } from '@/lib/supplier-fragrances';
 
 type FragranceGuideProps = {
   fragrances: FragranceRow[];
@@ -40,6 +41,7 @@ export default function FragranceGuide({ fragrances, totalOilGrams, naohGrams }:
       <div className="mt-4 space-y-5">
         {fragrances.map((fragrance) => {
           const guide = fragranceScentGuide(fragrance, totalOilGrams, naohGrams);
+          const selectedSupplier = selectedSupplierFragrance(fragrance);
           const sourceIsLink = fragrance.ifraSourceUrl && /^https?:\/\//i.test(fragrance.ifraSourceUrl);
           const status = guide.maximumGrams === null
             ? 'No supplier IFRA maximum was entered. These scent amounts are not safety checked.'
@@ -55,6 +57,11 @@ export default function FragranceGuide({ fragrances, totalOilGrams, naohGrams }:
               <p className="mt-1 text-xs text-[hsl(var(--muted-foreground))]">
                 Guide batch: {amount(guide.unscentedBatchGrams, 'g')} g · {amount(guide.unscentedBatchGrams, 'oz')} oz, before fragrance.
               </p>
+              {selectedSupplier && (
+                <p className="mt-1 text-xs text-[hsl(var(--muted-foreground))]">
+                  Bramble Berry SKU {selectedSupplier.sku} · IFRA 51 Category 9 (soap) · statement assessed {selectedSupplier.assessedOn}. Check for a newer supplier statement before making.
+                </p>
+              )}
               <div
                 role={guide.exceeds ? 'alert' : 'status'}
                 className={`mt-3 flex items-start gap-2 rounded-xl px-3 py-2.5 text-xs font-semibold leading-5 ${guide.exceeds ? 'bg-[hsl(var(--destructive)/.1)] text-[hsl(var(--destructive))]' : guide.maximumGrams === null ? 'bg-[hsl(var(--accent)/.14)] text-[hsl(var(--accent-foreground))]' : 'bg-[hsl(var(--primary)/.08)] text-[hsl(var(--primary))]'}`}
