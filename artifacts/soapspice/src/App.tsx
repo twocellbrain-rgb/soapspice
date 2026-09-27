@@ -30,6 +30,7 @@ import IngredientAdmin from '@/components/IngredientAdmin';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import SoapmakingGlossaryPage from '@/pages/soapmaking-glossary';
 import NotFound from '@/pages/not-found';
 import './bright-crafted.css';
 
@@ -154,6 +155,7 @@ function Shell({ children }: { children: ReactNode }) {
           <nav className={`sc-nav${menuOpen ? ' is-open' : ''}`} aria-label="Main navigation">
             <Link href="/calculators/cold-process-soap" onClick={() => setMenuOpen(false)} data-testid="link-calculator">Calculator</Link>
             <Link href="/ingredients" onClick={() => setMenuOpen(false)} data-testid="link-ingredients">Ingredient catalog</Link>
+            <Link href="/soapmaking-glossary" onClick={() => setMenuOpen(false)} data-testid="link-glossary">Glossary</Link>
             <AccountNav />
             <Link href="/calculators/cold-process-soap" onClick={() => setMenuOpen(false)} data-testid="link-start-formula" className="sc-nav-cta">Start a formula <ArrowRight size={16} /></Link>
           </nav>
@@ -670,6 +672,9 @@ function Router() {
     } else if (location === '/ingredients') {
       title = 'Soapmaking Ingredient Catalog | SoapSpice';
       description = 'Search oils and butters for cold-process soapmaking, with descriptions, NaOH SAP values, and linked reference sources.';
+    } else if (location === '/soapmaking-glossary') {
+      title = 'Soapmaking Glossary | SoapSpice';
+      description = 'Plain-language definitions for common handmade soapmaking terms, ingredients, formulas, methods, and safety.';
     } else if (location.startsWith('/ingredients/')) {
       const slug = location.slice('/ingredients/'.length);
       let decoded = slug;
@@ -696,6 +701,7 @@ function Router() {
     <Route path="/my-formulas"><><Show when="signed-in"><CalculatorPage /></Show><Show when="signed-out"><Redirect to="/" /></Show></></Route>
     <Route path="/calculators/cold-process-soap" component={CalculatorPage} />
     <Route path="/ingredients" component={IngredientsPage} />
+    <Route path="/soapmaking-glossary" component={() => <Shell><SoapmakingGlossaryPage /></Shell>} />
     <Route path="/ingredient-admin" component={IngredientAdmin} />
     <Route path="/ingredients/:ingredientId" component={IngredientDetailPage} />
     <Route component={NotFound} />
