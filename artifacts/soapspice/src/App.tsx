@@ -183,7 +183,7 @@ function PageIntro({ eyebrow, title, description, children }: { eyebrow: string;
         <p className="mt-5 max-w-2xl text-lg leading-8 text-[hsl(var(--muted-foreground))]">{description}</p>
         {children}
       </div>
-      <img className="sc-intro-photo" src={`${publicImages}crafted-soap-detail.webp`} alt="" aria-hidden="true" width="1024" height="1024" />
+      <img className="sc-intro-photo" src={`${publicImages}soap-ingredient-flatlay.webp`} alt="Soap and botanical materials arranged for a handmade batch" width="1600" height="1067" />
     </section>
   );
 }
@@ -244,6 +244,33 @@ function Home() {
               <Link href="/ingredients" className="sc-feature-link" data-testid="link-home-feature-ingredients"><span className="sc-feature-icon"><BookOpen size={19} /></span><span><strong>Ingredient field guide</strong><small>Read the why behind your oils and butters.</small></span><ArrowRight size={17} /></Link>
               <Link href="/calculators/cold-process-soap" className="sc-feature-link" data-testid="link-home-feature-calculator"><span className="sc-feature-icon warm"><FlaskConical size={19} /></span><span><strong>Build your first bar</strong><small>A straightforward cold-process NaOH formula.</small></span><ArrowRight size={17} /></Link>
             </div>
+          </div>
+        </section>
+        <section className="sc-inspiration" aria-labelledby="sc-inspiration-title">
+          <div className="sc-inspiration-head">
+            <div>
+              <span className="sc-eyebrow">Color, texture, and craft</span>
+              <h2 id="sc-inspiration-title">A little inspiration for your next batch.</h2>
+            </div>
+            <p>Every handmade bar has its own colors, textures, and finishing touches. Find a detail you love and make it your own.</p>
+          </div>
+          <div className="sc-inspiration-grid">
+            <figure className="sc-inspiration-card">
+              <img src={`${publicImages}soap-inspiration-color.webp`} alt="Colorful swirled soap bars displayed with wooden tools" width="1600" height="1067" loading="lazy" />
+              <figcaption>Color and craft in every cut</figcaption>
+            </figure>
+            <figure className="sc-inspiration-card">
+              <img src={`${publicImages}soap-inspiration-stack.webp`} alt="Three bright handmade soap bars stacked beside woven cloths" width="1600" height="1063" loading="lazy" />
+              <figcaption>Play with color and texture</figcaption>
+            </figure>
+            <figure className="sc-inspiration-card">
+              <img src={`${publicImages}soap-inspiration-earthy.webp`} alt="Warm-toned soap bars displayed beside cinnamon sticks and a small jar" width="1600" height="938" loading="lazy" />
+              <figcaption>Earthy colors, natural details</figcaption>
+            </figure>
+            <figure className="sc-inspiration-card">
+              <img src={`${publicImages}soap-inspiration-botanical.webp`} alt="Finished handmade bars arranged with leaves and pink blossoms" width="1600" height="925" loading="lazy" />
+              <figcaption>Botanical finishing touches</figcaption>
+            </figure>
           </div>
         </section>
         <section className="sc-caveat">
