@@ -4,6 +4,18 @@ export type FormulaOil = {
   weight: number; // grams
 };
 
+export function oilWeightTotal(oils: Pick<FormulaOil, 'weight'>[]): number {
+  return oils.reduce((total, oil) => total + oil.weight, 0);
+}
+
+export function percentagesFromWeights<T extends FormulaOil>(oils: T[]): T[] {
+  const total = oilWeightTotal(oils);
+  return oils.map((oil) => ({
+    ...oil,
+    percentage: Number.isFinite(total) && total > 0 ? oil.weight / total * 100 : 0,
+  }));
+}
+
 export type SapRecord = {
   naohSap: number;
 };

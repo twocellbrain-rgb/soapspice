@@ -49,7 +49,7 @@ export default function FragranceSection({
     >
       <div className="flex flex-col gap-5 border-b border-[hsl(var(--border))] pb-6 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Step 04 / optional</p>
+          <p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Step 03 / optional</p>
           <h2 id="fragrance-heading" className="mt-2 font-display text-3xl text-[hsl(var(--foreground))]">Add your fragrance</h2>
           <p className="mt-1 max-w-lg text-sm leading-6 text-[hsl(var(--muted-foreground))]">
             Keep scent amounts alongside your formula. Enter any fragrance name; suggestions are just a starting point.

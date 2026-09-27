@@ -24,7 +24,7 @@ import {
 import { Link, Route, Switch, Redirect, Router as WouterRouter, useLocation, useParams } from 'wouter';
 import { getGetIngredientQueryKey, useGetIngredient, useGetIngredients, useListRecipes, getListRecipesQueryKey, createRecipe, updateRecipe, deleteRecipe, importRecipe } from '@workspace/api-client-react';
 import type { RecipeInput, Recipe } from '@workspace/api-client-react';
-import { calculateNaohFormula, GRAMS_PER_OUNCE, LIQUID_BATCH_FRACTION, validateNaohFormula, type FragranceRow } from '@/lib/formulation';
+import { calculateNaohFormula, GRAMS_PER_OUNCE, LIQUID_BATCH_FRACTION, oilWeightTotal, percentagesFromWeights, validateNaohFormula, type FragranceRow } from '@/lib/formulation';
 import FragranceSection from '@/components/FragranceSection';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
@@ -296,10 +296,9 @@ function CalculatorPage() {
   const catalogQuery = useGetIngredients();
   const ingredients = (catalogQuery.data ?? []) as Ingredient[];
   const seeded = useRef(false);
-  const [batchSize, setBatchSize] = useState(1000);
-  const [unit, setUnit] = useState<'g' | 'oz' | 'lb'>('g');
   const [superfat, setSuperfat] = useState(5);
-  const [oilInputUnit, setOilInputUnit] = useState<OilInputUnit>('percent');
+  const [oilInputUnit, setOilInputUnit] = useState<OilInputUnit>('g');
+  const [percentBaseGrams, setPercentBaseGrams] = useState(0);
   const [liquidType, setLiquidType] = useState<LiquidType>('distilled-water');
   const [customLiquid, setCustomLiquid] = useState('');
   const [legacyLiquidNotice, setLegacyLiquidNotice] = useState('');
@@ -335,7 +334,7 @@ function CalculatorPage() {
       const requested = new URLSearchParams(window.location.search).get('ingredient');
       const ingredient = ingredients.find((item) => item.id === requested);
       if (ingredient) {
-        setOils([{ id: ingredient.id, name: ingredient.name, percentage: 100, weight: 1000 }]);
+        setOils([{ id: ingredient.id, name: ingredient.name, percentage: 0, weight: 0 }]);
       }
       seeded.current = true;
     }
@@ -343,7 +342,7 @@ function CalculatorPage() {
 
   const ingredientMap = useMemo(() => new Map(ingredients.map((ingredient) => [ingredient.id, ingredient])), [ingredients]);
   const totalPercent = oils.reduce((sum, oil) => sum + oil.percentage, 0);
-  const totalOilGrams = unit === 'oz' ? batchSize * GRAMS_PER_OUNCE : unit === 'lb' ? batchSize * GRAMS_PER_OUNCE * 16 : batchSize;
+  const totalOilGrams = oilWeightTotal(oils);
   const liquidName = liquidType === 'other' ? customLiquid.trim() || 'Other liquid' : liquidNames[liquidType];
   const formulaInput = useMemo(
     () => ({ oils, ingredients: ingredientMap, totalOilGrams, superfat, fragrances }),
@@ -375,20 +374,22 @@ function CalculatorPage() {
   }) ?? [];
 
   const updateOils = (next: OilRow[]) => { setOils(next); setValidated(false); setValidationErrors([]); setSaveFeedback(''); };
-  const changePercent = (id: string, value: number) => updateOils(oils.map((oil) => oil.id === id ? { ...oil, percentage: value, weight: totalOilGrams * value / 100 } : oil));
-  const changeWeight = (id: string, value: number) => updateOils(oils.map((oil) => oil.id === id ? { ...oil, weight: value, percentage: totalOilGrams ? (value / totalOilGrams) * 100 : 0 } : oil));
+  const changePercent = (id: string, value: number) => updateOils(oils.map((oil) => oil.id === id ? { ...oil, percentage: value, weight: percentBaseGrams * value / 100 } : oil));
+  const changeWeight = (id: string, value: number) => updateOils(percentagesFromWeights(oils.map((oil) => oil.id === id ? { ...oil, weight: value } : oil)));
   const changeOilAmount = (id: string, value: number) => {
     if (oilInputUnit === 'percent') changePercent(id, value);
     else changeWeight(id, oilInputUnit === 'oz' ? value * GRAMS_PER_OUNCE : value);
   };
-  const updateBatch = (value: number) => { setBatchSize(value); setOils(oils.map((oil) => ({ ...oil, weight: (value * (unit === 'oz' ? GRAMS_PER_OUNCE : unit === 'lb' ? GRAMS_PER_OUNCE * 16 : 1)) * oil.percentage / 100 }))); setValidated(false); setValidationErrors([]); setSaveFeedback(''); };
-  const changeUnit = (nextUnit: 'g' | 'oz' | 'lb') => {
-    const grams = totalOilGrams;
-    setUnit(nextUnit);
-    setBatchSize(nextUnit === 'oz' ? grams / GRAMS_PER_OUNCE : nextUnit === 'lb' ? grams / (GRAMS_PER_OUNCE * 16) : grams);
-    setValidated(false);
-    setValidationErrors([]);
-    setSaveFeedback('');
+  const changeOilInputUnit = (nextUnit: OilInputUnit) => {
+    if (nextUnit === 'percent') {
+      if (totalOilGrams <= 0) return;
+      setPercentBaseGrams(totalOilGrams);
+      setOils(percentagesFromWeights(oils));
+    } else if (oilInputUnit === 'percent') {
+      setOils(percentagesFromWeights(oils));
+    }
+    setOilInputUnit(nextUnit);
+    setValidated(false); setValidationErrors([]); setSaveFeedback('');
   };
   const addOil = () => {
     const ingredient = ingredientMap.get(selectedId);
@@ -396,13 +397,20 @@ function CalculatorPage() {
     updateOils([...oils, { id: ingredient.id, name: ingredient.name, percentage: 0, weight: 0 }]);
     setSelectedId('');
   };
-  const removeOil = (id: string) => updateOils(oils.filter((oil) => oil.id !== id));
+  const removeOil = (id: string) => {
+    const next = oils.filter((oil) => oil.id !== id);
+    if (next.length === 0) {
+      setOilInputUnit('g');
+      setPercentBaseGrams(0);
+    }
+    updateOils(oilInputUnit === 'percent' ? next : percentagesFromWeights(next));
+  };
   const updateFragrances = (next: FragranceRow[]) => { setFragrances(next); setValidated(false); setValidationErrors([]); setSaveFeedback(''); };
   const validate = () => {
     setValidationErrors(currentErrors); setValidatedFingerprint(currentErrors.length ? '' : formulaFingerprint); setValidated(true); setSaveFeedback('');
   };
   const recipeInput = (): RecipeInput => ({
-    name: recipeName.trim() || 'Untitled formula', batchSize, unit, superfat, oils: oils.map(oil => ({ id: oil.id, percentage: oil.percentage, weight: oil.weight })),
+    name: recipeName.trim() || 'Untitled formula', batchSize: totalOilGrams, unit: 'g', superfat, oils: oils.map(oil => ({ id: oil.id, percentage: oil.percentage, weight: oil.weight })),
     fragrances, liquidType, customLiquid, oilInputUnit, liquidMethod: 'batch-22',
   });
   const refreshRecipes = () => client.invalidateQueries({ queryKey: getListRecipesQueryKey() });
@@ -434,7 +442,8 @@ function CalculatorPage() {
     if (!recipe) return;
     setActiveRecipeId(recipe.id); setOpenedSnapshot(recipe);
     seeded.current = true;
-    setRecipeName(recipe.name); setBatchSize(recipe.batchSize); setUnit(recipe.unit); setSuperfat(recipe.superfat);
+    setRecipeName(recipe.name); setSuperfat(recipe.superfat);
+    setPercentBaseGrams(oilWeightTotal(recipe.oils));
     setOils(recipe.oils.map(o => ({ id: o.id, name: ingredientMap.get(o.id)?.name ?? o.name, percentage: o.percentage, weight: o.weight })));
     setFragrances(recipe.fragrances ?? []);
     setLiquidType(recipe.liquidType ?? 'distilled-water'); setCustomLiquid(recipe.customLiquid ?? '');
@@ -456,7 +465,8 @@ function CalculatorPage() {
       oils: recipe.oils.map(o => ({ id: o.id, name: o.name, percentage: o.percentage, weight: o.weight, savedSap: null })),
     });
     seeded.current = true;
-    setRecipeName(recipe.name); setBatchSize(recipe.batchSize); setUnit(recipe.unit); setSuperfat(recipe.superfat);
+    setRecipeName(recipe.name); setSuperfat(recipe.superfat);
+    setPercentBaseGrams(oilWeightTotal(recipe.oils));
     setOils(recipe.oils); setFragrances(recipe.fragrances ?? []);
     setLiquidType(recipe.liquidType ?? 'distilled-water'); setCustomLiquid(recipe.customLiquid ?? '');
     setOilInputUnit(recipe.oilInputUnit ?? 'percent'); setValidated(false); setValidatedFingerprint(''); setValidationErrors([]);
@@ -502,7 +512,7 @@ function CalculatorPage() {
     setBusy(true);
     try {
       await createRecipe({
-        name: `${recipe.name} (copy)`.slice(0, 120), batchSize: recipe.batchSize, unit: recipe.unit, superfat: recipe.superfat,
+        name: `${recipe.name} (copy)`.slice(0, 120), batchSize: oilWeightTotal(recipe.oils), unit: 'g', superfat: recipe.superfat,
         oils: recipe.oils.map(o => ({ id: o.id, percentage: o.percentage, weight: o.weight })),
         fragrances: recipe.fragrances, liquidType: recipe.liquidType, customLiquid: recipe.customLiquid,
         oilInputUnit: recipe.oilInputUnit, liquidMethod: 'batch-22',
@@ -540,17 +550,18 @@ function CalculatorPage() {
       <section className="mx-auto grid max-w-7xl gap-6 px-5 pb-24 lg:grid-cols-[1.4fr_.6fr] lg:px-8">
         <div className="space-y-6">
           <div className="print-card rounded-3xl border border-[hsl(var(--border))] bg-white p-5 shadow-card sm:p-7">
-            <div className="flex flex-col justify-between gap-4 border-b border-[hsl(var(--border))] pb-6 sm:flex-row sm:items-start"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Step 01</p><h2 className="mt-2 font-display text-3xl">Choose your ingredients</h2><p className="mt-1 text-sm text-[hsl(var(--muted-foreground))]">Enter oils in grams, ounces, or percent of the total oil weight.</p></div><div className="flex items-center gap-2"><select aria-label="Add an ingredient" value={selectedId} onChange={(event) => setSelectedId(event.target.value)} className="h-11 max-w-[190px] rounded-full border border-[hsl(var(--input))] bg-[hsl(var(--background))] px-4 text-sm outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]" data-testid="select-add-ingredient"><option value="">Add an ingredient</option>{available.map((ingredient) => <option key={ingredient.id} value={ingredient.id}>{ingredient.name}</option>)}</select><button type="button" onClick={addOil} disabled={!selectedId} className={`${buttonPrimary} h-11 px-4`} data-testid="button-add-ingredient"><Plus size={17} /> Add</button></div></div>
+            <div className="flex flex-col justify-between gap-4 border-b border-[hsl(var(--border))] pb-6 sm:flex-row sm:items-start"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Step 01</p><h2 className="mt-2 font-display text-3xl">Choose your ingredients</h2><p className="mt-1 text-sm text-[hsl(var(--muted-foreground))]">Enter the weight of each oil in grams or ounces. Their sum determines the formula size, NaOH, and liquid.</p></div><div className="flex items-center gap-2"><select aria-label="Add an ingredient" value={selectedId} onChange={(event) => setSelectedId(event.target.value)} className="h-11 max-w-[190px] rounded-full border border-[hsl(var(--input))] bg-[hsl(var(--background))] px-4 text-sm outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]" data-testid="select-add-ingredient"><option value="">Add an ingredient</option>{available.map((ingredient) => <option key={ingredient.id} value={ingredient.id}>{ingredient.name}</option>)}</select><button type="button" onClick={addOil} disabled={!selectedId} className={`${buttonPrimary} h-11 px-4`} data-testid="button-add-ingredient"><Plus size={17} /> Add</button></div></div>
             {catalogQuery.isLoading && <div className="space-y-3 pt-6"><div className="h-16 animate-pulse rounded-2xl bg-[hsl(var(--muted))]" /><div className="h-16 animate-pulse rounded-2xl bg-[hsl(var(--muted))]" /></div>}
             {catalogQuery.isError && <div className="pt-6"><QueryState isLoading={false} isError onRetry={() => void catalogQuery.refetch()} /></div>}
             {!catalogQuery.isLoading && !catalogQuery.isError && <div className="pt-6">
               <div className="mb-5 flex flex-wrap items-center gap-3">
                 <label htmlFor="oil-input-unit" className="text-xs font-bold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">Enter oil amounts in</label>
-                <select id="oil-input-unit" value={oilInputUnit} onChange={(event) => setOilInputUnit(event.target.value as OilInputUnit)} className="h-10 rounded-xl border border-[hsl(var(--input))] bg-white px-3 text-sm font-bold outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]" data-testid="select-oil-input-unit">
-                  <option value="percent">Percent (%)</option><option value="g">Grams (g)</option><option value="oz">Ounces (oz)</option>
+                <select id="oil-input-unit" value={oilInputUnit} onChange={(event) => changeOilInputUnit(event.target.value as OilInputUnit)} className="h-10 rounded-xl border border-[hsl(var(--input))] bg-white px-3 text-sm font-bold outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]" data-testid="select-oil-input-unit">
+                  <option value="g">Grams (g)</option><option value="oz">Ounces (oz)</option><option value="percent" disabled={totalOilGrams <= 0 && oilInputUnit !== 'percent'}>Percent (%)</option>
                 </select>
-                <span className="text-xs text-[hsl(var(--muted-foreground))]">Switch units without changing the formula.</span>
+                <span className="text-xs text-[hsl(var(--muted-foreground))]">Enter weights first; then you can adjust percentages against that total.</span>
               </div>
+              {oilInputUnit === 'percent' && <p className="mb-4 rounded-xl bg-[hsl(var(--secondary))] px-4 py-3 text-xs text-[hsl(var(--secondary-foreground))]">Percentages use the {percentBaseGrams.toFixed(1)} g oil total set by your weights. Make them add to 100% before validating. To change the total, switch back to grams or ounces.</p>}
               <div className="hidden grid-cols-[minmax(0,1fr)_145px_38px] gap-3 px-3 pb-2 text-[10px] font-bold uppercase tracking-[.14em] text-[hsl(var(--muted-foreground))] sm:grid"><span>Ingredient</span><span>{oilInputUnit === 'percent' ? 'Percent (%)' : oilInputUnit === 'g' ? 'Weight (g)' : 'Weight (oz)'}</span><span /></div>
               {oils.length === 0 && <div className="rounded-2xl border border-dashed border-[hsl(var(--border))] p-8 text-center text-sm text-[hsl(var(--muted-foreground))]">Choose an ingredient above to begin.</div>}
               {oils.map((oil) => {
@@ -561,12 +572,11 @@ function CalculatorPage() {
                   <button type="button" onClick={() => removeOil(oil.id)} className="flex h-9 w-9 items-center justify-center rounded-full text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--destructive)/.1)] hover:text-[hsl(var(--destructive))]" aria-label={`Remove ${oil.name}`} data-testid={`button-remove-${oil.id}`}><Trash2 size={16} /></button>
                 </div>;
               })}
-              <div className={`mt-4 flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-bold ${Math.abs(totalPercent - 100) <= .01 ? 'bg-[hsl(184_75%_35%/.1)] text-[hsl(var(--primary))]' : 'bg-[hsl(var(--destructive)/.08)] text-[hsl(var(--destructive))]'}`}><span>Oil formula total</span><span className="font-data">{totalPercent.toFixed(1)}%</span></div>
+              <div className={`mt-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl px-4 py-3 text-sm font-bold ${totalOilGrams > 0 && Math.abs(totalPercent - 100) <= .01 ? 'bg-[hsl(184_75%_35%/.1)] text-[hsl(var(--primary))]' : 'bg-[hsl(var(--destructive)/.08)] text-[hsl(var(--destructive))]'}`} data-testid="result-oil-total"><span>Total oils · {totalPercent.toFixed(1)}%</span><span className="font-data">{totalOilGrams.toFixed(1)} g · {(totalOilGrams / GRAMS_PER_OUNCE).toFixed(2)} oz</span></div>
             </div>}
           </div>
-          <div className="print-card rounded-3xl border border-[hsl(var(--border))] bg-white p-5 shadow-card sm:p-7"><p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Step 02</p><h2 className="mt-2 font-display text-3xl">Set the batch</h2><div className="mt-6 grid gap-5 sm:grid-cols-3"><label className="block"><span className="mb-2 block text-xs font-bold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">Total oil weight</span><input type="number" min="1" value={batchSize} onChange={(event) => updateBatch(Number(event.target.value))} className="h-12 w-full rounded-xl border border-[hsl(var(--input))] bg-[hsl(var(--background))] px-4 font-data outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]" data-testid="input-batch-size" /></label><label className="block"><span className="mb-2 block text-xs font-bold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">Weight unit</span><select value={unit} onChange={(event) => changeUnit(event.target.value as 'g' | 'oz' | 'lb')} className="h-12 w-full rounded-xl border border-[hsl(var(--input))] bg-[hsl(var(--background))] px-4 text-sm font-bold outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]" data-testid="select-weight-unit"><option value="g">Grams</option><option value="oz">Ounces</option><option value="lb">Pounds</option></select></label><div className="rounded-xl bg-[hsl(var(--secondary))] p-3"><span className="block text-xs font-bold uppercase tracking-wider text-[hsl(var(--secondary-foreground))]">Working total</span><strong className="mt-1 block font-data text-xl text-[hsl(var(--secondary-foreground))]">{totalOilGrams.toFixed(1)} g</strong><span className="text-xs text-[hsl(var(--secondary-foreground)/.7)]">converted for the math</span></div></div></div>
           <div className="print-card rounded-3xl border border-[hsl(var(--border))] bg-white p-5 shadow-card sm:p-7">
-            <p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Step 03</p>
+            <p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Step 02</p>
             <h2 className="mt-2 font-display text-3xl">Choose your mixing liquid</h2>
             <div className="mt-6 grid gap-5 sm:grid-cols-2">
               <label className="block"><span className="mb-2 flex justify-between text-xs font-bold uppercase tracking-wider text-[hsl(var(--muted-foreground))]"><span>Superfat</span><span className="font-data text-[hsl(var(--primary))]">{superfat}%</span></span><input type="range" min="0" max="15" step="0.5" value={superfat} onChange={(event) => { setSuperfat(Number(event.target.value)); setValidated(false); setValidationErrors([]); setSaveFeedback(''); }} className="w-full accent-[hsl(var(--primary))]" data-testid="input-superfat" /><div className="mt-2 flex justify-between text-xs text-[hsl(var(--muted-foreground))]"><span>0%</span><span>15%</span></div></label>
@@ -580,7 +590,7 @@ function CalculatorPage() {
             <div className="mt-6 rounded-2xl border border-[hsl(var(--accent)/.3)] bg-[hsl(var(--accent)/.08)] p-4 text-sm leading-6 text-[hsl(var(--accent-foreground))]"><strong>Safety first.</strong> Slowly add lye to the measured liquid, never liquid to lye. Wear eye protection, gloves, and long sleeves, and work with ventilation. Milk mixtures need careful temperature control.</div>
           </div>
           <FragranceSection fragrances={fragrances} totalOilGrams={totalOilGrams} onChange={updateFragrances} />
-          <div className="print-card rounded-3xl border border-[hsl(var(--primary)/.3)] bg-[hsl(var(--primary)/.06)] p-5 sm:p-7"><div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Step 05</p><h2 className="mt-2 font-display text-3xl">Check your formula</h2><p className="mt-2 max-w-lg text-sm text-[hsl(var(--muted-foreground))]">Validate the oil percentages, NaOH math, and fragrance amounts before you print or save. Fragrance safety limits are not checked here.</p></div><button type="button" onClick={validate} className={`${buttonPrimary} shrink-0`} data-testid="button-validate-formula"><Check size={17} /> Validate formula</button></div>{validated && <div className={`mt-5 rounded-2xl p-4 text-sm ${validationErrors.length ? 'bg-[hsl(var(--destructive)/.1)] text-[hsl(var(--destructive))]' : freshValidation ? 'bg-[hsl(184_75%_35%/.12)] text-[hsl(var(--primary))]' : 'bg-[hsl(var(--accent)/.12)] text-[hsl(var(--secondary-foreground))]'}`} data-testid="status-validation">{validationErrors.length ? <ul className="list-disc space-y-1 pl-5">{validationErrors.map((error) => <li key={error}>{error}</li>)}</ul> : freshValidation ? <div className="flex items-center gap-2 font-bold"><Check size={17} /> Lye math checked. Review the liquid recommendation and any fragrance usage limits below.</div> : <div className="flex items-center gap-2 font-bold"><CircleAlert size={17} /> Formula or ingredient data changed. Validate again before saving or printing.</div>}</div>}</div>
+          <div className="print-card rounded-3xl border border-[hsl(var(--primary)/.3)] bg-[hsl(var(--primary)/.06)] p-5 sm:p-7"><div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Step 04</p><h2 className="mt-2 font-display text-3xl">Check your formula</h2><p className="mt-2 max-w-lg text-sm text-[hsl(var(--muted-foreground))]">Validate the oil percentages, NaOH math, and fragrance amounts before you print or save. Fragrance safety limits are not checked here.</p></div><button type="button" onClick={validate} className={`${buttonPrimary} shrink-0`} data-testid="button-validate-formula"><Check size={17} /> Validate formula</button></div>{validated && <div className={`mt-5 rounded-2xl p-4 text-sm ${validationErrors.length ? 'bg-[hsl(var(--destructive)/.1)] text-[hsl(var(--destructive))]' : freshValidation ? 'bg-[hsl(184_75%_35%/.12)] text-[hsl(var(--primary))]' : 'bg-[hsl(var(--accent)/.12)] text-[hsl(var(--secondary-foreground))]'}`} data-testid="status-validation">{validationErrors.length ? <ul className="list-disc space-y-1 pl-5">{validationErrors.map((error) => <li key={error}>{error}</li>)}</ul> : freshValidation ? <div className="flex items-center gap-2 font-bold"><Check size={17} /> Lye math checked. Review the liquid recommendation and any fragrance usage limits below.</div> : <div className="flex items-center gap-2 font-bold"><CircleAlert size={17} /> Formula or ingredient data changed. Validate again before saving or printing.</div>}</div>}</div>
         </div>
         <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
           <div className="print-card rounded-3xl bg-[hsl(193_46%_22%)] p-6 text-[hsl(var(--background))] shadow-lift sm:p-7">

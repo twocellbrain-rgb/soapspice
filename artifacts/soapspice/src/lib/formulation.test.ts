@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { calculateNaohFormula, fragranceWeightGrams, GRAMS_PER_OUNCE, LIQUID_BATCH_FRACTION, validateNaohFormula, type NaohFormulaInput } from './formulation.ts';
+import { calculateNaohFormula, fragranceWeightGrams, GRAMS_PER_OUNCE, LIQUID_BATCH_FRACTION, oilWeightTotal, percentagesFromWeights, validateNaohFormula, type NaohFormulaInput } from './formulation.ts';
 
 const ingredients = new Map([
   ['olive', { naohSap: 0.135 }],
@@ -29,6 +29,22 @@ test('single-oil NaOH uses 100% purity and liquid is 22% of the complete batch',
   near(result.liquid, (1000 + 128.25) * LIQUID_BATCH_FRACTION / (1 - LIQUID_BATCH_FRACTION));
   near(result.batchTotal, 1000 + result.naoh + result.liquid);
   near(result.liquid / result.batchTotal, LIQUID_BATCH_FRACTION);
+});
+
+test('oil amounts define the total weight and changing a weight updates the derived formula', () => {
+  const oils = percentagesFromWeights([
+    { id: 'olive', weight: 500, percentage: 0 },
+    { id: 'coconut', weight: 300, percentage: 0 },
+  ]);
+  near(oilWeightTotal(oils), 800);
+  near(oils[0].percentage, 62.5);
+  const first = calculateNaohFormula({ oils, ingredients, totalOilGrams: oilWeightTotal(oils), superfat: 5 });
+  const changed = percentagesFromWeights(oils.map(oil => oil.id === 'coconut' ? { ...oil, weight: 400 } : oil));
+  near(oilWeightTotal(changed), 900);
+  near(changed.reduce((sum, oil) => sum + oil.percentage, 0), 100);
+  const second = calculateNaohFormula({ oils: changed, ingredients, totalOilGrams: oilWeightTotal(changed), superfat: 5 });
+  near(second.naoh - first.naoh, 100 * 0.183 * 0.95);
+  assert.ok(second.liquid > first.liquid);
 });
 
 test('multi-oil formula sums per-oil SAP contributions before the lye discount', () => {
