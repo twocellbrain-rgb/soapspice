@@ -1,5 +1,8 @@
 import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
+import { ClerkProvider, SignIn, SignUp, Show, useAuth, useClerk, useUser } from '@clerk/react';
+import { publishableKeyFromHost } from '@clerk/react/internal';
+import { shadcn } from '@clerk/themes';
 import {
   ArrowRight,
   Beaker,
@@ -18,8 +21,9 @@ import {
   Trash2,
   X,
 } from 'lucide-react';
-import { Link, Route, Switch, Router as WouterRouter, useLocation, useParams } from 'wouter';
-import { getGetIngredientQueryKey, useGetIngredient, useGetIngredients } from '@workspace/api-client-react';
+import { Link, Route, Switch, Redirect, Router as WouterRouter, useLocation, useParams } from 'wouter';
+import { getGetIngredientQueryKey, useGetIngredient, useGetIngredients, useListRecipes, getListRecipesQueryKey, createRecipe, updateRecipe, deleteRecipe, importRecipe } from '@workspace/api-client-react';
+import type { RecipeInput, Recipe } from '@workspace/api-client-react';
 import { calculateNaohFormula, GRAMS_PER_OUNCE, LIQUID_BATCH_FRACTION, validateNaohFormula, type FragranceRow } from '@/lib/formulation';
 import FragranceSection from '@/components/FragranceSection';
 import { ErrorBoundary } from '@/components/error-boundary';
@@ -29,6 +33,40 @@ import NotFound from '@/pages/not-found';
 import './bright-crafted.css';
 
 const queryClient = new QueryClient();
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+const clerkPubKey = publishableKeyFromHost(window.location.hostname, import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
+// Replit's managed Clerk integration injects this at publish/build time. It is
+// intentionally empty in development, when Clerk calls its development FAPI
+// directly. Do not hardcode a path or infer production from NODE_ENV here:
+// the deployment supplies the correct proxy URL for its own hostname.
+const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
+function stripBase(path: string): string {
+  return basePath && path.startsWith(basePath) ? path.slice(basePath.length) || '/' : path;
+}
+if (!clerkPubKey) throw new Error('Missing VITE_CLERK_PUBLISHABLE_KEY in .env file');
+const clerkAppearance = {
+  theme: shadcn,
+  cssLayerName: 'clerk',
+  options: { logoPlacement: 'inside' as const, logoLinkUrl: basePath || '/', logoImageUrl: `${window.location.origin}${basePath}/logo.svg` },
+  variables: {
+    colorPrimary: '#147d80', colorForeground: '#193d40', colorMutedForeground: '#536a6b',
+    colorDanger: '#b03636', colorBackground: '#fffdf8', colorInput: '#ffffff',
+    colorInputForeground: '#193d40', colorNeutral: '#c4d0cb',
+    fontFamily: 'DM Sans, sans-serif', borderRadius: '0.9rem',
+  },
+  elements: {
+    rootBox: 'w-full flex justify-center',
+    cardBox: 'bg-white rounded-2xl w-[440px] max-w-full overflow-hidden shadow-xl',
+    card: '!shadow-none !border-0 !bg-transparent !rounded-none',
+    footer: '!shadow-none !border-0 !bg-transparent !rounded-none',
+    headerTitle: 'text-[#193d40]', headerSubtitle: 'text-[#536a6b]',
+    socialButtonsBlockButtonText: 'text-[#193d40]', formFieldLabel: 'text-[#193d40]',
+    footerActionLink: 'text-[#147d80]', footerActionText: 'text-[#536a6b]',
+    dividerText: 'text-[#536a6b]', identityPreviewEditButton: 'text-[#147d80]',
+    formFieldSuccessText: 'text-[#147d80]', alertText: 'text-[#193d40]',
+    formButtonPrimary: 'bg-[#147d80] text-white', formFieldInput: 'bg-white text-[#193d40]',
+  },
+};
 const publicImages = `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}images/`;
 
 type Ingredient = {
@@ -67,6 +105,20 @@ type SavedRecipe = {
   liquidMethod?: 'batch-22';
 };
 
+function AccountNav() {
+  const { signOut } = useClerk();
+  return <>
+    <Show when="signed-in">
+      <Link href="/my-formulas" onClick={() => {}} >My formulas</Link>
+      <button type="button" onClick={() => signOut({ redirectUrl: basePath || '/' })}>Sign out</button>
+    </Show>
+    <Show when="signed-out">
+      <Link href="/sign-in">Sign in</Link>
+      <Link href="/sign-up">Create account</Link>
+    </Show>
+  </>;
+}
+
 type OilInputUnit = 'percent' | 'g' | 'oz';
 type LiquidType = 'distilled-water' | 'goat-milk' | 'cow-milk' | 'other';
 const liquidNames: Record<Exclude<LiquidType, 'other'>, string> = {
@@ -97,6 +149,7 @@ function Shell({ children }: { children: ReactNode }) {
           <nav className={`sc-nav${menuOpen ? ' is-open' : ''}`} aria-label="Main navigation">
             <Link href="/calculators/cold-process-soap" onClick={() => setMenuOpen(false)} data-testid="link-calculator">Calculator</Link>
             <Link href="/ingredients" onClick={() => setMenuOpen(false)} data-testid="link-ingredients">Ingredient catalog</Link>
+            <AccountNav />
             <Link href="/calculators/cold-process-soap" onClick={() => setMenuOpen(false)} data-testid="link-start-formula" className="sc-nav-cta">Start a formula <ArrowRight size={16} /></Link>
           </nav>
         </div>
@@ -166,7 +219,7 @@ function Home() {
           <div className="sc-steps">
             <article><span className="sc-step-no">01 / INGREDIENTS</span><div className="sc-step-icon sc-step-leaf"><Leaf size={22} /></div><h3>Choose with context.</h3><p>Explore what an oil brings to a bar, not just what it’s called.</p><Link href="/ingredients" className="sc-step-link" data-testid="card-home-ingredients">Explore the field guide <ArrowRight size={15} /></Link></article>
             <article><span className="sc-step-no">02 / THE MATH</span><div className="sc-step-icon sc-step-flask"><FlaskConical size={22} /></div><h3>See every number.</h3><p>NaOH and water calculations trace back to ingredient SAP values.</p><Link href="/calculators/cold-process-soap" className="sc-step-link">See how it adds up <ArrowRight size={15} /></Link></article>
-            <article><span className="sc-step-no">03 / YOUR BATCH</span><div className="sc-step-icon sc-step-spark"><Sparkles size={22} /></div><h3>Make it yours.</h3><p>Save your formula in your browser, print it, then get making.</p><Link href="/calculators/cold-process-soap" className="sc-step-link" data-testid="card-home-calculator">Build your first bar <ArrowRight size={15} /></Link></article>
+            <article><span className="sc-step-no">03 / YOUR BATCH</span><div className="sc-step-icon sc-step-spark"><Sparkles size={22} /></div><h3>Make it yours.</h3><p>Save your formula to your account, print it, then get making.</p><Link href="/calculators/cold-process-soap" className="sc-step-link" data-testid="card-home-calculator">Build your first bar <ArrowRight size={15} /></Link></article>
           </div>
         </section>
         <section className="sc-feature">
@@ -236,6 +289,10 @@ function IngredientDetailPage() {
 }
 
 function CalculatorPage() {
+  const { isSignedIn, isLoaded } = useAuth();
+  const { user } = useUser();
+  const client = useQueryClient();
+  const recipesQuery = useListRecipes({ query: { queryKey: getListRecipesQueryKey(), enabled: Boolean(isSignedIn), staleTime: 0, refetchOnMount: 'always' } });
   const catalogQuery = useGetIngredients();
   const ingredients = (catalogQuery.data ?? []) as Ingredient[];
   const seeded = useRef(false);
@@ -254,12 +311,24 @@ function CalculatorPage() {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [saveFeedback, setSaveFeedback] = useState('');
   const [recipeName, setRecipeName] = useState('My first bar');
-  const [savedRecipes, setSavedRecipes] = useState<SavedRecipe[]>(() => {
+  const [activeRecipeId, setActiveRecipeId] = useState<string | null>(null);
+  const [openedSnapshot, setOpenedSnapshot] = useState<Recipe | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [browserRecipes] = useState<SavedRecipe[]>(() => {
     try {
       const stored: unknown = JSON.parse(localStorage.getItem('soapspice-recipes') ?? '[]');
-      return Array.isArray(stored) ? stored as SavedRecipe[] : [];
+      return Array.isArray(stored) ? stored.filter((item): item is SavedRecipe => typeof item === 'object' && item !== null && typeof item.id === 'string' && Array.isArray(item.oils)) : [];
     } catch { return []; }
   });
+  const [importedIds, setImportedIds] = useState<string[]>([]);
+  useEffect(() => {
+    setActiveRecipeId(null); setOpenedSnapshot(null);
+    if (!user?.id) { setImportedIds([]); return; }
+    try {
+      const stored: unknown = JSON.parse(localStorage.getItem(`soapspice-imported-${user.id}`) ?? '[]');
+      setImportedIds(Array.isArray(stored) ? stored.filter((id): id is string => typeof id === 'string') : []);
+    } catch { setImportedIds([]); }
+  }, [user?.id]);
 
   useEffect(() => {
     if (!seeded.current && ingredients.length > 0) {
@@ -296,6 +365,14 @@ function CalculatorPage() {
   );
   const freshValidation = validated && validatedFingerprint === formulaFingerprint && validationErrors.length === 0 && currentErrors.length === 0;
   const visibleResult = freshValidation ? calculation : null;
+  const savedRecipes = recipesQuery.data ?? [];
+  const catalogWarnings = openedSnapshot?.oils.flatMap(oil => {
+    const current = ingredientMap.get(oil.id);
+    if (!current) return [`${oil.name} is missing from the current catalog. Replace it before saving or exporting.`];
+    if (oil.savedSap === null) return [`${oil.name}: this older save has no historical SAP snapshot. Current NaOH SAP is ${current.naohSap.toFixed(4)}; verify its source.`];
+    if (Math.abs(oil.savedSap - current.naohSap) > 0.0000001) return [`${oil.name}: NaOH SAP changed from ${oil.savedSap.toFixed(4)} to ${current.naohSap.toFixed(4)}. Revalidate before using.`];
+    return [];
+  }) ?? [];
 
   const updateOils = (next: OilRow[]) => { setOils(next); setValidated(false); setValidationErrors([]); setSaveFeedback(''); };
   const changePercent = (id: string, value: number) => updateOils(oils.map((oil) => oil.id === id ? { ...oil, percentage: value, weight: totalOilGrams * value / 100 } : oil));
@@ -324,7 +401,13 @@ function CalculatorPage() {
   const validate = () => {
     setValidationErrors(currentErrors); setValidatedFingerprint(currentErrors.length ? '' : formulaFingerprint); setValidated(true); setSaveFeedback('');
   };
-  const saveRecipe = () => {
+  const recipeInput = (): RecipeInput => ({
+    name: recipeName.trim() || 'Untitled formula', batchSize, unit, superfat, oils: oils.map(oil => ({ id: oil.id, percentage: oil.percentage, weight: oil.weight })),
+    fragrances, liquidType, customLiquid, oilInputUnit, liquidMethod: 'batch-22',
+  });
+  const refreshRecipes = () => client.invalidateQueries({ queryKey: getListRecipesQueryKey() });
+  const saveRecipe = async () => {
+    if (!isSignedIn) { setSaveFeedback('Sign in to save across devices. Earlier browser saves remain below.'); return; }
     if (currentErrors.length || !calculation || !freshValidation) {
       setValidationErrors(currentErrors);
       setValidated(currentErrors.length > 0);
@@ -333,22 +416,45 @@ function CalculatorPage() {
         : 'Not saved. Validate the current formula before saving.');
       return;
     }
-    const recipe: SavedRecipe = { id: `${Date.now()}`, name: recipeName.trim() || 'Untitled formula', savedAt: new Date().toISOString(), batchSize, unit, superfat, oils, fragrances, liquidType, customLiquid, oilInputUnit, liquidMethod: 'batch-22' };
-    const next = [recipe, ...savedRecipes];
+    setBusy(true);
     try {
-      localStorage.setItem('soapspice-recipes', JSON.stringify(next));
-      setSavedRecipes(next);
+      const saved = activeRecipeId ? await updateRecipe(activeRecipeId, recipeInput()) : await createRecipe(recipeInput());
+      setActiveRecipeId(saved.id); setOpenedSnapshot(saved);
+      await refreshRecipes();
       setValidated(true);
       setValidationErrors([]);
       setLegacyLiquidNotice('');
-      setSaveFeedback(`Saved “${recipe.name}” in this browser.`);
+      setSaveFeedback(`Saved “${saved.name}” to your account.`);
     } catch {
-      setSaveFeedback('Could not save in this browser. Storage may be full or unavailable.');
-    }
+      setSaveFeedback('Could not save to your account. Changes remain on this page; try again.');
+    } finally { setBusy(false); }
   };
   const loadRecipe = (id: string) => {
     const recipe = savedRecipes.find((saved) => saved.id === id);
     if (!recipe) return;
+    setActiveRecipeId(recipe.id); setOpenedSnapshot(recipe);
+    seeded.current = true;
+    setRecipeName(recipe.name); setBatchSize(recipe.batchSize); setUnit(recipe.unit); setSuperfat(recipe.superfat);
+    setOils(recipe.oils.map(o => ({ id: o.id, name: ingredientMap.get(o.id)?.name ?? o.name, percentage: o.percentage, weight: o.weight })));
+    setFragrances(recipe.fragrances ?? []);
+    setLiquidType(recipe.liquidType ?? 'distilled-water'); setCustomLiquid(recipe.customLiquid ?? '');
+    setOilInputUnit(recipe.oilInputUnit ?? 'percent'); setValidated(false); setValidatedFingerprint(''); setValidationErrors([]);
+    setLegacyLiquidNotice(recipe.liquidMethod === 'batch-22' ? ''
+      : typeof recipe.concentration === 'number'
+        ? `This saved formula used ${recipe.concentration}% lye concentration. Its liquid amount now uses the 22%-of-total-batch estimate and may change. Review before making soap.`
+        : 'This saved formula used the earlier 2:1 liquid-to-NaOH baseline. Its liquid amount now uses the 22%-of-total-batch estimate and may change. Review before making soap.');
+    setSaveFeedback(`Opened “${recipe.name}”. Validate it against the current catalog before printing.`);
+  };
+  const openBrowserRecipe = (recipe: SavedRecipe) => {
+    setActiveRecipeId(null);
+    setOpenedSnapshot({
+      id: recipe.id, name: recipe.name, batchSize: recipe.batchSize, unit: recipe.unit,
+      superfat: recipe.superfat, concentration: recipe.concentration, imported: true,
+      createdAt: recipe.savedAt, updatedAt: recipe.savedAt,
+      fragrances: recipe.fragrances, liquidType: recipe.liquidType, customLiquid: recipe.customLiquid,
+      oilInputUnit: recipe.oilInputUnit, liquidMethod: recipe.liquidMethod,
+      oils: recipe.oils.map(o => ({ id: o.id, name: o.name, percentage: o.percentage, weight: o.weight, savedSap: null })),
+    });
     seeded.current = true;
     setRecipeName(recipe.name); setBatchSize(recipe.batchSize); setUnit(recipe.unit); setSuperfat(recipe.superfat);
     setOils(recipe.oils); setFragrances(recipe.fragrances ?? []);
@@ -358,7 +464,70 @@ function CalculatorPage() {
       : typeof recipe.concentration === 'number'
         ? `This saved formula used ${recipe.concentration}% lye concentration. Its liquid amount now uses the 22%-of-total-batch estimate and may change. Review before making soap.`
         : 'This saved formula used the earlier 2:1 liquid-to-NaOH baseline. Its liquid amount now uses the 22%-of-total-batch estimate and may change. Review before making soap.');
-    setSaveFeedback(`Opened “${recipe.name}”. Validate it against the current catalog before printing.`);
+    setSaveFeedback(`Opened the browser copy of “${recipe.name}”. The original remains untouched.`);
+  };
+  const importBrowserRecipe = async (recipe: SavedRecipe) => {
+    if (!user?.id || busy) return;
+    setBusy(true);
+    try {
+      await importRecipe({
+        legacyId: recipe.id, name: (recipe.name || 'Untitled formula').slice(0, 120),
+        batchSize: recipe.batchSize, unit: recipe.unit, superfat: recipe.superfat,
+        concentration: recipe.concentration, fragrances: recipe.fragrances,
+        liquidType: recipe.liquidType, customLiquid: recipe.customLiquid, oilInputUnit: recipe.oilInputUnit,
+        liquidMethod: recipe.liquidMethod,
+        oils: recipe.oils.map(o => ({ id: o.id, name: o.name, percentage: o.percentage, weight: o.weight })),
+      });
+      const next = [...new Set([...importedIds, recipe.id])];
+      localStorage.setItem(`soapspice-imported-${user.id}`, JSON.stringify(next));
+      setImportedIds(next);
+      await refreshRecipes();
+      setSaveFeedback(`Imported “${recipe.name}” as a draft. The browser copy remains untouched.`);
+    } catch {
+      setSaveFeedback(`Could not import “${recipe.name}”. The original is still here; check its values and retry.`);
+    } finally { setBusy(false); }
+  };
+  const removeRecipe = async (recipe: Recipe) => {
+    if (!window.confirm(`Delete “${recipe.name}” from your account? This cannot be undone.`)) return;
+    setBusy(true);
+    try {
+      await deleteRecipe(recipe.id);
+      if (activeRecipeId === recipe.id) { setActiveRecipeId(null); setOpenedSnapshot(null); setValidated(false); }
+      await refreshRecipes();
+      setSaveFeedback(`Deleted “${recipe.name}”.`);
+    } catch { setSaveFeedback('Could not delete this formula. Try again.'); }
+    finally { setBusy(false); }
+  };
+  const duplicateRecipe = async (recipe: Recipe) => {
+    setBusy(true);
+    try {
+      await createRecipe({
+        name: `${recipe.name} (copy)`.slice(0, 120), batchSize: recipe.batchSize, unit: recipe.unit, superfat: recipe.superfat,
+        oils: recipe.oils.map(o => ({ id: o.id, percentage: o.percentage, weight: o.weight })),
+        fragrances: recipe.fragrances, liquidType: recipe.liquidType, customLiquid: recipe.customLiquid,
+        oilInputUnit: recipe.oilInputUnit, liquidMethod: 'batch-22',
+      });
+      await refreshRecipes();
+      setSaveFeedback(`Duplicated “${recipe.name}”. Open the copy from the list to edit it.`);
+    } catch { setSaveFeedback('Could not duplicate: check the current catalog and validate this formula first.'); }
+    finally { setBusy(false); }
+  };
+  const exportFormula = () => {
+    if (!visibleResult || !isSignedIn) return;
+    const content = {
+      name: recipeName, input: recipeInput(), calculatedAt: new Date().toISOString(),
+      ingredients: visibleResult.ingredientLye.map(line => ({
+        ...line, name: ingredientMap.get(line.id)?.name, sourceTitle: ingredientMap.get(line.id)?.sapSourceTitle,
+        sourceUrl: ingredientMap.get(line.id)?.sapSourceUrl, verificationStatus: ingredientMap.get(line.id)?.verificationStatus,
+      })),
+      naohGrams: visibleResult.naoh, liquidGrams: visibleResult.liquid, liquidName,
+      fragranceGrams: visibleResult.fragranceTotalGrams,
+      note: 'Calculated from current source-linked catalog values and an approximate liquid baseline. Independently verify lye purity, SAP, fragrance limits, and process before making soap.',
+    };
+    const url = URL.createObjectURL(new Blob([JSON.stringify(content, null, 2)], { type: 'application/json' }));
+    const link = document.createElement('a'); link.href = url;
+    link.download = `${recipeName.trim().replace(/[^a-z0-9_-]+/gi, '-').slice(0, 50) || 'formula'}.json`;
+    link.click(); window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
   const available = ingredients.filter((ingredient) => !oils.some((oil) => oil.id === ingredient.id));
 
@@ -387,7 +556,7 @@ function CalculatorPage() {
               {oils.map((oil) => {
                 const amount = oilInputUnit === 'percent' ? oil.percentage : oilInputUnit === 'oz' ? oil.weight / GRAMS_PER_OUNCE : oil.weight;
                 return <div key={oil.id} className="mb-3 grid gap-3 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] p-3 sm:grid-cols-[minmax(0,1fr)_145px_38px] sm:items-center">
-                  <div><div className="flex items-center gap-2 font-bold">{oil.name}<span className="rounded-full bg-[hsl(var(--secondary))] px-2 py-0.5 text-[9px] uppercase tracking-wider text-[hsl(var(--secondary-foreground))]">{ingredientMap.get(oil.id)?.category}</span></div><a href={ingredientMap.get(oil.id)?.sapSourceUrl} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-[11px] text-[hsl(var(--primary))] hover:underline" data-testid={`link-source-${oil.id}`}>SAP {ingredientMap.get(oil.id)?.naohSap.toFixed(3)} <ExternalLink size={11} /></a><p className="mt-1 font-data text-[11px] text-[hsl(var(--muted-foreground))]">{oil.percentage.toFixed(1)}% · {oil.weight.toFixed(1)} g · {(oil.weight / GRAMS_PER_OUNCE).toFixed(2)} oz</p></div>
+                  <div><div className="flex items-center gap-2 font-bold">{oil.name}<span className="rounded-full bg-[hsl(var(--secondary))] px-2 py-0.5 text-[9px] uppercase tracking-wider text-[hsl(var(--secondary-foreground))]">{ingredientMap.get(oil.id)?.category ?? 'Missing'}</span></div>{ingredientMap.get(oil.id) ? <a href={ingredientMap.get(oil.id)?.sapSourceUrl} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-[11px] text-[hsl(var(--primary))] hover:underline" data-testid={`link-source-${oil.id}`}>SAP {ingredientMap.get(oil.id)?.naohSap.toFixed(3)} <ExternalLink size={11} /></a> : <span className="text-xs text-red-700">Not in current catalog · replace to calculate</span>}<p className="mt-1 font-data text-[11px] text-[hsl(var(--muted-foreground))]">{oil.percentage.toFixed(1)}% · {oil.weight.toFixed(1)} g · {(oil.weight / GRAMS_PER_OUNCE).toFixed(2)} oz</p></div>
                   <label className="flex items-center gap-2 sm:block"><span className="text-xs text-[hsl(var(--muted-foreground))] sm:hidden">{oilInputUnit === 'percent' ? 'Percent' : oilInputUnit === 'g' ? 'Grams' : 'Ounces'}</span><input type="number" min="0" step="any" value={Number.isFinite(amount) ? Number(amount.toFixed(oilInputUnit === 'percent' ? 2 : 3)) : 0} onChange={(event) => changeOilAmount(oil.id, Number(event.target.value))} className="h-10 w-full rounded-xl border border-[hsl(var(--input))] bg-white px-3 text-sm font-data outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]" data-testid={`input-amount-${oil.id}`} /></label>
                   <button type="button" onClick={() => removeOil(oil.id)} className="flex h-9 w-9 items-center justify-center rounded-full text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--destructive)/.1)] hover:text-[hsl(var(--destructive))]" aria-label={`Remove ${oil.name}`} data-testid={`button-remove-${oil.id}`}><Trash2 size={16} /></button>
                 </div>;
@@ -446,7 +615,38 @@ function CalculatorPage() {
               <div className="flex justify-between gap-3"><span>Total before saponification<br /><span className="text-xs text-[hsl(var(--muted-foreground))]">oils + NaOH + liquid + fragrance</span></span><strong className="font-data">{visibleResult.batchTotal.toFixed(2)} g</strong></div>
             </div>
           </details>}
-          <div className="rounded-3xl border border-[hsl(var(--border))] bg-white p-6 shadow-card"><div className="flex items-center gap-2 text-[hsl(var(--primary))]"><ShieldCheck size={17} /><h2 className="font-bold">Save this batch</h2></div><input value={recipeName} onChange={(event) => { setRecipeName(event.target.value); setSaveFeedback(''); }} className="mt-4 h-11 w-full rounded-xl border border-[hsl(var(--input))] bg-[hsl(var(--background))] px-3 text-sm outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]" placeholder="Recipe name" data-testid="input-recipe-name" /><button type="button" onClick={saveRecipe} className={`${buttonPrimary} mt-3 w-full`} data-testid="button-save-recipe">Save in this browser</button>{saveFeedback && <p role="status" className={`mt-3 rounded-xl p-3 text-sm ${saveFeedback.startsWith('Saved') ? 'bg-[hsl(var(--primary)/.1)] text-[hsl(var(--primary))]' : 'bg-[hsl(var(--accent)/.12)] text-[hsl(var(--secondary-foreground))]'}`} data-testid="status-save-feedback">{saveFeedback}</p>}{savedRecipes.length > 0 && <div className="mt-5 border-t border-[hsl(var(--border))] pt-4"><p className="text-xs font-bold uppercase tracking-[.14em] text-[hsl(var(--muted-foreground))]">Saved formulas</p><div className="mt-2 space-y-1">{savedRecipes.map((recipe) => <button type="button" key={recipe.id} onClick={() => loadRecipe(recipe.id)} className="flex w-full items-center justify-between rounded-xl px-2 py-2 text-left text-sm font-bold hover:bg-[hsl(var(--secondary))]" data-testid={`button-load-recipe-${recipe.id}`}><span className="truncate">{recipe.name}</span><span className="ml-2 text-xs text-[hsl(var(--muted-foreground))]">{new Date(recipe.savedAt).toLocaleDateString()}</span></button>)}</div></div>}</div>
+          <div className="rounded-3xl border border-[hsl(var(--border))] bg-white p-6 shadow-card">
+            <div className="flex items-center gap-2 text-[hsl(var(--primary))]"><ShieldCheck size={17} /><h2 className="font-bold">Save this batch</h2></div>
+            {!isLoaded ? <p className="mt-3 text-sm">Checking your account…</p> : !isSignedIn ? <p className="mt-3 text-sm">Sign in to keep formulas across devices. Your earlier browser saves are still available below.</p> : null}
+            {!isSignedIn && <Link href="/sign-in" className={`${buttonQuiet} mt-3`}>Sign in to save</Link>}
+            {isSignedIn && <>
+              <input value={recipeName} onChange={(event) => { setRecipeName(event.target.value); setSaveFeedback(''); }} className="mt-4 h-11 w-full rounded-xl border border-[hsl(var(--input))] bg-[hsl(var(--background))] px-3 text-sm outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]" placeholder="Recipe name" data-testid="input-recipe-name" />
+              <button type="button" onClick={() => void saveRecipe()} disabled={busy || catalogUnavailable} className={`${buttonPrimary} mt-3 w-full`} data-testid="button-save-recipe">{activeRecipeId ? 'Update formula' : 'Save to my account'}</button>
+              {activeRecipeId && <button type="button" className={`${buttonQuiet} mt-2 w-full`} onClick={() => { setActiveRecipeId(null); setOpenedSnapshot(null); setRecipeName('New formula'); setValidated(false); setSaveFeedback('New formula: edit and validate before saving.'); }}>Save as new instead</button>}
+            </>}
+            {catalogWarnings.length > 0 && <div role="alert" className="mt-4 rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950"><strong>Review catalog changes</strong><ul className="mt-2 list-disc pl-5">{catalogWarnings.map(message => <li key={message}>{message}</li>)}</ul></div>}
+            {saveFeedback && <p role="status" className={`mt-3 rounded-xl p-3 text-sm ${saveFeedback.startsWith('Saved') ? 'bg-[hsl(var(--primary)/.1)] text-[hsl(var(--primary))]' : 'bg-[hsl(var(--accent)/.12)] text-[hsl(var(--secondary-foreground))]'}`} data-testid="status-save-feedback">{saveFeedback}</p>}
+            {isSignedIn && <div className="mt-5 border-t border-[hsl(var(--border))] pt-4">
+              <p className="text-xs font-bold uppercase tracking-[.14em] text-[hsl(var(--muted-foreground))]">My formulas</p>
+              {recipesQuery.isLoading && <p className="mt-2 text-sm">Loading your formulas…</p>}
+              {recipesQuery.isError && <button type="button" onClick={() => void recipesQuery.refetch()} className={`${buttonQuiet} mt-2`}>Could not load formulas · Retry</button>}
+              {!recipesQuery.isLoading && !recipesQuery.isError && savedRecipes.length === 0 && <p className="mt-2 text-sm">No account formulas yet.</p>}
+              <div className="mt-2 space-y-2">{savedRecipes.map(recipe => <div key={recipe.id} className="rounded-xl border border-[hsl(var(--border))] p-3">
+                <button type="button" onClick={() => loadRecipe(recipe.id)} className="w-full text-left text-sm font-bold hover:text-[hsl(var(--primary))]" data-testid={`button-load-recipe-${recipe.id}`}>{recipe.name}</button>
+                <p className="mt-1 text-xs text-[hsl(var(--muted-foreground))]">{recipe.imported ? 'Imported browser draft · needs validation' : 'Saved'} · {new Date(recipe.updatedAt).toLocaleDateString()}</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <button type="button" disabled={busy} onClick={() => void duplicateRecipe(recipe)} className="text-xs font-bold text-[hsl(var(--primary))]">Duplicate</button>
+                  <button type="button" disabled={busy} onClick={() => void removeRecipe(recipe)} className="text-xs font-bold text-red-700">Delete</button>
+                </div>
+              </div>)}</div>
+            </div>}
+            {browserRecipes.length > 0 && <div className="mt-5 border-t border-[hsl(var(--border))] pt-4">
+              <p className="text-xs font-bold uppercase tracking-[.14em]">Earlier saves in this browser</p>
+              <p className="mt-2 text-xs leading-5 text-[hsl(var(--muted-foreground))]">Import each one to your account. Originals stay in this browser. Older saves lack SAP snapshots and may use a different liquid estimate.</p>
+              {browserRecipes.map(recipe => <div key={recipe.id} className="mt-2 flex items-center justify-between gap-2 text-sm"><span className="truncate">{recipe.name}</span><div className="flex gap-2"><button type="button" onClick={() => openBrowserRecipe(recipe)} className="shrink-0 font-bold text-[hsl(var(--primary))]">Open</button>{isSignedIn && <button type="button" disabled={busy} onClick={() => void importBrowserRecipe(recipe)} className="shrink-0 font-bold text-[hsl(var(--primary))] disabled:opacity-50">{importedIds.includes(recipe.id) ? 'Import again' : 'Import'}</button>}</div></div>)}
+            </div>}
+          </div>
+          <button type="button" onClick={exportFormula} disabled={!visibleResult || !isSignedIn} className={`${buttonQuiet} print-hide w-full disabled:opacity-45`}>Export validated formula (.json)</button>
           <button type="button" onClick={() => { if (visibleResult) window.print(); }} disabled={!visibleResult} className={`${buttonQuiet} print-hide w-full disabled:cursor-not-allowed disabled:opacity-45`} data-testid="button-print-formula"><Printer size={17} /> Print formula</button>
           <div className="rounded-3xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] p-6"><div className="flex items-center gap-2 text-[hsl(var(--secondary-foreground))]"><CircleAlert size={17} /><h2 className="font-bold">A note on the numbers</h2></div><p className="mt-3 text-sm leading-6 text-[hsl(var(--secondary-foreground)/.8)]">SAP values are linked to their sources, but still need administrator review. Treat every result as a starting point and verify your process independently.</p></div>
         </aside>
@@ -463,7 +663,7 @@ function Router() {
     if (location === '/') {
       title = 'SoapSpice | Make soap with more confidence';
       description = 'Explore source-linked soapmaking ingredients and build clear NaOH cold-process bar formulas with SoapSpice.';
-    } else if (location === '/calculators/cold-process-soap') {
+    } else if (location === '/calculators/cold-process-soap' || location === '/my-formulas') {
       title = 'Cold-Process Soap Calculator | SoapSpice';
       description = 'Calculate NaOH and water for cold-process bar soap from source-linked oil and butter SAP values. Review your formula and lye safety guidance.';
     } else if (location === '/ingredients') {
@@ -488,11 +688,44 @@ function Router() {
       document.querySelector<HTMLMetaElement>(selector)?.setAttribute('content', title);
     }
   }, [location]);
-  return <ErrorBoundary resetKey={location}><Switch><Route path="/" component={Home} /><Route path="/calculators/cold-process-soap" component={CalculatorPage} /><Route path="/ingredients" component={IngredientsPage} /><Route path="/ingredients/:ingredientId" component={IngredientDetailPage} /><Route component={NotFound} /></Switch></ErrorBoundary>;
+  return <ErrorBoundary resetKey={location}><Switch>
+    <Route path="/"><><Show when="signed-in"><Redirect to="/my-formulas" /></Show><Show when="signed-out"><Home /></Show></></Route>
+    <Route path="/sign-in/*?"><div className="min-h-[100dvh] bg-[hsl(var(--background))] px-4 py-14"><Link href="/" className="mx-auto mb-8 block w-fit text-sm font-bold text-[hsl(var(--primary))]">← SoapSpice</Link><SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} fallbackRedirectUrl={`${basePath}/my-formulas`} /></div></Route>
+    <Route path="/sign-up/*?"><div className="min-h-[100dvh] bg-[hsl(var(--background))] px-4 py-14"><Link href="/" className="mx-auto mb-8 block w-fit text-sm font-bold text-[hsl(var(--primary))]">← SoapSpice</Link><SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} fallbackRedirectUrl={`${basePath}/my-formulas`} /></div></Route>
+    <Route path="/my-formulas"><><Show when="signed-in"><CalculatorPage /></Show><Show when="signed-out"><Redirect to="/" /></Show></></Route>
+    <Route path="/calculators/cold-process-soap" component={CalculatorPage} />
+    <Route path="/ingredients" component={IngredientsPage} />
+    <Route path="/ingredients/:ingredientId" component={IngredientDetailPage} />
+    <Route component={NotFound} />
+  </Switch></ErrorBoundary>;
 }
 
+function ClerkQueryClientCacheInvalidator() {
+  const { addListener } = useClerk();
+  const client = useQueryClient();
+  const previousUser = useRef<string | null | undefined>(undefined);
+  useEffect(() => addListener(({ user }) => {
+    const id = user?.id ?? null;
+    if (previousUser.current !== undefined && previousUser.current !== id) client.clear();
+    previousUser.current = id;
+  }), [addListener, client]);
+  return null;
+}
+function ClerkProviderWithRoutes() {
+  const [, setLocation] = useLocation();
+  return <ClerkProvider
+    publishableKey={clerkPubKey}
+    proxyUrl={clerkProxyUrl}
+    appearance={clerkAppearance}
+    signInUrl={`${basePath}/sign-in`}
+    signUpUrl={`${basePath}/sign-up`}
+    localization={{ signIn: { start: { title: 'Welcome back to SoapSpice', subtitle: 'Open your saved formulas on any device' } }, signUp: { start: { title: 'Make your SoapSpice account', subtitle: 'Keep your formulas together' } } }}
+    routerPush={(to) => setLocation(stripBase(to))}
+    routerReplace={(to) => setLocation(stripBase(to), { replace: true })}
+  ><QueryClientProvider client={queryClient}><ClerkQueryClientCacheInvalidator /><TooltipProvider><Router /><Toaster /></TooltipProvider></QueryClientProvider></ClerkProvider>;
+}
 function App() {
-  return <QueryClientProvider client={queryClient}><TooltipProvider><WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}><Router /></WouterRouter><Toaster /></TooltipProvider></QueryClientProvider>;
+  return <WouterRouter base={basePath}><ClerkProviderWithRoutes /></WouterRouter>;
 }
 
 export default App;

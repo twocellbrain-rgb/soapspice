@@ -9,6 +9,404 @@ import * as zod from 'zod';
 
 
 /**
+ * @summary List my saved formulas
+ */
+export const listRecipesResponseFragrancesItemIdMax = 120;
+
+export const listRecipesResponseFragrancesItemNameMax = 120;
+
+export const listRecipesResponseFragrancesItemAmountExclusiveMin = 0;
+
+
+
+export const ListRecipesResponseItem = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "batchSize": zod.number(),
+  "unit": zod.enum(['g', 'oz', 'lb']),
+  "superfat": zod.number(),
+  "concentration": zod.number().optional(),
+  "fragrances": zod.array(zod.object({
+  "id": zod.string().min(1).max(listRecipesResponseFragrancesItemIdMax),
+  "name": zod.string().min(1).max(listRecipesResponseFragrancesItemNameMax),
+  "amount": zod.number().gt(listRecipesResponseFragrancesItemAmountExclusiveMin),
+  "unit": zod.enum(['g', 'oz', 'percent'])
+})).optional(),
+  "liquidType": zod.enum(['distilled-water', 'goat-milk', 'cow-milk', 'other']).optional(),
+  "customLiquid": zod.string().optional(),
+  "oilInputUnit": zod.enum(['percent', 'g', 'oz']).optional(),
+  "liquidMethod": zod.enum(['batch-22']).optional(),
+  "oils": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "percentage": zod.number(),
+  "weight": zod.number(),
+  "savedSap": zod.number().nullable()
+})),
+  "imported": zod.boolean(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+export const ListRecipesResponse = zod.array(ListRecipesResponseItem)
+
+
+/**
+ * @summary Save a validated formula
+ */
+export const createRecipeBodyNameMax = 120;
+
+export const createRecipeBodyBatchSizeExclusiveMin = 0;
+
+export const createRecipeBodySuperfatMin = 0;
+export const createRecipeBodySuperfatMax = 15;
+
+export const createRecipeBodyConcentrationMin = 25;
+export const createRecipeBodyConcentrationMax = 50;
+
+export const createRecipeBodyFragrancesItemIdMax = 120;
+
+export const createRecipeBodyFragrancesItemNameMax = 120;
+
+export const createRecipeBodyFragrancesItemAmountExclusiveMin = 0;
+
+export const createRecipeBodyFragrancesMax = 50;
+
+export const createRecipeBodyCustomLiquidMax = 120;
+
+export const createRecipeBodyOilsItemIdMax = 100;
+
+export const createRecipeBodyOilsItemNameMax = 120;
+
+export const createRecipeBodyOilsItemPercentageMin = 0;
+export const createRecipeBodyOilsItemPercentageMax = 100;
+
+export const createRecipeBodyOilsItemWeightMin = 0;
+
+export const createRecipeBodyOilsMax = 50;
+
+
+
+export const CreateRecipeBody = zod.object({
+  "name": zod.string().min(1).max(createRecipeBodyNameMax),
+  "batchSize": zod.number().gt(createRecipeBodyBatchSizeExclusiveMin),
+  "unit": zod.enum(['g', 'oz', 'lb']),
+  "superfat": zod.number().min(createRecipeBodySuperfatMin).max(createRecipeBodySuperfatMax),
+  "concentration": zod.number().min(createRecipeBodyConcentrationMin).max(createRecipeBodyConcentrationMax).optional(),
+  "fragrances": zod.array(zod.object({
+  "id": zod.string().min(1).max(createRecipeBodyFragrancesItemIdMax),
+  "name": zod.string().min(1).max(createRecipeBodyFragrancesItemNameMax),
+  "amount": zod.number().gt(createRecipeBodyFragrancesItemAmountExclusiveMin),
+  "unit": zod.enum(['g', 'oz', 'percent'])
+})).max(createRecipeBodyFragrancesMax).optional(),
+  "liquidType": zod.enum(['distilled-water', 'goat-milk', 'cow-milk', 'other']).optional(),
+  "customLiquid": zod.string().max(createRecipeBodyCustomLiquidMax).optional(),
+  "oilInputUnit": zod.enum(['percent', 'g', 'oz']).optional(),
+  "liquidMethod": zod.enum(['batch-22']).optional(),
+  "oils": zod.array(zod.object({
+  "id": zod.string().min(1).max(createRecipeBodyOilsItemIdMax),
+  "name": zod.string().max(createRecipeBodyOilsItemNameMax).optional(),
+  "percentage": zod.number().min(createRecipeBodyOilsItemPercentageMin).max(createRecipeBodyOilsItemPercentageMax),
+  "weight": zod.number().min(createRecipeBodyOilsItemWeightMin)
+})).min(1).max(createRecipeBodyOilsMax)
+})
+
+export const createRecipeResponseFragrancesItemIdMax = 120;
+
+export const createRecipeResponseFragrancesItemNameMax = 120;
+
+export const createRecipeResponseFragrancesItemAmountExclusiveMin = 0;
+
+
+
+export const CreateRecipeResponse = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "batchSize": zod.number(),
+  "unit": zod.enum(['g', 'oz', 'lb']),
+  "superfat": zod.number(),
+  "concentration": zod.number().optional(),
+  "fragrances": zod.array(zod.object({
+  "id": zod.string().min(1).max(createRecipeResponseFragrancesItemIdMax),
+  "name": zod.string().min(1).max(createRecipeResponseFragrancesItemNameMax),
+  "amount": zod.number().gt(createRecipeResponseFragrancesItemAmountExclusiveMin),
+  "unit": zod.enum(['g', 'oz', 'percent'])
+})).optional(),
+  "liquidType": zod.enum(['distilled-water', 'goat-milk', 'cow-milk', 'other']).optional(),
+  "customLiquid": zod.string().optional(),
+  "oilInputUnit": zod.enum(['percent', 'g', 'oz']).optional(),
+  "liquidMethod": zod.enum(['batch-22']).optional(),
+  "oils": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "percentage": zod.number(),
+  "weight": zod.number(),
+  "savedSap": zod.number().nullable()
+})),
+  "imported": zod.boolean(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Preserve a legacy browser formula as an unvalidated draft
+ */
+export const importRecipeBodyLegacyIdMax = 120;
+
+export const importRecipeBodyNameMax = 120;
+
+export const importRecipeBodyBatchSizeExclusiveMin = 0;
+
+export const importRecipeBodySuperfatMin = 0;
+export const importRecipeBodySuperfatMax = 15;
+
+export const importRecipeBodyConcentrationMin = 25;
+export const importRecipeBodyConcentrationMax = 50;
+
+export const importRecipeBodyFragrancesItemIdMax = 120;
+
+export const importRecipeBodyFragrancesItemNameMax = 120;
+
+export const importRecipeBodyFragrancesItemAmountExclusiveMin = 0;
+
+export const importRecipeBodyFragrancesMax = 50;
+
+export const importRecipeBodyCustomLiquidMax = 120;
+
+export const importRecipeBodyOilsItemIdMax = 100;
+
+export const importRecipeBodyOilsItemNameMax = 120;
+
+export const importRecipeBodyOilsItemPercentageMin = 0;
+export const importRecipeBodyOilsItemPercentageMax = 100;
+
+export const importRecipeBodyOilsItemWeightMin = 0;
+
+export const importRecipeBodyOilsMax = 50;
+
+
+
+export const ImportRecipeBody = zod.object({
+  "legacyId": zod.string().min(1).max(importRecipeBodyLegacyIdMax),
+  "name": zod.string().min(1).max(importRecipeBodyNameMax),
+  "batchSize": zod.number().gt(importRecipeBodyBatchSizeExclusiveMin),
+  "unit": zod.enum(['g', 'oz', 'lb']),
+  "superfat": zod.number().min(importRecipeBodySuperfatMin).max(importRecipeBodySuperfatMax),
+  "concentration": zod.number().min(importRecipeBodyConcentrationMin).max(importRecipeBodyConcentrationMax).optional(),
+  "fragrances": zod.array(zod.object({
+  "id": zod.string().min(1).max(importRecipeBodyFragrancesItemIdMax),
+  "name": zod.string().min(1).max(importRecipeBodyFragrancesItemNameMax),
+  "amount": zod.number().gt(importRecipeBodyFragrancesItemAmountExclusiveMin),
+  "unit": zod.enum(['g', 'oz', 'percent'])
+})).max(importRecipeBodyFragrancesMax).optional(),
+  "liquidType": zod.enum(['distilled-water', 'goat-milk', 'cow-milk', 'other']).optional(),
+  "customLiquid": zod.string().max(importRecipeBodyCustomLiquidMax).optional(),
+  "oilInputUnit": zod.enum(['percent', 'g', 'oz']).optional(),
+  "liquidMethod": zod.enum(['batch-22']).optional(),
+  "oils": zod.array(zod.object({
+  "id": zod.string().min(1).max(importRecipeBodyOilsItemIdMax),
+  "name": zod.string().max(importRecipeBodyOilsItemNameMax).optional(),
+  "percentage": zod.number().min(importRecipeBodyOilsItemPercentageMin).max(importRecipeBodyOilsItemPercentageMax),
+  "weight": zod.number().min(importRecipeBodyOilsItemWeightMin)
+})).min(1).max(importRecipeBodyOilsMax)
+})
+
+export const importRecipeResponseFragrancesItemIdMax = 120;
+
+export const importRecipeResponseFragrancesItemNameMax = 120;
+
+export const importRecipeResponseFragrancesItemAmountExclusiveMin = 0;
+
+
+
+export const ImportRecipeResponse = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "batchSize": zod.number(),
+  "unit": zod.enum(['g', 'oz', 'lb']),
+  "superfat": zod.number(),
+  "concentration": zod.number().optional(),
+  "fragrances": zod.array(zod.object({
+  "id": zod.string().min(1).max(importRecipeResponseFragrancesItemIdMax),
+  "name": zod.string().min(1).max(importRecipeResponseFragrancesItemNameMax),
+  "amount": zod.number().gt(importRecipeResponseFragrancesItemAmountExclusiveMin),
+  "unit": zod.enum(['g', 'oz', 'percent'])
+})).optional(),
+  "liquidType": zod.enum(['distilled-water', 'goat-milk', 'cow-milk', 'other']).optional(),
+  "customLiquid": zod.string().optional(),
+  "oilInputUnit": zod.enum(['percent', 'g', 'oz']).optional(),
+  "liquidMethod": zod.enum(['batch-22']).optional(),
+  "oils": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "percentage": zod.number(),
+  "weight": zod.number(),
+  "savedSap": zod.number().nullable()
+})),
+  "imported": zod.boolean(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Open my formula
+ */
+export const GetRecipeParams = zod.object({
+  "recipeId": zod.coerce.string().uuid()
+})
+
+export const getRecipeResponseFragrancesItemIdMax = 120;
+
+export const getRecipeResponseFragrancesItemNameMax = 120;
+
+export const getRecipeResponseFragrancesItemAmountExclusiveMin = 0;
+
+
+
+export const GetRecipeResponse = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "batchSize": zod.number(),
+  "unit": zod.enum(['g', 'oz', 'lb']),
+  "superfat": zod.number(),
+  "concentration": zod.number().optional(),
+  "fragrances": zod.array(zod.object({
+  "id": zod.string().min(1).max(getRecipeResponseFragrancesItemIdMax),
+  "name": zod.string().min(1).max(getRecipeResponseFragrancesItemNameMax),
+  "amount": zod.number().gt(getRecipeResponseFragrancesItemAmountExclusiveMin),
+  "unit": zod.enum(['g', 'oz', 'percent'])
+})).optional(),
+  "liquidType": zod.enum(['distilled-water', 'goat-milk', 'cow-milk', 'other']).optional(),
+  "customLiquid": zod.string().optional(),
+  "oilInputUnit": zod.enum(['percent', 'g', 'oz']).optional(),
+  "liquidMethod": zod.enum(['batch-22']).optional(),
+  "oils": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "percentage": zod.number(),
+  "weight": zod.number(),
+  "savedSap": zod.number().nullable()
+})),
+  "imported": zod.boolean(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Replace my formula after validation
+ */
+export const UpdateRecipeParams = zod.object({
+  "recipeId": zod.coerce.string().uuid()
+})
+
+export const updateRecipeBodyNameMax = 120;
+
+export const updateRecipeBodyBatchSizeExclusiveMin = 0;
+
+export const updateRecipeBodySuperfatMin = 0;
+export const updateRecipeBodySuperfatMax = 15;
+
+export const updateRecipeBodyConcentrationMin = 25;
+export const updateRecipeBodyConcentrationMax = 50;
+
+export const updateRecipeBodyFragrancesItemIdMax = 120;
+
+export const updateRecipeBodyFragrancesItemNameMax = 120;
+
+export const updateRecipeBodyFragrancesItemAmountExclusiveMin = 0;
+
+export const updateRecipeBodyFragrancesMax = 50;
+
+export const updateRecipeBodyCustomLiquidMax = 120;
+
+export const updateRecipeBodyOilsItemIdMax = 100;
+
+export const updateRecipeBodyOilsItemNameMax = 120;
+
+export const updateRecipeBodyOilsItemPercentageMin = 0;
+export const updateRecipeBodyOilsItemPercentageMax = 100;
+
+export const updateRecipeBodyOilsItemWeightMin = 0;
+
+export const updateRecipeBodyOilsMax = 50;
+
+
+
+export const UpdateRecipeBody = zod.object({
+  "name": zod.string().min(1).max(updateRecipeBodyNameMax),
+  "batchSize": zod.number().gt(updateRecipeBodyBatchSizeExclusiveMin),
+  "unit": zod.enum(['g', 'oz', 'lb']),
+  "superfat": zod.number().min(updateRecipeBodySuperfatMin).max(updateRecipeBodySuperfatMax),
+  "concentration": zod.number().min(updateRecipeBodyConcentrationMin).max(updateRecipeBodyConcentrationMax).optional(),
+  "fragrances": zod.array(zod.object({
+  "id": zod.string().min(1).max(updateRecipeBodyFragrancesItemIdMax),
+  "name": zod.string().min(1).max(updateRecipeBodyFragrancesItemNameMax),
+  "amount": zod.number().gt(updateRecipeBodyFragrancesItemAmountExclusiveMin),
+  "unit": zod.enum(['g', 'oz', 'percent'])
+})).max(updateRecipeBodyFragrancesMax).optional(),
+  "liquidType": zod.enum(['distilled-water', 'goat-milk', 'cow-milk', 'other']).optional(),
+  "customLiquid": zod.string().max(updateRecipeBodyCustomLiquidMax).optional(),
+  "oilInputUnit": zod.enum(['percent', 'g', 'oz']).optional(),
+  "liquidMethod": zod.enum(['batch-22']).optional(),
+  "oils": zod.array(zod.object({
+  "id": zod.string().min(1).max(updateRecipeBodyOilsItemIdMax),
+  "name": zod.string().max(updateRecipeBodyOilsItemNameMax).optional(),
+  "percentage": zod.number().min(updateRecipeBodyOilsItemPercentageMin).max(updateRecipeBodyOilsItemPercentageMax),
+  "weight": zod.number().min(updateRecipeBodyOilsItemWeightMin)
+})).min(1).max(updateRecipeBodyOilsMax)
+})
+
+export const updateRecipeResponseFragrancesItemIdMax = 120;
+
+export const updateRecipeResponseFragrancesItemNameMax = 120;
+
+export const updateRecipeResponseFragrancesItemAmountExclusiveMin = 0;
+
+
+
+export const UpdateRecipeResponse = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "batchSize": zod.number(),
+  "unit": zod.enum(['g', 'oz', 'lb']),
+  "superfat": zod.number(),
+  "concentration": zod.number().optional(),
+  "fragrances": zod.array(zod.object({
+  "id": zod.string().min(1).max(updateRecipeResponseFragrancesItemIdMax),
+  "name": zod.string().min(1).max(updateRecipeResponseFragrancesItemNameMax),
+  "amount": zod.number().gt(updateRecipeResponseFragrancesItemAmountExclusiveMin),
+  "unit": zod.enum(['g', 'oz', 'percent'])
+})).optional(),
+  "liquidType": zod.enum(['distilled-water', 'goat-milk', 'cow-milk', 'other']).optional(),
+  "customLiquid": zod.string().optional(),
+  "oilInputUnit": zod.enum(['percent', 'g', 'oz']).optional(),
+  "liquidMethod": zod.enum(['batch-22']).optional(),
+  "oils": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "percentage": zod.number(),
+  "weight": zod.number(),
+  "savedSap": zod.number().nullable()
+})),
+  "imported": zod.boolean(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Delete my formula
+ */
+export const DeleteRecipeParams = zod.object({
+  "recipeId": zod.coerce.string().uuid()
+})
+
+export const DeleteRecipeResponse = zod.void()
+
+
+/**
  * Returns server health status
  * @summary Health check
  */

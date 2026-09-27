@@ -6,11 +6,15 @@
  * OpenAPI spec version: 0.1.0
  */
 import {
+  useMutation,
   useQuery
 } from '@tanstack/react-query';
 import type {
+  MutationFunction,
   QueryFunction,
   QueryKey,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult
 } from '@tanstack/react-query';
@@ -19,11 +23,14 @@ import type {
   Error,
   GetIngredientsParams,
   HealthStatus,
-  Ingredient
+  Ingredient,
+  LegacyRecipeInput,
+  Recipe,
+  RecipeInput
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
-import type { ErrorType } from '../custom-fetch';
+import type { ErrorType , BodyType } from '../custom-fetch';
 
 type AwaitedInput<T> = PromiseLike<T> | T;
 
@@ -48,6 +55,499 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getListRecipesUrl = () => {
+
+
+
+
+  return `/api/recipes`
+}
+
+/**
+ * @summary List my saved formulas
+ */
+export const listRecipes = async ( options?: Parameters<typeof customFetch>[1]): Promise<Recipe[]> => {
+
+  return customFetch<Recipe[]>(getListRecipesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListRecipesQueryKey = () => {
+    return [
+    `/api/recipes`
+    ] as const;
+    }
+
+
+export const getListRecipesQueryOptions = <TData = Awaited<ReturnType<typeof listRecipes>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listRecipes>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListRecipesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listRecipes>>> = ({ signal }) => listRecipes({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listRecipes>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListRecipesQueryResult = NonNullable<Awaited<ReturnType<typeof listRecipes>>>
+export type ListRecipesQueryError = ErrorType<void>
+
+
+/**
+ * @summary List my saved formulas
+ */
+
+export function useListRecipes<TData = Awaited<ReturnType<typeof listRecipes>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listRecipes>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListRecipesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateRecipeUrl = () => {
+
+
+
+
+  return `/api/recipes`
+}
+
+/**
+ * @summary Save a validated formula
+ */
+export const createRecipe = async (recipeInput: RecipeInput, options?: Parameters<typeof customFetch>[1]): Promise<Recipe> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<Recipe>(getCreateRecipeUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(recipeInput)
+  }
+);}
+
+
+
+
+
+export const getCreateRecipeMutationKey = () => ['createRecipe'] as const;
+
+export const getCreateRecipeMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createRecipe>>, TError,CreateRecipeMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createRecipe>>, TError,CreateRecipeMutationVariables, TContext> => {
+
+const mutationKey = getCreateRecipeMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createRecipe>>, CreateRecipeMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createRecipe(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateRecipeMutationResult = NonNullable<Awaited<ReturnType<typeof createRecipe>>>
+    export type CreateRecipeMutationBody = BodyType<RecipeInput>
+    export type CreateRecipeMutationError = ErrorType<void>
+    export type CreateRecipeMutationVariables = {data: BodyType<RecipeInput>}
+
+    /**
+ * @summary Save a validated formula
+ */
+export const useCreateRecipe = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createRecipe>>, TError,CreateRecipeMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createRecipe>>,
+        TError,
+        CreateRecipeMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateRecipeMutationOptions(options));
+    }
+
+export const getImportRecipeUrl = () => {
+
+
+
+
+  return `/api/recipes/import`
+}
+
+/**
+ * @summary Preserve a legacy browser formula as an unvalidated draft
+ */
+export const importRecipe = async (legacyRecipeInput: LegacyRecipeInput, options?: Parameters<typeof customFetch>[1]): Promise<Recipe> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<Recipe>(getImportRecipeUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(legacyRecipeInput)
+  }
+);}
+
+
+
+
+
+export const getImportRecipeMutationKey = () => ['importRecipe'] as const;
+
+export const getImportRecipeMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof importRecipe>>, TError,ImportRecipeMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof importRecipe>>, TError,ImportRecipeMutationVariables, TContext> => {
+
+const mutationKey = getImportRecipeMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof importRecipe>>, ImportRecipeMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  importRecipe(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ImportRecipeMutationResult = NonNullable<Awaited<ReturnType<typeof importRecipe>>>
+    export type ImportRecipeMutationBody = BodyType<LegacyRecipeInput>
+    export type ImportRecipeMutationError = ErrorType<void>
+    export type ImportRecipeMutationVariables = {data: BodyType<LegacyRecipeInput>}
+
+    /**
+ * @summary Preserve a legacy browser formula as an unvalidated draft
+ */
+export const useImportRecipe = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof importRecipe>>, TError,ImportRecipeMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof importRecipe>>,
+        TError,
+        ImportRecipeMutationVariables,
+        TContext
+      > => {
+      return useMutation(getImportRecipeMutationOptions(options));
+    }
+
+export const getGetRecipeUrl = (recipeId: string,) => {
+
+
+
+
+  return `/api/recipes/${recipeId}`
+}
+
+/**
+ * @summary Open my formula
+ */
+export const getRecipe = async (recipeId: string, options?: Parameters<typeof customFetch>[1]): Promise<Recipe> => {
+
+  return customFetch<Recipe>(getGetRecipeUrl(recipeId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetRecipeQueryKey = (recipeId: string,) => {
+    return [
+    `/api/recipes/${recipeId}`
+    ] as const;
+    }
+
+
+export const getGetRecipeQueryOptions = <TData = Awaited<ReturnType<typeof getRecipe>>, TError = ErrorType<void>>(recipeId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getRecipe>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetRecipeQueryKey(recipeId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getRecipe>>> = ({ signal }) => getRecipe(recipeId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: recipeId !== null && recipeId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getRecipe>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetRecipeQueryResult = NonNullable<Awaited<ReturnType<typeof getRecipe>>>
+export type GetRecipeQueryError = ErrorType<void>
+
+
+/**
+ * @summary Open my formula
+ */
+
+export function useGetRecipe<TData = Awaited<ReturnType<typeof getRecipe>>, TError = ErrorType<void>>(
+ recipeId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getRecipe>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetRecipeQueryOptions(recipeId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateRecipeUrl = (recipeId: string,) => {
+
+
+
+
+  return `/api/recipes/${recipeId}`
+}
+
+/**
+ * @summary Replace my formula after validation
+ */
+export const updateRecipe = async (recipeId: string,
+    recipeInput: RecipeInput, options?: Parameters<typeof customFetch>[1]): Promise<Recipe> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<Recipe>(getUpdateRecipeUrl(recipeId),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(recipeInput)
+  }
+);}
+
+
+
+
+
+export const getUpdateRecipeMutationKey = () => ['updateRecipe'] as const;
+
+export const getUpdateRecipeMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateRecipe>>, TError,UpdateRecipeMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateRecipe>>, TError,UpdateRecipeMutationVariables, TContext> => {
+
+const mutationKey = getUpdateRecipeMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateRecipe>>, UpdateRecipeMutationVariables> = (props) => {
+          const {recipeId,data} = props ?? {};
+
+          return  updateRecipe(recipeId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateRecipeMutationResult = NonNullable<Awaited<ReturnType<typeof updateRecipe>>>
+    export type UpdateRecipeMutationBody = BodyType<RecipeInput>
+    export type UpdateRecipeMutationError = ErrorType<void>
+    export type UpdateRecipeMutationVariables = {recipeId: string;data: BodyType<RecipeInput>}
+
+    /**
+ * @summary Replace my formula after validation
+ */
+export const useUpdateRecipe = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateRecipe>>, TError,UpdateRecipeMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateRecipe>>,
+        TError,
+        UpdateRecipeMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateRecipeMutationOptions(options));
+    }
+
+export const getDeleteRecipeUrl = (recipeId: string,) => {
+
+
+
+
+  return `/api/recipes/${recipeId}`
+}
+
+/**
+ * @summary Delete my formula
+ */
+export const deleteRecipe = async (recipeId: string, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteRecipeUrl(recipeId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteRecipeMutationKey = () => ['deleteRecipe'] as const;
+
+export const getDeleteRecipeMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteRecipe>>, TError,DeleteRecipeMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteRecipe>>, TError,DeleteRecipeMutationVariables, TContext> => {
+
+const mutationKey = getDeleteRecipeMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteRecipe>>, DeleteRecipeMutationVariables> = (props) => {
+          const {recipeId} = props ?? {};
+
+          return  deleteRecipe(recipeId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteRecipeMutationResult = NonNullable<Awaited<ReturnType<typeof deleteRecipe>>>
+
+    export type DeleteRecipeMutationError = ErrorType<void>
+    export type DeleteRecipeMutationVariables = {recipeId: string}
+
+    /**
+ * @summary Delete my formula
+ */
+export const useDeleteRecipe = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteRecipe>>, TError,DeleteRecipeMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteRecipe>>,
+        TError,
+        DeleteRecipeMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteRecipeMutationOptions(options));
+    }
 
 export const getHealthCheckUrl = () => {
 

@@ -12,7 +12,119 @@ tags:
     description: Health operations
   - name: ingredients
     description: Public ingredient reference data
+  - name: recipes
+    description: Private maker formulas
 paths:
+  /recipes:
+    get:
+      operationId: listRecipes
+      tags: [recipes]
+      summary: List my saved formulas
+      responses:
+        "200":
+          description: My formulas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Recipe"
+        "401":
+          description: Sign in required
+    post:
+      operationId: createRecipe
+      tags: [recipes]
+      summary: Save a validated formula
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecipeInput"
+      responses:
+        "201":
+          description: Saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Recipe"
+        "400":
+          description: Invalid formula
+        "401":
+          description: Sign in required
+  /recipes/import:
+    post:
+      operationId: importRecipe
+      tags: [recipes]
+      summary: Preserve a legacy browser formula as an unvalidated draft
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LegacyRecipeInput"
+      responses:
+        "201":
+          description: Imported draft (or previously imported copy)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Recipe"
+        "400":
+          description: Invalid legacy record
+        "401":
+          description: Sign in required
+  /recipes/{recipeId}:
+    parameters:
+      - in: path
+        name: recipeId
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      operationId: getRecipe
+      tags: [recipes]
+      summary: Open my formula
+      responses:
+        "200":
+          description: Formula
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Recipe"
+        "404":
+          description: Not found
+    put:
+      operationId: updateRecipe
+      tags: [recipes]
+      summary: Replace my formula after validation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecipeInput"
+      responses:
+        "200":
+          description: Updated formula
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Recipe"
+        "400":
+          description: Invalid formula
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteRecipe
+      tags: [recipes]
+      summary: Delete my formula
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
   /healthz:
     get:
       operationId: healthCheck
@@ -81,6 +193,105 @@ paths:
                 $ref: "#/components/schemas/Error"
 components:
   schemas:
+    RecipeOilInput:
+      type: object
+      required: [id, percentage, weight]
+      properties:
+        id: { type: string, minLength: 1, maxLength: 100 }
+        name: { type: string, maxLength: 120 }
+        percentage: { type: number, minimum: 0, maximum: 100 }
+        weight: { type: number, minimum: 0 }
+    RecipeInput:
+      type: object
+      required: [name, batchSize, unit, superfat, oils]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 120 }
+        batchSize: { type: number, exclusiveMinimum: 0 }
+        unit: { type: string, enum: [g, oz, lb] }
+        superfat: { type: number, minimum: 0, maximum: 15 }
+        concentration: { type: number, minimum: 25, maximum: 50 }
+        fragrances:
+          type: array
+          maxItems: 50
+          items:
+            $ref: "#/components/schemas/RecipeFragrance"
+        liquidType: { type: string, enum: [distilled-water, goat-milk, cow-milk, other] }
+        customLiquid: { type: string, maxLength: 120 }
+        oilInputUnit: { type: string, enum: [percent, g, oz] }
+        liquidMethod: { type: string, enum: [batch-22] }
+        oils:
+          type: array
+          minItems: 1
+          maxItems: 50
+          items:
+            $ref: "#/components/schemas/RecipeOilInput"
+    LegacyRecipeInput:
+      type: object
+      required: [legacyId, name, batchSize, unit, superfat, oils]
+      properties:
+        legacyId: { type: string, minLength: 1, maxLength: 120 }
+        name: { type: string, minLength: 1, maxLength: 120 }
+        batchSize: { type: number, exclusiveMinimum: 0 }
+        unit: { type: string, enum: [g, oz, lb] }
+        superfat: { type: number, minimum: 0, maximum: 15 }
+        concentration: { type: number, minimum: 25, maximum: 50 }
+        fragrances:
+          type: array
+          maxItems: 50
+          items:
+            $ref: "#/components/schemas/RecipeFragrance"
+        liquidType: { type: string, enum: [distilled-water, goat-milk, cow-milk, other] }
+        customLiquid: { type: string, maxLength: 120 }
+        oilInputUnit: { type: string, enum: [percent, g, oz] }
+        liquidMethod: { type: string, enum: [batch-22] }
+        oils:
+          type: array
+          minItems: 1
+          maxItems: 50
+          items:
+            $ref: "#/components/schemas/RecipeOilInput"
+    RecipeOil:
+      type: object
+      required: [id, name, percentage, weight, savedSap]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        percentage: { type: number }
+        weight: { type: number }
+        savedSap: { type: ["number", "null"] }
+    Recipe:
+      type: object
+      required: [id, name, batchSize, unit, superfat, oils, imported, createdAt, updatedAt]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        batchSize: { type: number }
+        unit: { type: string, enum: [g, oz, lb] }
+        superfat: { type: number }
+        concentration: { type: number }
+        fragrances:
+          type: array
+          items:
+            $ref: "#/components/schemas/RecipeFragrance"
+        liquidType: { type: string, enum: [distilled-water, goat-milk, cow-milk, other] }
+        customLiquid: { type: string }
+        oilInputUnit: { type: string, enum: [percent, g, oz] }
+        liquidMethod: { type: string, enum: [batch-22] }
+        oils:
+          type: array
+          items:
+            $ref: "#/components/schemas/RecipeOil"
+        imported: { type: boolean }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    RecipeFragrance:
+      type: object
+      required: [id, name, amount, unit]
+      properties:
+        id: { type: string, minLength: 1, maxLength: 120 }
+        name: { type: string, minLength: 1, maxLength: 120 }
+        amount: { type: number, exclusiveMinimum: 0 }
+        unit: { type: string, enum: [g, oz, percent] }
     HealthStatus:
       type: object
       properties:

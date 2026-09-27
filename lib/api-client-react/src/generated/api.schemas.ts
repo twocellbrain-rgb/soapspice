@@ -5,6 +5,251 @@
  * SoapSpice public ingredient catalog API
  * OpenAPI spec version: 0.1.0
  */
+export interface RecipeOilInput {
+  /**
+     * @minLength 1
+     * @maxLength 100
+     */
+  id: string;
+  /** @maxLength 120 */
+  name?: string;
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  percentage: number;
+  /** @minimum 0 */
+  weight: number;
+}
+
+export type RecipeInputUnit = typeof RecipeInputUnit[keyof typeof RecipeInputUnit];
+
+
+export const RecipeInputUnit = {
+  g: 'g',
+  oz: 'oz',
+  lb: 'lb',
+} as const;
+
+export type RecipeInputLiquidType = typeof RecipeInputLiquidType[keyof typeof RecipeInputLiquidType];
+
+
+export const RecipeInputLiquidType = {
+  'distilled-water': 'distilled-water',
+  'goat-milk': 'goat-milk',
+  'cow-milk': 'cow-milk',
+  other: 'other',
+} as const;
+
+export type RecipeInputOilInputUnit = typeof RecipeInputOilInputUnit[keyof typeof RecipeInputOilInputUnit];
+
+
+export const RecipeInputOilInputUnit = {
+  percent: 'percent',
+  g: 'g',
+  oz: 'oz',
+} as const;
+
+export type RecipeInputLiquidMethod = typeof RecipeInputLiquidMethod[keyof typeof RecipeInputLiquidMethod];
+
+
+export const RecipeInputLiquidMethod = {
+  'batch-22': 'batch-22',
+} as const;
+
+export type RecipeFragranceUnit = typeof RecipeFragranceUnit[keyof typeof RecipeFragranceUnit];
+
+
+export const RecipeFragranceUnit = {
+  g: 'g',
+  oz: 'oz',
+  percent: 'percent',
+} as const;
+
+export interface RecipeFragrance {
+  /**
+     * @minLength 1
+     * @maxLength 120
+     */
+  id: string;
+  /**
+     * @minLength 1
+     * @maxLength 120
+     */
+  name: string;
+  /** @exclusiveMinimum 0 */
+  amount: number;
+  unit: RecipeFragranceUnit;
+}
+
+export interface RecipeInput {
+  /**
+     * @minLength 1
+     * @maxLength 120
+     */
+  name: string;
+  /** @exclusiveMinimum 0 */
+  batchSize: number;
+  unit: RecipeInputUnit;
+  /**
+     * @minimum 0
+     * @maximum 15
+     */
+  superfat: number;
+  /**
+     * @minimum 25
+     * @maximum 50
+     */
+  concentration?: number;
+  /** @maxItems 50 */
+  fragrances?: RecipeFragrance[];
+  liquidType?: RecipeInputLiquidType;
+  /** @maxLength 120 */
+  customLiquid?: string;
+  oilInputUnit?: RecipeInputOilInputUnit;
+  liquidMethod?: RecipeInputLiquidMethod;
+  /**
+     * @minItems 1
+     * @maxItems 50
+     */
+  oils: RecipeOilInput[];
+}
+
+export type LegacyRecipeInputUnit = typeof LegacyRecipeInputUnit[keyof typeof LegacyRecipeInputUnit];
+
+
+export const LegacyRecipeInputUnit = {
+  g: 'g',
+  oz: 'oz',
+  lb: 'lb',
+} as const;
+
+export type LegacyRecipeInputLiquidType = typeof LegacyRecipeInputLiquidType[keyof typeof LegacyRecipeInputLiquidType];
+
+
+export const LegacyRecipeInputLiquidType = {
+  'distilled-water': 'distilled-water',
+  'goat-milk': 'goat-milk',
+  'cow-milk': 'cow-milk',
+  other: 'other',
+} as const;
+
+export type LegacyRecipeInputOilInputUnit = typeof LegacyRecipeInputOilInputUnit[keyof typeof LegacyRecipeInputOilInputUnit];
+
+
+export const LegacyRecipeInputOilInputUnit = {
+  percent: 'percent',
+  g: 'g',
+  oz: 'oz',
+} as const;
+
+export type LegacyRecipeInputLiquidMethod = typeof LegacyRecipeInputLiquidMethod[keyof typeof LegacyRecipeInputLiquidMethod];
+
+
+export const LegacyRecipeInputLiquidMethod = {
+  'batch-22': 'batch-22',
+} as const;
+
+export interface LegacyRecipeInput {
+  /**
+     * @minLength 1
+     * @maxLength 120
+     */
+  legacyId: string;
+  /**
+     * @minLength 1
+     * @maxLength 120
+     */
+  name: string;
+  /** @exclusiveMinimum 0 */
+  batchSize: number;
+  unit: LegacyRecipeInputUnit;
+  /**
+     * @minimum 0
+     * @maximum 15
+     */
+  superfat: number;
+  /**
+     * @minimum 25
+     * @maximum 50
+     */
+  concentration?: number;
+  /** @maxItems 50 */
+  fragrances?: RecipeFragrance[];
+  liquidType?: LegacyRecipeInputLiquidType;
+  /** @maxLength 120 */
+  customLiquid?: string;
+  oilInputUnit?: LegacyRecipeInputOilInputUnit;
+  liquidMethod?: LegacyRecipeInputLiquidMethod;
+  /**
+     * @minItems 1
+     * @maxItems 50
+     */
+  oils: RecipeOilInput[];
+}
+
+export interface RecipeOil {
+  id: string;
+  name: string;
+  percentage: number;
+  weight: number;
+  /** @nullable */
+  savedSap: number | null;
+}
+
+export type RecipeUnit = typeof RecipeUnit[keyof typeof RecipeUnit];
+
+
+export const RecipeUnit = {
+  g: 'g',
+  oz: 'oz',
+  lb: 'lb',
+} as const;
+
+export type RecipeLiquidType = typeof RecipeLiquidType[keyof typeof RecipeLiquidType];
+
+
+export const RecipeLiquidType = {
+  'distilled-water': 'distilled-water',
+  'goat-milk': 'goat-milk',
+  'cow-milk': 'cow-milk',
+  other: 'other',
+} as const;
+
+export type RecipeOilInputUnit = typeof RecipeOilInputUnit[keyof typeof RecipeOilInputUnit];
+
+
+export const RecipeOilInputUnit = {
+  percent: 'percent',
+  g: 'g',
+  oz: 'oz',
+} as const;
+
+export type RecipeLiquidMethod = typeof RecipeLiquidMethod[keyof typeof RecipeLiquidMethod];
+
+
+export const RecipeLiquidMethod = {
+  'batch-22': 'batch-22',
+} as const;
+
+export interface Recipe {
+  id: string;
+  name: string;
+  batchSize: number;
+  unit: RecipeUnit;
+  superfat: number;
+  concentration?: number;
+  fragrances?: RecipeFragrance[];
+  liquidType?: RecipeLiquidType;
+  customLiquid?: string;
+  oilInputUnit?: RecipeOilInputUnit;
+  liquidMethod?: RecipeLiquidMethod;
+  oils: RecipeOil[];
+  imported: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface HealthStatus {
   status: string;
 }
