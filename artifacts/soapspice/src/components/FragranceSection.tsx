@@ -56,7 +56,7 @@ export default function FragranceSection({
           <p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Step 03 / optional</p>
           <h2 id="fragrance-heading" className="mt-2 font-display text-3xl text-[hsl(var(--foreground))]">Add your fragrance</h2>
           <p className="mt-1 max-w-lg text-sm leading-6 text-[hsl(var(--muted-foreground))]">
-            Select an exact Bramble Berry product to fill its published soap IFRA limit, or enter a different fragrance manually.
+            Select an exact source-linked product to fill its published soap IFRA limit, or enter a different fragrance manually.
           </p>
         </div>
         <button
@@ -104,7 +104,7 @@ export default function FragranceSection({
                 </button>
               </div>
               <div className="mb-4 rounded-xl border border-[hsl(var(--primary)/.25)] bg-white p-3">
-                <label htmlFor={`supplier-fragrance-${row.id}`} className="mb-2 block text-xs font-bold text-[hsl(var(--foreground))]">Bramble Berry fragrance oil <span className="font-normal text-[hsl(var(--muted-foreground))]">(optional)</span></label>
+                <label htmlFor={`supplier-fragrance-${row.id}`} className="mb-2 block text-xs font-bold text-[hsl(var(--foreground))]">Documented fragrance oil <span className="font-normal text-[hsl(var(--muted-foreground))]">(optional)</span></label>
                 <select
                   id={`supplier-fragrance-${row.id}`}
                   value={selectedSupplier?.sku ?? ''}
@@ -197,20 +197,34 @@ export default function FragranceSection({
                   <p className="mt-1 text-[11px] leading-4 text-[hsl(var(--muted-foreground))]">{selectedSupplier ? 'Filled from the linked supplier statement. Switch to manual above to enter a different rate.' : 'Use the rate for this exact fragrance and soap application, as % of finished product. Enter 0 if not permitted.'}</p>
                 </div>
                 <div>
-                  <label htmlFor={`fragrance-ifra-source-${row.id}`} className="mb-2 block text-xs font-bold text-[hsl(var(--foreground))]">Supplier IFRA document link <span className="font-normal text-[hsl(var(--muted-foreground))]">(optional)</span></label>
-                  <input
-                    id={`fragrance-ifra-source-${row.id}`}
-                    type="url"
-                    maxLength={500}
-                    value={row.ifraSourceUrl ?? ''}
-                    readOnly={Boolean(selectedSupplier)}
-                    onChange={(event) => {
-                      if (!selectedSupplier) updateRow(row.id, { ifraSourceUrl: event.target.value || undefined });
-                    }}
-                    placeholder="https://supplier.example/ifra.pdf"
-                    className={`${fieldClass} ${selectedSupplier ? 'bg-[hsl(var(--secondary)/.6)]' : ''}`}
-                    data-testid={`input-fragrance-ifra-source-${row.id}`}
-                  />
+                  {selectedSupplier ? (
+                    <span className="mb-2 block text-xs font-bold text-[hsl(var(--foreground))]">Supplier IFRA document link</span>
+                  ) : (
+                    <label htmlFor={`fragrance-ifra-source-${row.id}`} className="mb-2 block text-xs font-bold text-[hsl(var(--foreground))]">Supplier IFRA document link <span className="font-normal text-[hsl(var(--muted-foreground))]">(optional)</span></label>
+                  )}
+                  {selectedSupplier ? (
+                    <a
+                      id={`fragrance-ifra-source-${row.id}`}
+                      href={selectedSupplier.ifraUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`${fieldClass} inline-flex items-center font-semibold text-[hsl(var(--primary))] underline underline-offset-2`}
+                      data-testid={`link-fragrance-ifra-source-${row.id}`}
+                    >
+                      View linked supplier statement ↗
+                    </a>
+                  ) : (
+                    <input
+                      id={`fragrance-ifra-source-${row.id}`}
+                      type="url"
+                      maxLength={500}
+                      value={row.ifraSourceUrl ?? ''}
+                      onChange={(event) => updateRow(row.id, { ifraSourceUrl: event.target.value || undefined })}
+                      placeholder="https://supplier.example/ifra.pdf"
+                      className={fieldClass}
+                      data-testid={`input-fragrance-ifra-source-${row.id}`}
+                    />
+                  )}
                 </div>
               </div>
               {row.ifraMaxPercent === undefined ? (
@@ -250,7 +264,7 @@ export default function FragranceSection({
 
       <div role="note" className="mt-4 flex items-start gap-3 rounded-2xl border border-[hsl(var(--accent)/.35)] bg-[hsl(var(--accent)/.1)] px-4 py-3 text-xs leading-5 text-[hsl(var(--accent-foreground))]">
         <CircleAlert size={18} className="mt-0.5 shrink-0" aria-hidden="true" />
-        <p><strong>Check before making.</strong> The six Bramble Berry entries use product-linked IFRA 51 statements checked in September 2026; verify the supplier’s current statement for your exact product and batch. For other products, enter the matching soap-specific maximum yourself; a missing rate stays unverified. Our conservative screen uses oil weight because cured soap weight is not known. Blends need separate supplier review. Fragrance changes liquid, never NaOH.</p>
+        <p><strong>Check before making.</strong> The six documented entries use product-linked IFRA 51 statements checked in September 2026; verify the supplier’s current statement for your exact product and batch. For other products, enter the matching soap-specific maximum yourself; a missing rate stays unverified. Our conservative screen uses oil weight because cured soap weight is not known. Blends need separate supplier review. Fragrance changes liquid, never NaOH.</p>
       </div>
     </section>
   );

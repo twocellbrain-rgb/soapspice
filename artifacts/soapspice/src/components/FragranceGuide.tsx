@@ -24,7 +24,7 @@ export default function FragranceGuide({ fragrances, totalOilGrams, naohGrams }:
       <h3 id="results-scent-heading" className="font-bold text-[hsl(var(--foreground))]">Scent strength &amp; IFRA screen</h3>
       <p className="mt-2 text-xs leading-5 text-[hsl(var(--muted-foreground))]">
         Guidance uses the unscented batch weight (oils + NaOH + estimated liquid), not oils alone.
-        {' '}<a href="https://www.brambleberry.com/bath-and-body/using-fragrance-calculator.html" target="_blank" rel="noopener noreferrer" className="font-semibold text-[hsl(var(--primary))] underline underline-offset-2">Bramble Berry’s general cold-process guide</a> gives 0.7 oz per lb of total soap for medium scent. Mild (0.35 oz/lb) and strong (1.00 oz/lb) are SoapSpice guide levels, not fragrance-specific recommendations.
+        {' '}The medium scent starting point is 0.7 oz per lb of total soap. Mild (0.35 oz/lb) and strong (1.00 oz/lb) are SoapSpice guide levels, not fragrance-specific recommendations.
       </p>
 
       <div className="mt-4 rounded-2xl border border-[hsl(var(--primary)/.3)] bg-[hsl(var(--primary)/.06)] p-4 sm:p-5" data-testid="guide-combined-scent">
@@ -59,7 +59,7 @@ export default function FragranceGuide({ fragrances, totalOilGrams, naohGrams }:
               </p>
               {selectedSupplier && (
                 <p className="mt-1 text-xs text-[hsl(var(--muted-foreground))]">
-                  Bramble Berry SKU {selectedSupplier.sku} · IFRA 51 Category 9 (soap) · statement assessed {selectedSupplier.assessedOn}. Check for a newer supplier statement before making.
+                  Supplier SKU {selectedSupplier.sku} · IFRA 51 Category 9 (soap) · statement assessed {selectedSupplier.assessedOn}. Check for a newer supplier statement before making.
                 </p>
               )}
               <div

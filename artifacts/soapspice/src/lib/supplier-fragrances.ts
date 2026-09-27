@@ -74,7 +74,7 @@ export function selectedSupplierFragrance(row: FragranceRow): SupplierFragrance 
 export function chooseSupplierFragrance(row: FragranceRow, sku: string): FragranceRow {
   if (sku === '') return { ...row, ifraMaxPercent: undefined, ifraSourceUrl: undefined };
   const product = BRAMBLE_BERRY_FRAGRANCES.find((item) => item.sku === sku);
-  if (!product) throw new Error(`Unknown Bramble Berry fragrance SKU: ${sku}`);
+  if (!product) throw new Error(`Unknown supplier fragrance SKU: ${sku}`);
   return {
     ...row,
     name: product.name,

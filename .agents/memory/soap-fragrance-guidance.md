@@ -14,3 +14,9 @@ Do not depend on live server-side scraping of Bramble Berry documents to supply 
 **Why:** A runtime lookup blocked by the supplier can silently leave users with missing or stale safety information. Product names are not stable identifiers across suppliers or reformulations.
 
 **How to apply:** Check current supplier availability before expanding the lookup. Preserve the statement link and assessment date, and prompt makers to confirm the latest document before using a stored rate.
+
+Do not show the supplier's brand name in SoapSpice's rendered labels or explanatory copy. Retain source links for product-specific IFRA rates so the numbers remain verifiable; show those links as actions rather than displaying their branded URLs in a read-only field.
+
+**Why:** The user explicitly asked to remove all supplier brand-name mentions from the site while the exact-product safety screen still needs its source documents.
+
+**How to apply:** Use neutral "supplier" wording for future fragrance UI changes. If an edit would remove source links or prefilled rates rather than just displayed names, clarify the tradeoff first.
