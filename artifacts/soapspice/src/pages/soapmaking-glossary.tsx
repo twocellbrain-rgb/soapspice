@@ -192,7 +192,7 @@ export default function SoapmakingGlossaryPage() {
             )}
           </div>
 
-          <div className="mt-5 flex gap-2 overflow-x-auto pb-2" role="group" aria-label="Filter definitions by category">
+          <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label="Filter definitions by category">
             <button
               type="button"
               onClick={() => setActiveCategory('All terms')}
