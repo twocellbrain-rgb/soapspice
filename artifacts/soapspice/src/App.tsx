@@ -5,7 +5,6 @@ import { publishableKeyFromHost } from '@clerk/react/internal';
 import { shadcn } from '@clerk/themes';
 import {
   ArrowRight,
-  Beaker,
   BookOpen,
   Check,
   CircleAlert,
@@ -24,8 +23,9 @@ import {
 import { Link, Route, Switch, Redirect, Router as WouterRouter, useLocation, useParams } from 'wouter';
 import { getGetIngredientQueryKey, useGetIngredient, useGetIngredients, useGetIngredientStaff, getGetIngredientStaffQueryKey, useListRecipes, getListRecipesQueryKey, createRecipe, updateRecipe, deleteRecipe, importRecipe } from '@workspace/api-client-react';
 import type { RecipeInput, Recipe } from '@workspace/api-client-react';
-import { calculateNaohFormula, GRAMS_PER_OUNCE, LIQUID_BATCH_FRACTION, oilWeightTotal, percentagesFromWeights, validateNaohFormula, type FragranceRow } from '@/lib/formulation';
+import { calculateNaohFormula, GRAMS_PER_OUNCE, oilWeightTotal, percentagesFromWeights, validateNaohFormula, type FragranceRow } from '@/lib/formulation';
 import FragranceSection from '@/components/FragranceSection';
+import FormulaResults from '@/components/FormulaResults';
 import IngredientAdmin from '@/components/IngredientAdmin';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
@@ -598,38 +598,6 @@ function CalculatorPage() {
           <div className="print-card rounded-3xl border border-[hsl(var(--primary)/.3)] bg-[hsl(var(--primary)/.06)] p-5 sm:p-7"><div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Step 04</p><h2 className="mt-2 font-display text-3xl">Check your formula</h2><p className="mt-2 max-w-lg text-sm text-[hsl(var(--muted-foreground))]">Validate the oil percentages, NaOH math, and fragrance amounts before you print or save. Fragrance safety limits are not checked here.</p></div><button type="button" onClick={validate} className={`${buttonPrimary} shrink-0`} data-testid="button-validate-formula"><Check size={17} /> Validate formula</button></div>{validated && <div className={`mt-5 rounded-2xl p-4 text-sm ${validationErrors.length ? 'bg-[hsl(var(--destructive)/.1)] text-[hsl(var(--destructive))]' : freshValidation ? 'bg-[hsl(184_75%_35%/.12)] text-[hsl(var(--primary))]' : 'bg-[hsl(var(--accent)/.12)] text-[hsl(var(--secondary-foreground))]'}`} data-testid="status-validation">{validationErrors.length ? <ul className="list-disc space-y-1 pl-5">{validationErrors.map((error) => <li key={error}>{error}</li>)}</ul> : freshValidation ? <div className="flex items-center gap-2 font-bold"><Check size={17} /> Lye math checked. Review the liquid recommendation and any fragrance usage limits below.</div> : <div className="flex items-center gap-2 font-bold"><CircleAlert size={17} /> Formula or ingredient data changed. Validate again before saving or printing.</div>}</div>}</div>
         </div>
         <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
-          <div className="print-card rounded-3xl bg-[hsl(193_46%_22%)] p-6 text-[hsl(var(--background))] shadow-lift sm:p-7">
-            <div className="flex items-center justify-between"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--accent))]">Your formula</p><h2 className="mt-2 font-display text-3xl">NaOH + liquid</h2></div><Beaker className="text-[hsl(var(--accent))]" size={25} /></div>
-            {visibleResult ? (
-              <div data-testid="result-validated-formula">
-                <div className="mt-8 space-y-4">
-                  <div className="flex items-end justify-between gap-2 border-b border-white/15 pb-4"><span className="text-sm text-white/65">Sodium hydroxide (NaOH)</span><strong className="text-right font-data text-2xl text-[hsl(var(--accent))]" data-testid="result-naoh">{visibleResult.naoh.toFixed(1)} g<span className="block text-sm font-normal text-white/75">{(visibleResult.naoh / GRAMS_PER_OUNCE).toFixed(2)} oz</span></strong></div>
-                  <div className="flex items-end justify-between gap-2 border-b border-white/15 pb-4"><span className="text-sm text-white/65" data-testid="text-liquid-type">{liquidName}</span><strong className="text-right font-data text-2xl" data-testid="result-liquid">{visibleResult.liquid.toFixed(1)} g<span className="block text-sm font-normal text-white/75">{(visibleResult.liquid / GRAMS_PER_OUNCE).toFixed(2)} oz</span></strong></div>
-                  <div className="flex items-end justify-between gap-2 border-b border-white/15 pb-4"><span className="text-sm text-white/65">Lye + liquid</span><strong className="font-data text-xl">{visibleResult.total.toFixed(1)} g</strong></div>
-                  {visibleResult.fragranceTotalGrams > 0 && <div className="flex items-end justify-between gap-2 border-b border-white/15 pb-4"><span className="text-sm text-white/65">Fragrance total</span><strong className="text-right font-data text-xl" data-testid="result-fragrance-total">{visibleResult.fragranceTotalGrams.toFixed(1)} g<span className="block text-sm font-normal text-white/75">{(visibleResult.fragranceTotalGrams / GRAMS_PER_OUNCE).toFixed(2)} oz</span></strong></div>}
-                  <div className="flex items-end justify-between gap-2"><span className="text-sm text-white/65">Pre-saponification batch</span><strong className="text-right font-data text-xl" data-testid="result-batch-total">{visibleResult.batchTotal.toFixed(1)} g<span className="block text-sm font-normal text-white/75">{(visibleResult.batchTotal / GRAMS_PER_OUNCE).toFixed(2)} oz</span></strong></div>
-                </div>
-                <div className="mt-7 rounded-2xl bg-white/10 p-4 text-xs leading-5 text-white/80">Liquid targets about 22% of the pre-saponification batch, not a recipe-specific optimum. NaOH assumes 100% purity. Verify your lye label and SAP references; fragrance usage limits must be checked separately. This is not an approval of the recipe.</div>
-              </div>
-            ) : <div role="status" data-testid="status-formula-placeholder" className="mt-8 rounded-2xl border border-dashed border-white/30 bg-white/10 p-5 text-sm leading-6 text-white/80">Your NaOH, chosen liquid, and fragrance totals will appear here after you add oils and explicitly validate a complete formula. Changes to a validated recipe require a new check.</div>}
-          </div>
-          {visibleResult && <details className="print-card group rounded-3xl border border-[hsl(var(--border))] bg-white p-6 shadow-card" data-testid="details-calculation">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-bold text-[hsl(var(--foreground))]" data-testid="summary-calculation-details"><span className="flex items-center gap-2"><FlaskConical size={18} className="text-[hsl(var(--primary))]" /> Calculation details</span><span className="text-xs font-medium text-[hsl(var(--primary))] group-open:hidden">Show breakdown +</span><span className="hidden text-xs font-medium text-[hsl(var(--primary))] group-open:inline">Hide breakdown −</span></summary>
-            <div className="mt-5 space-y-4 border-t border-[hsl(var(--border))] pt-5 text-sm">
-              <p className="text-xs font-bold uppercase tracking-[.14em] text-[hsl(var(--muted-foreground))]">NaOH before superfat · ingredient by ingredient</p>
-              {visibleResult.ingredientLye.map((line) => {
-                const ingredient = ingredientMap.get(line.id);
-                return <div key={line.id} className="border-b border-[hsl(var(--border))] pb-3" data-testid={`detail-sap-${line.id}`}><div className="flex justify-between gap-3"><span className="font-bold">{ingredient?.name ?? line.id}</span><span className="shrink-0 font-data">{line.theoreticalNaoh.toFixed(2)} g</span></div><p className="mt-1 font-data text-xs text-[hsl(var(--muted-foreground))]">{line.weight.toFixed(2)} g oil × {line.sap.toFixed(4)} g NaOH/g oil</p>{ingredient && <a href={ingredient.sapSourceUrl} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-xs text-[hsl(var(--primary))] hover:underline" data-testid={`link-detail-source-${line.id}`}>{ingredient.sapSourceTitle} · {ingredient.verificationStatus === 'administrator-verified' ? 'SAP reviewed' : 'review pending'} <ExternalLink size={11} /></a>}</div>;
-              })}
-              <div className="flex justify-between gap-3"><span>Theoretical NaOH, 0% superfat</span><strong className="font-data">{visibleResult.naohBeforeSuperfat.toFixed(2)} g</strong></div>
-              <div className="flex justify-between gap-3"><span>NaOH after {superfat}% superfat<br /><span className="text-xs text-[hsl(var(--muted-foreground))]">{visibleResult.naohBeforeSuperfat.toFixed(2)} × (1 − {superfat}/100)</span></span><strong className="font-data">{visibleResult.naoh.toFixed(2)} g</strong></div>
-              <div className="flex justify-between gap-3"><span>{liquidName} · {LIQUID_BATCH_FRACTION * 100}% of full batch<br /><span className="text-xs text-[hsl(var(--muted-foreground))]">({totalOilGrams.toFixed(2)} g oils + {visibleResult.naoh.toFixed(2)} g NaOH + {visibleResult.fragranceTotalGrams.toFixed(2)} g fragrance) × 22 / 78</span></span><strong className="shrink-0 font-data">{visibleResult.liquid.toFixed(2)} g</strong></div>
-              {visibleResult.fragranceDetails.map((row) => <div key={row.id} className="flex justify-between gap-3"><span>{row.name} fragrance<br /><span className="text-xs text-[hsl(var(--muted-foreground))]">Included in liquid estimate; no NaOH added</span></span><strong className="font-data">{row.weightGrams.toFixed(2)} g</strong></div>)}
-              <div className="flex justify-between gap-3 border-t border-[hsl(var(--border))] pt-4"><span>Total oils</span><strong className="font-data">{totalOilGrams.toFixed(2)} g</strong></div>
-              <div className="flex justify-between gap-3"><span>Total fragrance</span><strong className="font-data">{visibleResult.fragranceTotalGrams.toFixed(2)} g</strong></div>
-              <div className="flex justify-between gap-3"><span>Total before saponification<br /><span className="text-xs text-[hsl(var(--muted-foreground))]">oils + NaOH + liquid + fragrance</span></span><strong className="font-data">{visibleResult.batchTotal.toFixed(2)} g</strong></div>
-            </div>
-          </details>}
           <div className="rounded-3xl border border-[hsl(var(--border))] bg-white p-6 shadow-card">
             <div className="flex items-center gap-2 text-[hsl(var(--primary))]"><ShieldCheck size={17} /><h2 className="font-bold">Save this batch</h2></div>
             {!isLoaded ? <p className="mt-3 text-sm">Checking your account…</p> : !isSignedIn ? <p className="mt-3 text-sm">Sign in to keep formulas across devices. Your earlier browser saves are still available below.</p> : null}
@@ -665,6 +633,24 @@ function CalculatorPage() {
           <button type="button" onClick={() => { if (visibleResult) window.print(); }} disabled={!visibleResult} className={`${buttonQuiet} print-hide w-full disabled:cursor-not-allowed disabled:opacity-45`} data-testid="button-print-formula"><Printer size={17} /> Print formula</button>
           <div className="rounded-3xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] p-6"><div className="flex items-center gap-2 text-[hsl(var(--secondary-foreground))]"><CircleAlert size={17} /><h2 className="font-bold">A note on the numbers</h2></div><p className="mt-3 text-sm leading-6 text-[hsl(var(--secondary-foreground)/.8)]">{ingredients.some(item => item.verificationStatus !== 'administrator-verified') || ingredients.length === 0 ? 'SAP values are linked to their sources, but still need administrator review.' : 'Catalog SAP values have been reviewed, but supplier specifications may differ.'} Treat every result as a starting point and verify your process independently.</p></div>
         </aside>
+        {visibleResult ? (
+          <FormulaResults
+            oils={oils.map((oil) => ({
+              ...oil,
+              name: ingredientMap.get(oil.id)?.name ?? oil.name,
+              sap: ingredientMap.get(oil.id)!.naohSap,
+            }))}
+            oilInputUnit={oilInputUnit}
+            fragrances={fragrances}
+            result={visibleResult}
+            liquidName={liquidName}
+            superfat={superfat}
+          />
+        ) : (
+          <div role="status" data-testid="status-formula-placeholder" className="rounded-3xl border border-dashed border-[hsl(var(--border))] bg-white p-6 text-sm leading-6 text-[hsl(var(--muted-foreground))] lg:col-span-2">
+            Your ingredient inputs, required NaOH and lye liquid, fragrance amounts, and total batch weight will appear here after you validate a complete formula.
+          </div>
+        )}
       </section>
     </Shell>
   );

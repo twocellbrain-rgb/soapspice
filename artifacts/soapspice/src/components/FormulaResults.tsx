@@ -64,7 +64,7 @@ export default function FormulaResults({
         <FileSpreadsheet className="hidden text-[hsl(var(--primary))] sm:block" size={24} aria-hidden="true" />
       </header>
 
-      <div className="mt-6 grid gap-6 xl:grid-cols-2">
+      <div className="mt-6 grid gap-6 2xl:grid-cols-2">
         <section aria-labelledby="results-required-heading" className="min-w-0">
           <h3 id="results-required-heading" className="mb-3 font-bold text-[hsl(var(--foreground))]">Required amounts</h3>
           <div className="overflow-x-auto rounded-2xl border border-[hsl(var(--border))]">
@@ -98,7 +98,7 @@ export default function FormulaResults({
                   <td className={`${cell} text-right font-data font-bold text-[hsl(var(--primary))]`}>{mass(result.naoh, 'lb')}</td>
                 </tr>
                 <tr className="border-t border-[hsl(var(--border))]">
-                  <th scope="row" className={cell}>{liquidName} for lye solution</th>
+                  <th scope="row" className={cell} data-testid="text-liquid-type">{liquidName} for lye solution</th>
                   <td className={`${cell} text-right font-data`} data-testid="result-liquid">{mass(result.liquid, 'g')}</td>
                   <td className={`${cell} text-right font-data`}>{mass(result.liquid, 'oz')}</td>
                   <td className={`${cell} text-right font-data`}>{mass(result.liquid, 'lb')}</td>
@@ -111,7 +111,7 @@ export default function FormulaResults({
                 </tr>
                 <tr className="border-t border-[hsl(var(--border))]">
                   <th scope="row" className={cell}>Total fragrance</th>
-                  <td className={`${cell} text-right font-data`}>{mass(result.fragranceTotalGrams, 'g')}</td>
+                  <td className={`${cell} text-right font-data`} data-testid="result-fragrance-total">{mass(result.fragranceTotalGrams, 'g')}</td>
                   <td className={`${cell} text-right font-data`}>{mass(result.fragranceTotalGrams, 'oz')}</td>
                   <td className={`${cell} text-right font-data`}>{mass(result.fragranceTotalGrams, 'lb')}</td>
                 </tr>
@@ -132,7 +132,7 @@ export default function FormulaResults({
         <section aria-labelledby="results-oils-heading" className="min-w-0">
           <h3 id="results-oils-heading" className="mb-3 font-bold text-[hsl(var(--foreground))]">Oil inputs</h3>
           <div className="overflow-x-auto rounded-2xl border border-[hsl(var(--border))]">
-            <table className="w-full min-w-[590px] border-collapse text-left" data-testid="table-oil-inputs">
+            <table className="w-full min-w-[660px] border-collapse text-left" data-testid="table-oil-inputs">
               <caption className="sr-only">Entered oil amounts with percentages and converted weights</caption>
               <thead className="bg-[hsl(var(--background))]">
                 <tr>
@@ -141,6 +141,7 @@ export default function FormulaResults({
                   <th scope="col" className={`${header} text-right`}>% oils</th>
                   <th scope="col" className={`${header} text-right`}>Grams</th>
                   <th scope="col" className={`${header} text-right`}>Ounces</th>
+                  <th scope="col" className={`${header} text-right`}>NaOH · 0% SF</th>
                 </tr>
               </thead>
               <tbody>
@@ -150,17 +151,18 @@ export default function FormulaResults({
                     : oilInputUnit === 'oz'
                       ? oil.weight / GRAMS_PER_OUNCE
                       : oil.weight;
-                  const inputDisplay = oilInputUnit === 'percent' ? inputAmount.toFixed(2) : inputAmount.toFixed(2);
+                  const lye = lyeByOil.get(oil.id);
                   return (
                     <tr key={oil.id} className="border-t border-[hsl(var(--border))]" data-testid={`result-oil-${oil.id}`}>
                       <th scope="row" className={`${cell} font-medium`}>
                         {oil.name}
                         <span className="mt-1 block text-[10px] text-[hsl(var(--muted-foreground))]">SAP {oil.sap.toFixed(3)}</span>
                       </th>
-                      <td className={`${cell} whitespace-nowrap text-right font-data`}>{inputDisplay} {unitLabel(oilInputUnit)}</td>
+                      <td className={`${cell} whitespace-nowrap text-right font-data`}>{inputAmount.toFixed(2)} {unitLabel(oilInputUnit)}</td>
                       <td className={`${cell} text-right font-data`}>{oil.percentage.toFixed(2)}%</td>
                       <td className={`${cell} text-right font-data`}>{mass(oil.weight, 'g')}</td>
                       <td className={`${cell} text-right font-data`}>{mass(oil.weight, 'oz')}</td>
+                      <td className={`${cell} text-right font-data`}>{mass(lye?.theoreticalNaoh ?? 0, 'g')}</td>
                     </tr>
                   );
                 })}
@@ -169,7 +171,7 @@ export default function FormulaResults({
           </div>
         </section>
 
-        <section aria-labelledby="results-fragrance-heading" className="min-w-0 xl:col-span-2">
+        <section aria-labelledby="results-fragrance-heading" className="min-w-0 2xl:col-span-2">
           <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
             <h3 id="results-fragrance-heading" className="font-bold text-[hsl(var(--foreground))]">Fragrance inputs</h3>
             <span className="text-xs text-[hsl(var(--muted-foreground))]">Supplier and IFRA limits are not checked by this calculator.</span>
