@@ -16,7 +16,54 @@ tags:
     description: Authenticated staff-only editing and review
   - name: recipes
     description: Private maker formulas
+  - name: starter guide
+    description: Public soapmaking setup guidance and staff-managed product recommendations
 paths:
+  /starter-guide-products:
+    get:
+      operationId: listStarterGuideProducts
+      tags: [starter guide]
+      summary: List manually curated starter-guide product links
+      responses:
+        "200":
+          description: Product links grouped by tool
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/StarterGuideProductGroup" }
+  /starter-guide-admin/{toolSlug}:
+    parameters:
+      - in: path
+        name: toolSlug
+        required: true
+        schema: { $ref: "#/components/schemas/StarterGuideToolSlug" }
+    put:
+      operationId: replaceStarterGuideProducts
+      tags: [starter guide]
+      summary: Replace two or three product recommendations for a tool
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/StarterGuideProductsInput" }
+      responses:
+        "200":
+          description: Saved product recommendations
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/StarterGuideProductGroup" }
+        "400": { description: Invalid product list or non-Amazon URL }
+        "401": { description: Sign in required }
+        "403": { description: Ingredient staff access required }
+    delete:
+      operationId: deleteStarterGuideProducts
+      tags: [starter guide]
+      summary: Remove all product links for a tool
+      responses:
+        "204": { description: Product links removed }
+        "401": { description: Sign in required }
+        "403": { description: Ingredient staff access required }
   /recipes:
     get:
       operationId: listRecipes
@@ -294,6 +341,39 @@ paths:
         "409": { description: Ingredient changed since reviewer loaded it }
 components:
   schemas:
+    StarterGuideToolSlug:
+      type: string
+      enum: [safety-gear, digital-scale, lye-safe-containers, stick-blender, mold-and-cutter, finishing-tools]
+    StarterGuideProduct:
+      type: object
+      additionalProperties: false
+      required: [title, note, url]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 160 }
+        note: { type: string, minLength: 1, maxLength: 400 }
+        url: { type: string, format: uri, minLength: 1, maxLength: 2000 }
+    StarterGuideProductsInput:
+      type: object
+      additionalProperties: false
+      required: [products]
+      properties:
+        products:
+          type: array
+          minItems: 2
+          maxItems: 3
+          items: { $ref: "#/components/schemas/StarterGuideProduct" }
+    StarterGuideProductGroup:
+      type: object
+      additionalProperties: false
+      required: [toolSlug, products, updatedAt]
+      properties:
+        toolSlug: { $ref: "#/components/schemas/StarterGuideToolSlug" }
+        products:
+          type: array
+          minItems: 2
+          maxItems: 3
+          items: { $ref: "#/components/schemas/StarterGuideProduct" }
+        updatedAt: { type: string, format: date-time }
     RecipeOilInput:
       type: object
       required: [id, percentage, weight]
