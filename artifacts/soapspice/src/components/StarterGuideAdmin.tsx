@@ -3,6 +3,9 @@ import { useAuth, useUser } from "@clerk/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
 import {
+  searchStarterGuideAmazonProducts,
+  getGetStarterGuideAmazonApiStatusQueryKey,
+  useGetStarterGuideAmazonApiStatus,
   getGetIngredientStaffQueryKey,
   getListStarterGuideProductsQueryKey,
   useDeleteStarterGuideProducts,
@@ -33,15 +36,24 @@ function ProductListEditor({
   tool,
   initialProducts,
   isPublished,
+  amazonApiConfigured,
 }: {
   tool: (typeof starterGuideTools)[number];
   initialProducts?: readonly ProductDraft[];
   isPublished: boolean;
+  amazonApiConfigured: boolean;
 }) {
   const queryClient = useQueryClient();
   const [products, setProducts] = useState<ProductDraft[]>(() =>
     initialProducts?.length ? [...initialProducts] : [emptyProduct(), emptyProduct()],
   );
+  const [amazonKeywords, setAmazonKeywords] = useState("");
+  const [amazonSearchResults, setAmazonSearchResults] = useState<
+    Awaited<ReturnType<typeof searchStarterGuideAmazonProducts>>
+  >([]);
+  const [amazonSearchError, setAmazonSearchError] = useState("");
+  const [hasSearchedAmazon, setHasSearchedAmazon] = useState(false);
+  const [isSearchingAmazon, setIsSearchingAmazon] = useState(false);
   const save = useReplaceStarterGuideProducts();
   const remove = useDeleteStarterGuideProducts();
 
@@ -72,6 +84,25 @@ function ProductListEditor({
     );
   }
 
+  async function searchAmazon() {
+    const keywords = amazonKeywords.trim();
+    if (keywords.length < 2 || keywords.length > 120 || !amazonApiConfigured) return;
+
+    setIsSearchingAmazon(true);
+    setAmazonSearchError("");
+    setHasSearchedAmazon(false);
+    setAmazonSearchResults([]);
+    try {
+      setAmazonSearchResults(await searchStarterGuideAmazonProducts({ keywords }));
+      setHasSearchedAmazon(true);
+    } catch {
+      setAmazonSearchResults([]);
+      setAmazonSearchError("Amazon search failed. Check the API credentials, partner tag, and marketplace settings.");
+    } finally {
+      setIsSearchingAmazon(false);
+    }
+  }
+
   function removePublishedList() {
     if (!window.confirm(`Remove all public product suggestions for “${tool.title}”?`)) return;
     remove.mutate({ toolSlug: tool.slug }, {
@@ -96,6 +127,71 @@ function ProductListEditor({
       <p className="mt-2 text-sm leading-5 text-[hsl(var(--muted-foreground))]">{tool.description}</p>
 
       <form className="mt-5 space-y-4" onSubmit={submit}>
+        {amazonApiConfigured && (
+          <section className="rounded-2xl border border-[hsl(var(--primary)/0.2)] bg-[hsl(var(--primary)/0.04)] p-4" aria-label={`Amazon product search for ${tool.title}`}>
+            <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+              <label className="grid gap-1.5 text-sm font-bold text-[hsl(var(--foreground))]">
+                Search Amazon products
+                <input
+                  required
+                  minLength={2}
+                  maxLength={120}
+                  value={amazonKeywords}
+                  onChange={(event) => {
+                    setAmazonKeywords(event.target.value);
+                    setAmazonSearchResults([]);
+                    setHasSearchedAmazon(false);
+                    setAmazonSearchError("");
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      void searchAmazon();
+                    }
+                  }}
+                  placeholder="For example: digital scale"
+                  className="min-h-11 rounded-xl border border-[hsl(var(--border))] bg-white px-3 font-normal outline-none focus:border-[hsl(var(--primary))] focus:ring-2 focus:ring-[hsl(var(--primary)/0.15)]"
+                />
+              </label>
+              <button
+                type="button"
+                onClick={() => void searchAmazon()}
+                disabled={isSearchingAmazon || amazonKeywords.trim().length < 2}
+                className="self-end rounded-full border border-[hsl(var(--primary))] px-4 py-2.5 text-sm font-bold text-[hsl(var(--primary))] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isSearchingAmazon ? "Searching…" : "Search"}
+              </button>
+            </div>
+            {amazonSearchError && <p className="mt-3 text-sm font-medium text-red-700" role="alert">{amazonSearchError}</p>}
+            {amazonSearchResults.length > 0 && (
+              <ul className="mt-3 divide-y divide-[hsl(var(--border))] rounded-xl border border-[hsl(var(--border))] bg-white">
+                {amazonSearchResults.map((product) => (
+                  <li key={product.asin} className="flex flex-wrap items-center justify-between gap-3 p-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-[hsl(var(--foreground))]">{product.title}</p>
+                      <p className="mt-1 text-xs text-[hsl(var(--muted-foreground))]">ASIN {product.asin}</p>
+                    </div>
+                    <a
+                      href={product.url}
+                      target="_blank"
+                      rel="sponsored nofollow noopener noreferrer"
+                      className="shrink-0 rounded-full bg-[hsl(var(--primary))] px-4 py-2 text-center text-xs font-extrabold text-white"
+                    >
+                      Open Amazon listing
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {hasSearchedAmazon && amazonSearchResults.length === 0 && !isSearchingAmazon && !amazonSearchError && (
+              <p className="mt-3 text-sm text-[hsl(var(--muted-foreground))]">No products found for this search.</p>
+            )}
+            <p className="mt-3 text-xs leading-5 text-[hsl(var(--muted-foreground))]">
+              Search results are temporary and are not imported or saved. Enter your chosen product name, note, and affiliate link manually below.
+            </p>
+          </section>
+        )}
+
         {products.map((product, index) => (
           <fieldset key={index} className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--muted)/0.25)] p-4">
             <legend className="px-1 text-sm font-extrabold text-[hsl(var(--foreground))]">Product {index + 1}</legend>
@@ -212,6 +308,13 @@ export default function StarterGuideAdmin() {
     },
   });
   const products = useListStarterGuideProducts();
+  const amazonApiStatus = useGetStarterGuideAmazonApiStatus({
+    query: {
+      queryKey: getGetStarterGuideAmazonApiStatusQueryKey(),
+      enabled: Boolean(isSignedIn && staff.data),
+      retry: false,
+    },
+  });
   const groups = products.data ?? [];
 
   if (!isLoaded || (isSignedIn && staff.isLoading)) {
@@ -264,8 +367,18 @@ export default function StarterGuideAdmin() {
       <p className="text-xs font-black uppercase tracking-[0.18em] text-[hsl(var(--primary))]">Staff editor</p>
       <h1 className="mt-2 font-display text-3xl font-black text-[hsl(var(--foreground))] sm:text-4xl">Manage starter guide products</h1>
       <p className="mt-4 max-w-3xl text-sm leading-6 text-[hsl(var(--muted-foreground))]">
-        Add two or three product recommendations to each tool category. Paste the product or affiliate URL manually; SoapSpice does not call the Amazon API or import prices or images. Only HTTPS Amazon marketplace links and official short links are accepted.
+        Add two or three product recommendations to each tool category. Enter links manually or search Amazon when the Creators API is configured. SoapSpice does not import prices or images.
       </p>
+      <p className="mt-3 rounded-2xl border border-[hsl(var(--primary)/0.2)] bg-[hsl(var(--primary)/0.04)] p-4 text-sm leading-6 text-[hsl(var(--foreground))]" role="status">
+        {amazonApiStatus.data?.configured
+          ? `Amazon Creators API search is configured for ${amazonApiStatus.data.marketplace}.`
+          : "Amazon Creators API search is not configured yet. Manual product entry works now. When you receive access, add AMAZON_CREATORS_API_CREDENTIAL_ID, AMAZON_CREATORS_API_SECRET, AMAZON_CREATORS_API_VERSION, AMAZON_ASSOCIATES_PARTNER_TAG, and AMAZON_CREATORS_API_MARKETPLACE through Replit Secrets."}
+      </p>
+      {amazonApiStatus.isError && (
+        <p className="mt-2 text-xs text-[hsl(var(--muted-foreground))]">
+          API configuration status could not be checked; manual entry is still available.
+        </p>
+      )}
       <p className="mt-3 rounded-2xl border border-amber-300/70 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
         Product suggestions go live as soon as they are saved. Before adding affiliate links, confirm that your site’s disclosure matches the terms of your Amazon Associates account.
       </p>
@@ -279,6 +392,7 @@ export default function StarterGuideAdmin() {
               tool={tool}
               initialProducts={group?.products}
               isPublished={Boolean(group)}
+              amazonApiConfigured={Boolean(amazonApiStatus.data?.configured)}
             />
           );
         })}

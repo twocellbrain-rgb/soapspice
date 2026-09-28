@@ -31,6 +31,9 @@ import type {
   LegacyRecipeInput,
   Recipe,
   RecipeInput,
+  SearchStarterGuideAmazonProductsParams,
+  StarterGuideAmazonApiStatus,
+  StarterGuideAmazonProduct,
   StarterGuideProductGroup,
   StarterGuideProductsInput,
   StarterGuideToolSlug
@@ -128,6 +131,167 @@ export function useListStarterGuideProducts<TData = Awaited<ReturnType<typeof li
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getListStarterGuideProductsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetStarterGuideAmazonApiStatusUrl = () => {
+
+
+
+
+  return `/api/starter-guide-admin/amazon/status`
+}
+
+/**
+ * @summary Check whether Amazon Creators API search is configured
+ */
+export const getStarterGuideAmazonApiStatus = async ( options?: Parameters<typeof customFetch>[1]): Promise<StarterGuideAmazonApiStatus> => {
+
+  return customFetch<StarterGuideAmazonApiStatus>(getGetStarterGuideAmazonApiStatusUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetStarterGuideAmazonApiStatusQueryKey = () => {
+    return [
+    `/api/starter-guide-admin/amazon/status`
+    ] as const;
+    }
+
+
+export const getGetStarterGuideAmazonApiStatusQueryOptions = <TData = Awaited<ReturnType<typeof getStarterGuideAmazonApiStatus>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getStarterGuideAmazonApiStatus>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetStarterGuideAmazonApiStatusQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getStarterGuideAmazonApiStatus>>> = ({ signal }) => getStarterGuideAmazonApiStatus({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getStarterGuideAmazonApiStatus>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetStarterGuideAmazonApiStatusQueryResult = NonNullable<Awaited<ReturnType<typeof getStarterGuideAmazonApiStatus>>>
+export type GetStarterGuideAmazonApiStatusQueryError = ErrorType<void>
+
+
+/**
+ * @summary Check whether Amazon Creators API search is configured
+ */
+
+export function useGetStarterGuideAmazonApiStatus<TData = Awaited<ReturnType<typeof getStarterGuideAmazonApiStatus>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getStarterGuideAmazonApiStatus>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetStarterGuideAmazonApiStatusQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getSearchStarterGuideAmazonProductsUrl = (params: SearchStarterGuideAmazonProductsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/starter-guide-admin/amazon/search?${stringifiedParams}` : `/api/starter-guide-admin/amazon/search`
+}
+
+/**
+ * @summary Search Amazon Creators API for products
+ */
+export const searchStarterGuideAmazonProducts = async (params: SearchStarterGuideAmazonProductsParams, options?: Parameters<typeof customFetch>[1]): Promise<StarterGuideAmazonProduct[]> => {
+
+  return customFetch<StarterGuideAmazonProduct[]>(getSearchStarterGuideAmazonProductsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getSearchStarterGuideAmazonProductsQueryKey = (params?: SearchStarterGuideAmazonProductsParams,) => {
+    return [
+    `/api/starter-guide-admin/amazon/search`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getSearchStarterGuideAmazonProductsQueryOptions = <TData = Awaited<ReturnType<typeof searchStarterGuideAmazonProducts>>, TError = ErrorType<void>>(params: SearchStarterGuideAmazonProductsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof searchStarterGuideAmazonProducts>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getSearchStarterGuideAmazonProductsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof searchStarterGuideAmazonProducts>>> = ({ signal }) => searchStarterGuideAmazonProducts(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof searchStarterGuideAmazonProducts>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type SearchStarterGuideAmazonProductsQueryResult = NonNullable<Awaited<ReturnType<typeof searchStarterGuideAmazonProducts>>>
+export type SearchStarterGuideAmazonProductsQueryError = ErrorType<void>
+
+
+/**
+ * @summary Search Amazon Creators API for products
+ */
+
+export function useSearchStarterGuideAmazonProducts<TData = Awaited<ReturnType<typeof searchStarterGuideAmazonProducts>>, TError = ErrorType<void>>(
+ params: SearchStarterGuideAmazonProductsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof searchStarterGuideAmazonProducts>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getSearchStarterGuideAmazonProductsQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

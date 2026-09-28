@@ -32,6 +32,42 @@ paths:
               schema:
                 type: array
                 items: { $ref: "#/components/schemas/StarterGuideProductGroup" }
+  /starter-guide-admin/amazon/status:
+    get:
+      operationId: getStarterGuideAmazonApiStatus
+      tags: [starter guide]
+      summary: Check whether Amazon Creators API search is configured
+      responses:
+        "200":
+          description: API configuration status without exposing credentials
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/StarterGuideAmazonApiStatus" }
+        "401": { description: Sign in required }
+        "403": { description: Ingredient staff access required }
+  /starter-guide-admin/amazon/search:
+    get:
+      operationId: searchStarterGuideAmazonProducts
+      tags: [starter guide]
+      summary: Search Amazon Creators API for products
+      parameters:
+        - in: query
+          name: keywords
+          required: true
+          schema: { type: string, minLength: 2, maxLength: 120 }
+      responses:
+        "200":
+          description: Up to ten matching Amazon products
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/StarterGuideAmazonProduct" }
+        "400": { description: Invalid search phrase }
+        "401": { description: Sign in required }
+        "403": { description: Ingredient staff access required }
+        "502": { description: Amazon Creators API request failed }
+        "503": { description: Amazon Creators API is not configured }
   /starter-guide-admin/{toolSlug}:
     parameters:
       - in: path
@@ -341,6 +377,21 @@ paths:
         "409": { description: Ingredient changed since reviewer loaded it }
 components:
   schemas:
+    StarterGuideAmazonApiStatus:
+      type: object
+      additionalProperties: false
+      required: [configured, marketplace]
+      properties:
+        configured: { type: boolean }
+        marketplace: { type: [string, "null"] }
+    StarterGuideAmazonProduct:
+      type: object
+      additionalProperties: false
+      required: [asin, title, url]
+      properties:
+        asin: { type: string, minLength: 1, maxLength: 32 }
+        title: { type: string, minLength: 1, maxLength: 160 }
+        url: { type: string, format: uri, minLength: 1, maxLength: 2000 }
     StarterGuideToolSlug:
       type: string
       enum: [safety-gear, digital-scale, lye-safe-containers, stick-blender, mold-and-cutter, finishing-tools]

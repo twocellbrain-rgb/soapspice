@@ -5,6 +5,30 @@
  * SoapSpice public ingredient catalog API
  * OpenAPI spec version: 0.1.0
  */
+export interface StarterGuideAmazonApiStatus {
+  configured: boolean;
+  /** @nullable */
+  marketplace: string | null;
+}
+
+export interface StarterGuideAmazonProduct {
+  /**
+     * @minLength 1
+     * @maxLength 32
+     */
+  asin: string;
+  /**
+     * @minLength 1
+     * @maxLength 160
+     */
+  title: string;
+  /**
+     * @minLength 1
+     * @maxLength 2000
+     */
+  url: string;
+}
+
 export type StarterGuideToolSlug = typeof StarterGuideToolSlug[keyof typeof StarterGuideToolSlug];
 
 
@@ -422,6 +446,14 @@ export interface IngredientEdit {
 export interface Error {
   error: string;
 }
+
+export type SearchStarterGuideAmazonProductsParams = {
+/**
+ * @minLength 2
+ * @maxLength 120
+ */
+keywords: string;
+};
 
 export type GetIngredientsParams = {
 /**

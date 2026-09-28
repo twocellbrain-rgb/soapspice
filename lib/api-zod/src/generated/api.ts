@@ -35,6 +35,43 @@ export const ListStarterGuideProductsResponse = zod.array(ListStarterGuideProduc
 
 
 /**
+ * @summary Check whether Amazon Creators API search is configured
+ */
+export const GetStarterGuideAmazonApiStatusResponse = zod.object({
+  "configured": zod.boolean(),
+  "marketplace": zod.string().nullable()
+})
+
+
+/**
+ * @summary Search Amazon Creators API for products
+ */
+export const searchStarterGuideAmazonProductsQueryKeywordsMin = 2;
+export const searchStarterGuideAmazonProductsQueryKeywordsMax = 120;
+
+
+
+export const SearchStarterGuideAmazonProductsQueryParams = zod.object({
+  "keywords": zod.coerce.string().min(searchStarterGuideAmazonProductsQueryKeywordsMin).max(searchStarterGuideAmazonProductsQueryKeywordsMax)
+})
+
+export const searchStarterGuideAmazonProductsResponseAsinMax = 32;
+
+export const searchStarterGuideAmazonProductsResponseTitleMax = 160;
+
+export const searchStarterGuideAmazonProductsResponseUrlMax = 2000;
+
+
+
+export const SearchStarterGuideAmazonProductsResponseItem = zod.object({
+  "asin": zod.string().min(1).max(searchStarterGuideAmazonProductsResponseAsinMax),
+  "title": zod.string().min(1).max(searchStarterGuideAmazonProductsResponseTitleMax),
+  "url": zod.string().url().min(1).max(searchStarterGuideAmazonProductsResponseUrlMax)
+})
+export const SearchStarterGuideAmazonProductsResponse = zod.array(SearchStarterGuideAmazonProductsResponseItem)
+
+
+/**
  * @summary Replace two or three product recommendations for a tool
  */
 export const ReplaceStarterGuideProductsParams = zod.object({
