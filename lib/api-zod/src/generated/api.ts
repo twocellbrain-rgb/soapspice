@@ -9,6 +9,90 @@ import * as zod from 'zod';
 
 
 /**
+ * @summary List manually curated starter-guide product links
+ */
+export const listStarterGuideProductsResponseProductsItemTitleMax = 160;
+
+export const listStarterGuideProductsResponseProductsItemNoteMax = 400;
+
+export const listStarterGuideProductsResponseProductsItemUrlMax = 2000;
+
+export const listStarterGuideProductsResponseProductsMin = 2;
+export const listStarterGuideProductsResponseProductsMax = 3;
+
+
+
+export const ListStarterGuideProductsResponseItem = zod.object({
+  "toolSlug": zod.enum(['safety-gear', 'digital-scale', 'lye-safe-containers', 'stick-blender', 'mold-and-cutter', 'finishing-tools']),
+  "products": zod.array(zod.object({
+  "title": zod.string().min(1).max(listStarterGuideProductsResponseProductsItemTitleMax),
+  "note": zod.string().min(1).max(listStarterGuideProductsResponseProductsItemNoteMax),
+  "url": zod.string().url().min(1).max(listStarterGuideProductsResponseProductsItemUrlMax)
+})).min(listStarterGuideProductsResponseProductsMin).max(listStarterGuideProductsResponseProductsMax),
+  "updatedAt": zod.coerce.date()
+})
+export const ListStarterGuideProductsResponse = zod.array(ListStarterGuideProductsResponseItem)
+
+
+/**
+ * @summary Replace two or three product recommendations for a tool
+ */
+export const ReplaceStarterGuideProductsParams = zod.object({
+  "toolSlug": zod.enum(['safety-gear', 'digital-scale', 'lye-safe-containers', 'stick-blender', 'mold-and-cutter', 'finishing-tools'])
+})
+
+export const replaceStarterGuideProductsBodyProductsItemTitleMax = 160;
+
+export const replaceStarterGuideProductsBodyProductsItemNoteMax = 400;
+
+export const replaceStarterGuideProductsBodyProductsItemUrlMax = 2000;
+
+export const replaceStarterGuideProductsBodyProductsMin = 2;
+export const replaceStarterGuideProductsBodyProductsMax = 3;
+
+
+
+export const ReplaceStarterGuideProductsBody = zod.object({
+  "products": zod.array(zod.object({
+  "title": zod.string().min(1).max(replaceStarterGuideProductsBodyProductsItemTitleMax),
+  "note": zod.string().min(1).max(replaceStarterGuideProductsBodyProductsItemNoteMax),
+  "url": zod.string().url().min(1).max(replaceStarterGuideProductsBodyProductsItemUrlMax)
+})).min(replaceStarterGuideProductsBodyProductsMin).max(replaceStarterGuideProductsBodyProductsMax)
+})
+
+export const replaceStarterGuideProductsResponseProductsItemTitleMax = 160;
+
+export const replaceStarterGuideProductsResponseProductsItemNoteMax = 400;
+
+export const replaceStarterGuideProductsResponseProductsItemUrlMax = 2000;
+
+export const replaceStarterGuideProductsResponseProductsMin = 2;
+export const replaceStarterGuideProductsResponseProductsMax = 3;
+
+
+
+export const ReplaceStarterGuideProductsResponse = zod.object({
+  "toolSlug": zod.enum(['safety-gear', 'digital-scale', 'lye-safe-containers', 'stick-blender', 'mold-and-cutter', 'finishing-tools']),
+  "products": zod.array(zod.object({
+  "title": zod.string().min(1).max(replaceStarterGuideProductsResponseProductsItemTitleMax),
+  "note": zod.string().min(1).max(replaceStarterGuideProductsResponseProductsItemNoteMax),
+  "url": zod.string().url().min(1).max(replaceStarterGuideProductsResponseProductsItemUrlMax)
+})).min(replaceStarterGuideProductsResponseProductsMin).max(replaceStarterGuideProductsResponseProductsMax),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Remove all product links for a tool
+ */
+export const DeleteStarterGuideProductsParams = zod.object({
+  "toolSlug": zod.enum(['safety-gear', 'digital-scale', 'lye-safe-containers', 'stick-blender', 'mold-and-cutter', 'finishing-tools'])
+})
+
+export const DeleteStarterGuideProductsResponse = zod.void()
+
+
+/**
  * @summary List my saved formulas
  */
 export const listRecipesResponseFragrancesItemIdMax = 120;

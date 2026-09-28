@@ -1,7 +1,6 @@
-import { Router, type IRouter, type Request, type Response, type NextFunction } from "express";
-import { getAuth } from "@clerk/express";
+import { Router, type IRouter } from "express";
 import { and, asc, eq, ilike, or, sql } from "drizzle-orm";
-import { db, ingredientsTable, ingredientStaffTable, type Ingredient } from "@workspace/db";
+import { db, ingredientsTable, type Ingredient } from "@workspace/db";
 import {
   GetIngredientParams,
   GetIngredientResponse,
@@ -14,6 +13,7 @@ import {
   ApproveAdminIngredientBody,
 } from "@workspace/api-zod";
 import { approvalRevisionMatches } from "../lib/ingredient-review";
+import { requireIngredientStaff } from "../middlewares/requireIngredientStaff";
 
 const router: IRouter = Router();
 
@@ -44,15 +44,7 @@ function editValid(data: typeof CreateAdminIngredientBody._output): boolean {
     bothOrNeither && (!data.sapSourceTitle.trim() ||
       (citation(data.sapSourceTitle, data.sapSourceUrl) && !!data.sapProvenance.trim()));
 }
-async function staff(req: Request, res: Response, next: NextFunction): Promise<void> {
-  const userId = getAuth(req)?.userId;
-  if (!userId) { res.status(401).json({ error: "Sign in required" }); return; }
-  const [grant] = await db.select().from(ingredientStaffTable).where(eq(ingredientStaffTable.userId, userId)).limit(1);
-  if (!grant) { res.status(403).json({ error: "Ingredient staff access required" }); return; }
-  res.locals.ingredientStaff = grant;
-  next();
-}
-router.use("/ingredient-admin", staff);
+router.use("/ingredient-admin", requireIngredientStaff);
 router.get("/ingredient-admin/me", (req, res): void => {
   res.json(GetIngredientStaffResponse.parse({ role: res.locals.ingredientStaff.role }));
 });

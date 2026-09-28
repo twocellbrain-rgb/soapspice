@@ -5,6 +5,54 @@
  * SoapSpice public ingredient catalog API
  * OpenAPI spec version: 0.1.0
  */
+export type StarterGuideToolSlug = typeof StarterGuideToolSlug[keyof typeof StarterGuideToolSlug];
+
+
+export const StarterGuideToolSlug = {
+  'safety-gear': 'safety-gear',
+  'digital-scale': 'digital-scale',
+  'lye-safe-containers': 'lye-safe-containers',
+  'stick-blender': 'stick-blender',
+  'mold-and-cutter': 'mold-and-cutter',
+  'finishing-tools': 'finishing-tools',
+} as const;
+
+export interface StarterGuideProduct {
+  /**
+     * @minLength 1
+     * @maxLength 160
+     */
+  title: string;
+  /**
+     * @minLength 1
+     * @maxLength 400
+     */
+  note: string;
+  /**
+     * @minLength 1
+     * @maxLength 2000
+     */
+  url: string;
+}
+
+export interface StarterGuideProductsInput {
+  /**
+     * @minItems 2
+     * @maxItems 3
+     */
+  products: StarterGuideProduct[];
+}
+
+export interface StarterGuideProductGroup {
+  toolSlug: StarterGuideToolSlug;
+  /**
+     * @minItems 2
+     * @maxItems 3
+     */
+  products: StarterGuideProduct[];
+  updatedAt: string;
+}
+
 export interface RecipeOilInput {
   /**
      * @minLength 1

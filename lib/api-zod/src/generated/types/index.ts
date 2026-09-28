@@ -38,3 +38,7 @@ export * from './recipeOil';
 export * from './recipeOilInput';
 export * from './recipeOilInputUnit';
 export * from './recipeUnit';
+export * from './starterGuideProduct';
+export * from './starterGuideProductGroup';
+export * from './starterGuideProductsInput';
+export * from './starterGuideToolSlug';

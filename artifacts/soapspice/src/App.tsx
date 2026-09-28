@@ -27,10 +27,12 @@ import { calculateNaohFormula, GRAMS_PER_OUNCE, oilWeightTotal, percentagesFromW
 import FragranceSection from '@/components/FragranceSection';
 import FormulaResults from '@/components/FormulaResults';
 import IngredientAdmin from '@/components/IngredientAdmin';
+import StarterGuideAdmin from '@/components/StarterGuideAdmin';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import SoapmakingGlossaryPage from '@/pages/soapmaking-glossary';
+import HowToStartSoapmakingPage from '@/pages/how-to-start-soapmaking';
 import NotFound from '@/pages/not-found';
 import './bright-crafted.css';
 
@@ -116,6 +118,7 @@ function AccountNav({ onNavigate }: { onNavigate: () => void }) {
     <Show when="signed-in">
       <Link href="/my-formulas" onClick={onNavigate}>My formulas</Link>
       {staff.data && <Link href="/ingredient-admin" onClick={onNavigate}>Review ingredients</Link>}
+      {staff.data && <Link href="/starter-guide-admin" onClick={onNavigate}>Manage starter guide</Link>}
       <button type="button" onClick={() => { onNavigate(); void signOut({ redirectUrl: basePath || '/' }); }}>Sign out</button>
     </Show>
     <Show when="signed-out">
@@ -157,6 +160,7 @@ function Shell({ children }: { children: ReactNode }) {
           <nav className={`sc-nav${menuOpen ? ' is-open' : ''}`} aria-label="Main navigation">
             <Link href="/calculators/cold-process-soap" onClick={closeMenu} aria-current={location === '/calculators/cold-process-soap' || location === '/my-formulas' ? 'page' : undefined} data-testid="link-calculator">Calculator</Link>
             <Link href="/ingredients" onClick={closeMenu} aria-current={location === '/ingredients' || location.startsWith('/ingredients/') ? 'page' : undefined} data-testid="link-ingredients">Ingredient catalog</Link>
+            <Link href="/how-to-start-soapmaking" onClick={closeMenu} aria-current={location === '/how-to-start-soapmaking' ? 'page' : undefined} data-testid="link-how-to-start">How to start</Link>
             <Link href="/soapmaking-glossary" onClick={closeMenu} aria-current={location === '/soapmaking-glossary' ? 'page' : undefined} data-testid="link-glossary">Glossary</Link>
             <AccountNav onNavigate={closeMenu} />
             <Link href="/calculators/cold-process-soap" onClick={closeMenu} data-testid="link-start-formula" className="sc-nav-cta">Start a formula <ArrowRight size={16} /></Link>
@@ -704,6 +708,12 @@ function Router() {
     } else if (location === '/soapmaking-glossary') {
       title = 'Soapmaking Glossary | SoapSpice';
       description = 'Plain-language definitions for common handmade soapmaking terms, ingredients, formulas, methods, and safety.';
+    } else if (location === '/how-to-start-soapmaking') {
+      title = 'How to Start Making Soap | SoapSpice';
+      description = 'A beginner-friendly soapmaking guide to protective gear, scales, lye-safe tools, molds, and manually curated product suggestions.';
+    } else if (location === '/starter-guide-admin') {
+      title = 'Manage Starter Guide Products | SoapSpice';
+      description = 'Staff editor for manually curated soapmaking tool recommendations.';
     } else if (location.startsWith('/ingredients/')) {
       const slug = location.slice('/ingredients/'.length);
       let decoded = slug;
@@ -731,7 +741,9 @@ function Router() {
     <Route path="/calculators/cold-process-soap" component={CalculatorPage} />
     <Route path="/ingredients" component={IngredientsPage} />
     <Route path="/soapmaking-glossary" component={() => <Shell><SoapmakingGlossaryPage /></Shell>} />
+    <Route path="/how-to-start-soapmaking" component={() => <Shell><HowToStartSoapmakingPage /></Shell>} />
     <Route path="/ingredient-admin" component={IngredientAdmin} />
+    <Route path="/starter-guide-admin" component={() => <Shell><StarterGuideAdmin /></Shell>} />
     <Route path="/ingredients/:ingredientId" component={IngredientDetailPage} />
     <Route component={NotFound} />
   </Switch></ErrorBoundary>;

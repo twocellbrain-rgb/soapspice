@@ -30,7 +30,10 @@ import type {
   IngredientStaff,
   LegacyRecipeInput,
   Recipe,
-  RecipeInput
+  RecipeInput,
+  StarterGuideProductGroup,
+  StarterGuideProductsInput,
+  StarterGuideToolSlug
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -59,6 +62,246 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getListStarterGuideProductsUrl = () => {
+
+
+
+
+  return `/api/starter-guide-products`
+}
+
+/**
+ * @summary List manually curated starter-guide product links
+ */
+export const listStarterGuideProducts = async ( options?: Parameters<typeof customFetch>[1]): Promise<StarterGuideProductGroup[]> => {
+
+  return customFetch<StarterGuideProductGroup[]>(getListStarterGuideProductsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListStarterGuideProductsQueryKey = () => {
+    return [
+    `/api/starter-guide-products`
+    ] as const;
+    }
+
+
+export const getListStarterGuideProductsQueryOptions = <TData = Awaited<ReturnType<typeof listStarterGuideProducts>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listStarterGuideProducts>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListStarterGuideProductsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listStarterGuideProducts>>> = ({ signal }) => listStarterGuideProducts({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listStarterGuideProducts>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListStarterGuideProductsQueryResult = NonNullable<Awaited<ReturnType<typeof listStarterGuideProducts>>>
+export type ListStarterGuideProductsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List manually curated starter-guide product links
+ */
+
+export function useListStarterGuideProducts<TData = Awaited<ReturnType<typeof listStarterGuideProducts>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listStarterGuideProducts>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListStarterGuideProductsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getReplaceStarterGuideProductsUrl = (toolSlug: StarterGuideToolSlug,) => {
+
+
+
+
+  return `/api/starter-guide-admin/${toolSlug}`
+}
+
+/**
+ * @summary Replace two or three product recommendations for a tool
+ */
+export const replaceStarterGuideProducts = async (toolSlug: StarterGuideToolSlug,
+    starterGuideProductsInput: StarterGuideProductsInput, options?: Parameters<typeof customFetch>[1]): Promise<StarterGuideProductGroup> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<StarterGuideProductGroup>(getReplaceStarterGuideProductsUrl(toolSlug),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(starterGuideProductsInput)
+  }
+);}
+
+
+
+
+
+export const getReplaceStarterGuideProductsMutationKey = () => ['replaceStarterGuideProducts'] as const;
+
+export const getReplaceStarterGuideProductsMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof replaceStarterGuideProducts>>, TError,ReplaceStarterGuideProductsMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof replaceStarterGuideProducts>>, TError,ReplaceStarterGuideProductsMutationVariables, TContext> => {
+
+const mutationKey = getReplaceStarterGuideProductsMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof replaceStarterGuideProducts>>, ReplaceStarterGuideProductsMutationVariables> = (props) => {
+          const {toolSlug,data} = props ?? {};
+
+          return  replaceStarterGuideProducts(toolSlug,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReplaceStarterGuideProductsMutationResult = NonNullable<Awaited<ReturnType<typeof replaceStarterGuideProducts>>>
+    export type ReplaceStarterGuideProductsMutationBody = BodyType<StarterGuideProductsInput>
+    export type ReplaceStarterGuideProductsMutationError = ErrorType<void>
+    export type ReplaceStarterGuideProductsMutationVariables = {toolSlug: StarterGuideToolSlug;data: BodyType<StarterGuideProductsInput>}
+
+    /**
+ * @summary Replace two or three product recommendations for a tool
+ */
+export const useReplaceStarterGuideProducts = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof replaceStarterGuideProducts>>, TError,ReplaceStarterGuideProductsMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof replaceStarterGuideProducts>>,
+        TError,
+        ReplaceStarterGuideProductsMutationVariables,
+        TContext
+      > => {
+      return useMutation(getReplaceStarterGuideProductsMutationOptions(options));
+    }
+
+export const getDeleteStarterGuideProductsUrl = (toolSlug: StarterGuideToolSlug,) => {
+
+
+
+
+  return `/api/starter-guide-admin/${toolSlug}`
+}
+
+/**
+ * @summary Remove all product links for a tool
+ */
+export const deleteStarterGuideProducts = async (toolSlug: StarterGuideToolSlug, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteStarterGuideProductsUrl(toolSlug),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteStarterGuideProductsMutationKey = () => ['deleteStarterGuideProducts'] as const;
+
+export const getDeleteStarterGuideProductsMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteStarterGuideProducts>>, TError,DeleteStarterGuideProductsMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteStarterGuideProducts>>, TError,DeleteStarterGuideProductsMutationVariables, TContext> => {
+
+const mutationKey = getDeleteStarterGuideProductsMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteStarterGuideProducts>>, DeleteStarterGuideProductsMutationVariables> = (props) => {
+          const {toolSlug} = props ?? {};
+
+          return  deleteStarterGuideProducts(toolSlug,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteStarterGuideProductsMutationResult = NonNullable<Awaited<ReturnType<typeof deleteStarterGuideProducts>>>
+
+    export type DeleteStarterGuideProductsMutationError = ErrorType<void>
+    export type DeleteStarterGuideProductsMutationVariables = {toolSlug: StarterGuideToolSlug}
+
+    /**
+ * @summary Remove all product links for a tool
+ */
+export const useDeleteStarterGuideProducts = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteStarterGuideProducts>>, TError,DeleteStarterGuideProductsMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteStarterGuideProducts>>,
+        TError,
+        DeleteStarterGuideProductsMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteStarterGuideProductsMutationOptions(options));
+    }
 
 export const getListRecipesUrl = () => {
 
