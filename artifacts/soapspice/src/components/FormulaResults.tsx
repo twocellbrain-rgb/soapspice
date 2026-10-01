@@ -2,7 +2,7 @@ import { Check, FileSpreadsheet } from 'lucide-react';
 import { fragranceIfraScreen, GRAMS_PER_OUNCE, type FragranceRow } from '@/lib/formulation';
 import FragranceGuide from './FragranceGuide';
 
-type OilResultRow = {
+export type OilResultRow = {
   id: string;
   name: string;
   percentage: number;
@@ -11,13 +11,13 @@ type OilResultRow = {
 };
 
 type OilInputUnit = 'percent' | 'g' | 'oz';
-type Calculation = ReturnType<typeof import('@/lib/formulation').calculateNaohFormula>;
+export type FormulaCalculation = ReturnType<typeof import('@/lib/formulation').calculateNaohFormula>;
 
 type FormulaResultsProps = {
   oils: OilResultRow[];
   oilInputUnit: OilInputUnit;
   fragrances: FragranceRow[];
-  result: Calculation;
+  result: FormulaCalculation;
   liquidName: string;
   superfat: number;
 };

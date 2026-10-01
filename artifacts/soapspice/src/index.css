@@ -144,7 +144,16 @@
 .animate-rise-delay-3 { animation-delay: 270ms; }
 
 @media print {
+  @page { size: letter; margin: 0.5in; }
+  html, body { background: white !important; color: #111 !important; }
+  body { font-size: 10pt; }
   nav, .print-hide, button { display: none !important; }
-  body { background: white; }
-  .print-card { border: 0 !important; box-shadow: none !important; }
+  .print-sheet { width: 100% !important; max-width: none !important; padding: 0 !important; }
+  .print-page-title { break-after: avoid; }
+  .print-card { border: 0 !important; box-shadow: none !important; background: white !important; padding: 0 !important; }
+  .overflow-x-auto { overflow: visible !important; }
+  table { width: 100% !important; min-width: 0 !important; table-layout: auto !important; }
+  th, td { padding: 0.35rem !important; font-size: 8pt !important; }
+  h2, h3, tr { break-inside: avoid; }
+  footer { break-inside: avoid; }
 }
