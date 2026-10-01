@@ -598,7 +598,12 @@ function CalculatorPage() {
       superfat,
       generatedAt: new Date().toISOString(),
     };
-    localStorage.setItem(storageKey, JSON.stringify(printData));
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(printData));
+    } catch {
+      setSaveFeedback('Could not prepare the print sheet in this browser. Check that local storage is available, then try again.');
+      return;
+    }
     window.setTimeout(() => localStorage.removeItem(storageKey), 5 * 60 * 1000);
     const url = `${basePath}/formula-print?draft=${encodeURIComponent(draftId)}`;
     window.open(url, '_blank', 'noopener,noreferrer');
