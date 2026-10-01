@@ -35,6 +35,33 @@ export const ListStarterGuideProductsResponse = zod.array(ListStarterGuideProduc
 
 
 /**
+ * @summary List manually curated product cards grouped by catalog ingredient
+ */
+export const listCalculatorIngredientProductsResponseIngredientIdMax = 100;
+
+export const listCalculatorIngredientProductsResponseProductsItemTitleMax = 160;
+
+export const listCalculatorIngredientProductsResponseProductsItemNoteMax = 400;
+
+export const listCalculatorIngredientProductsResponseProductsItemUrlMax = 2000;
+
+export const listCalculatorIngredientProductsResponseProductsMax = 3;
+
+
+
+export const ListCalculatorIngredientProductsResponseItem = zod.object({
+  "ingredientId": zod.string().min(1).max(listCalculatorIngredientProductsResponseIngredientIdMax),
+  "products": zod.array(zod.object({
+  "title": zod.string().min(1).max(listCalculatorIngredientProductsResponseProductsItemTitleMax),
+  "note": zod.string().min(1).max(listCalculatorIngredientProductsResponseProductsItemNoteMax),
+  "url": zod.string().url().min(1).max(listCalculatorIngredientProductsResponseProductsItemUrlMax)
+})).min(1).max(listCalculatorIngredientProductsResponseProductsMax),
+  "updatedAt": zod.coerce.date()
+})
+export const ListCalculatorIngredientProductsResponse = zod.array(ListCalculatorIngredientProductsResponseItem)
+
+
+/**
  * @summary Check whether Amazon Creators API search is configured
  */
 export const GetStarterGuideAmazonApiStatusResponse = zod.object({
@@ -127,6 +154,72 @@ export const DeleteStarterGuideProductsParams = zod.object({
 })
 
 export const DeleteStarterGuideProductsResponse = zod.void()
+
+
+/**
+ * @summary Replace manually curated product cards for one ingredient
+ */
+export const replaceCalculatorIngredientProductsPathIngredientIdMax = 100;
+
+
+
+export const ReplaceCalculatorIngredientProductsParams = zod.object({
+  "ingredientId": zod.coerce.string().min(1).max(replaceCalculatorIngredientProductsPathIngredientIdMax)
+})
+
+export const replaceCalculatorIngredientProductsBodyProductsItemTitleMax = 160;
+
+export const replaceCalculatorIngredientProductsBodyProductsItemNoteMax = 400;
+
+export const replaceCalculatorIngredientProductsBodyProductsItemUrlMax = 2000;
+
+export const replaceCalculatorIngredientProductsBodyProductsMax = 3;
+
+
+
+export const ReplaceCalculatorIngredientProductsBody = zod.object({
+  "products": zod.array(zod.object({
+  "title": zod.string().min(1).max(replaceCalculatorIngredientProductsBodyProductsItemTitleMax),
+  "note": zod.string().min(1).max(replaceCalculatorIngredientProductsBodyProductsItemNoteMax),
+  "url": zod.string().url().min(1).max(replaceCalculatorIngredientProductsBodyProductsItemUrlMax)
+})).min(1).max(replaceCalculatorIngredientProductsBodyProductsMax)
+})
+
+export const replaceCalculatorIngredientProductsResponseIngredientIdMax = 100;
+
+export const replaceCalculatorIngredientProductsResponseProductsItemTitleMax = 160;
+
+export const replaceCalculatorIngredientProductsResponseProductsItemNoteMax = 400;
+
+export const replaceCalculatorIngredientProductsResponseProductsItemUrlMax = 2000;
+
+export const replaceCalculatorIngredientProductsResponseProductsMax = 3;
+
+
+
+export const ReplaceCalculatorIngredientProductsResponse = zod.object({
+  "ingredientId": zod.string().min(1).max(replaceCalculatorIngredientProductsResponseIngredientIdMax),
+  "products": zod.array(zod.object({
+  "title": zod.string().min(1).max(replaceCalculatorIngredientProductsResponseProductsItemTitleMax),
+  "note": zod.string().min(1).max(replaceCalculatorIngredientProductsResponseProductsItemNoteMax),
+  "url": zod.string().url().min(1).max(replaceCalculatorIngredientProductsResponseProductsItemUrlMax)
+})).min(1).max(replaceCalculatorIngredientProductsResponseProductsMax),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Remove all manually curated product cards for one ingredient
+ */
+export const deleteCalculatorIngredientProductsPathIngredientIdMax = 100;
+
+
+
+export const DeleteCalculatorIngredientProductsParams = zod.object({
+  "ingredientId": zod.coerce.string().min(1).max(deleteCalculatorIngredientProductsPathIngredientIdMax)
+})
+
+export const DeleteCalculatorIngredientProductsResponse = zod.void()
 
 
 /**

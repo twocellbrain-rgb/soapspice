@@ -28,6 +28,8 @@ import FragranceSection from '@/components/FragranceSection';
 import FormulaResults from '@/components/FormulaResults';
 import IngredientAdmin from '@/components/IngredientAdmin';
 import StarterGuideAdmin from '@/components/StarterGuideAdmin';
+import CalculatorIngredientProductRecommendations from '@/components/CalculatorIngredientProductRecommendations';
+import CalculatorIngredientProductsAdmin from '@/components/CalculatorIngredientProductsAdmin';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -120,6 +122,7 @@ function AccountNav({ onNavigate }: { onNavigate: () => void }) {
       <Link href="/my-formulas" onClick={onNavigate}>My formulas</Link>
       {staff.data && <Link href="/ingredient-admin" onClick={onNavigate}>Review ingredients</Link>}
       {staff.data && <Link href="/starter-guide-admin" onClick={onNavigate}>Manage starter guide</Link>}
+      {staff.data && <Link href="/calculator-product-admin" onClick={onNavigate}>Manage calculator product cards</Link>}
       <button type="button" onClick={() => { onNavigate(); void signOut({ redirectUrl: basePath || '/' }); }}>Sign out</button>
     </Show>
     <Show when="signed-out">
@@ -699,18 +702,26 @@ function CalculatorPage() {
           <div className="rounded-3xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] p-6"><div className="flex items-center gap-2 text-[hsl(var(--secondary-foreground))]"><CircleAlert size={17} /><h2 className="font-bold">A note on the numbers</h2></div><p className="mt-3 text-sm leading-6 text-[hsl(var(--secondary-foreground)/.8)]">{ingredients.some(item => item.verificationStatus !== 'administrator-verified') || ingredients.length === 0 ? 'SAP values are linked to their sources, but still need administrator review.' : 'Catalog SAP values have been reviewed, but supplier specifications may differ.'} Treat every result as a starting point and verify your process independently.</p></div>
         </aside>
         {visibleResult ? (
-          <FormulaResults
-            oils={oils.map((oil) => ({
-              ...oil,
-              name: ingredientMap.get(oil.id)?.name ?? oil.name,
-              sap: ingredientMap.get(oil.id)!.naohSap,
-            }))}
-            oilInputUnit={oilInputUnit}
-            fragrances={fragrances}
-            result={visibleResult}
-            liquidName={liquidName}
-            superfat={superfat}
-          />
+          <>
+            <FormulaResults
+              oils={oils.map((oil) => ({
+                ...oil,
+                name: ingredientMap.get(oil.id)?.name ?? oil.name,
+                sap: ingredientMap.get(oil.id)!.naohSap,
+              }))}
+              oilInputUnit={oilInputUnit}
+              fragrances={fragrances}
+              result={visibleResult}
+              liquidName={liquidName}
+              superfat={superfat}
+            />
+            <CalculatorIngredientProductRecommendations
+              selections={oils.map((oil) => ({
+                id: oil.id,
+                name: ingredientMap.get(oil.id)?.name ?? oil.name,
+              }))}
+            />
+          </>
         ) : (
           <div role="status" data-testid="status-formula-placeholder" className="rounded-3xl border border-dashed border-[hsl(var(--border))] bg-white p-6 text-sm leading-6 text-[hsl(var(--muted-foreground))] lg:col-span-2">
             Your ingredient inputs, required NaOH and lye liquid, fragrance amounts, and total batch weight will appear here after you validate a complete formula.
@@ -747,6 +758,9 @@ function Router() {
     } else if (location === '/starter-guide-admin') {
       title = 'Manage Starter Guide Products | SoapSpice';
       description = 'Staff editor for manually curated soapmaking tool recommendations.';
+    } else if (location === '/calculator-product-admin') {
+      title = 'Manage Calculator Product Cards | SoapSpice';
+      description = 'Staff editor for manually curated Amazon product recommendations matched to calculator ingredients.';
     } else if (location.startsWith('/ingredients/')) {
       const slug = location.slice('/ingredients/'.length);
       let decoded = slug;
@@ -778,6 +792,7 @@ function Router() {
     <Route path="/how-to-start-soapmaking" component={() => <Shell><HowToStartSoapmakingPage /></Shell>} />
     <Route path="/ingredient-admin" component={IngredientAdmin} />
     <Route path="/starter-guide-admin" component={() => <Shell><StarterGuideAdmin /></Shell>} />
+    <Route path="/calculator-product-admin" component={() => <Shell><CalculatorIngredientProductsAdmin /></Shell>} />
     <Route path="/ingredients/:ingredientId" component={IngredientDetailPage} />
     <Route component={NotFound} />
   </Switch></ErrorBoundary>;

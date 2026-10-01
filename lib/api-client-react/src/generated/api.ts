@@ -21,6 +21,8 @@ import type {
 
 import type {
   AdminIngredient,
+  CalculatorIngredientProductGroup,
+  CalculatorIngredientProductsInput,
   Error,
   GetIngredientsParams,
   HealthStatus,
@@ -131,6 +133,83 @@ export function useListStarterGuideProducts<TData = Awaited<ReturnType<typeof li
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getListStarterGuideProductsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListCalculatorIngredientProductsUrl = () => {
+
+
+
+
+  return `/api/calculator-ingredient-products`
+}
+
+/**
+ * @summary List manually curated product cards grouped by catalog ingredient
+ */
+export const listCalculatorIngredientProducts = async ( options?: Parameters<typeof customFetch>[1]): Promise<CalculatorIngredientProductGroup[]> => {
+
+  return customFetch<CalculatorIngredientProductGroup[]>(getListCalculatorIngredientProductsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListCalculatorIngredientProductsQueryKey = () => {
+    return [
+    `/api/calculator-ingredient-products`
+    ] as const;
+    }
+
+
+export const getListCalculatorIngredientProductsQueryOptions = <TData = Awaited<ReturnType<typeof listCalculatorIngredientProducts>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCalculatorIngredientProducts>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListCalculatorIngredientProductsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listCalculatorIngredientProducts>>> = ({ signal }) => listCalculatorIngredientProducts({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listCalculatorIngredientProducts>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListCalculatorIngredientProductsQueryResult = NonNullable<Awaited<ReturnType<typeof listCalculatorIngredientProducts>>>
+export type ListCalculatorIngredientProductsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List manually curated product cards grouped by catalog ingredient
+ */
+
+export function useListCalculatorIngredientProducts<TData = Awaited<ReturnType<typeof listCalculatorIngredientProducts>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCalculatorIngredientProducts>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListCalculatorIngredientProductsQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -465,6 +544,169 @@ export const useDeleteStarterGuideProducts = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getDeleteStarterGuideProductsMutationOptions(options));
+    }
+
+export const getReplaceCalculatorIngredientProductsUrl = (ingredientId: string,) => {
+
+
+
+
+  return `/api/calculator-ingredient-products-admin/${ingredientId}`
+}
+
+/**
+ * @summary Replace manually curated product cards for one ingredient
+ */
+export const replaceCalculatorIngredientProducts = async (ingredientId: string,
+    calculatorIngredientProductsInput: CalculatorIngredientProductsInput, options?: Parameters<typeof customFetch>[1]): Promise<CalculatorIngredientProductGroup> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<CalculatorIngredientProductGroup>(getReplaceCalculatorIngredientProductsUrl(ingredientId),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(calculatorIngredientProductsInput)
+  }
+);}
+
+
+
+
+
+export const getReplaceCalculatorIngredientProductsMutationKey = () => ['replaceCalculatorIngredientProducts'] as const;
+
+export const getReplaceCalculatorIngredientProductsMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof replaceCalculatorIngredientProducts>>, TError,ReplaceCalculatorIngredientProductsMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof replaceCalculatorIngredientProducts>>, TError,ReplaceCalculatorIngredientProductsMutationVariables, TContext> => {
+
+const mutationKey = getReplaceCalculatorIngredientProductsMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof replaceCalculatorIngredientProducts>>, ReplaceCalculatorIngredientProductsMutationVariables> = (props) => {
+          const {ingredientId,data} = props ?? {};
+
+          return  replaceCalculatorIngredientProducts(ingredientId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReplaceCalculatorIngredientProductsMutationResult = NonNullable<Awaited<ReturnType<typeof replaceCalculatorIngredientProducts>>>
+    export type ReplaceCalculatorIngredientProductsMutationBody = BodyType<CalculatorIngredientProductsInput>
+    export type ReplaceCalculatorIngredientProductsMutationError = ErrorType<void>
+    export type ReplaceCalculatorIngredientProductsMutationVariables = {ingredientId: string;data: BodyType<CalculatorIngredientProductsInput>}
+
+    /**
+ * @summary Replace manually curated product cards for one ingredient
+ */
+export const useReplaceCalculatorIngredientProducts = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof replaceCalculatorIngredientProducts>>, TError,ReplaceCalculatorIngredientProductsMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof replaceCalculatorIngredientProducts>>,
+        TError,
+        ReplaceCalculatorIngredientProductsMutationVariables,
+        TContext
+      > => {
+      return useMutation(getReplaceCalculatorIngredientProductsMutationOptions(options));
+    }
+
+export const getDeleteCalculatorIngredientProductsUrl = (ingredientId: string,) => {
+
+
+
+
+  return `/api/calculator-ingredient-products-admin/${ingredientId}`
+}
+
+/**
+ * @summary Remove all manually curated product cards for one ingredient
+ */
+export const deleteCalculatorIngredientProducts = async (ingredientId: string, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteCalculatorIngredientProductsUrl(ingredientId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteCalculatorIngredientProductsMutationKey = () => ['deleteCalculatorIngredientProducts'] as const;
+
+export const getDeleteCalculatorIngredientProductsMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCalculatorIngredientProducts>>, TError,DeleteCalculatorIngredientProductsMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteCalculatorIngredientProducts>>, TError,DeleteCalculatorIngredientProductsMutationVariables, TContext> => {
+
+const mutationKey = getDeleteCalculatorIngredientProductsMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteCalculatorIngredientProducts>>, DeleteCalculatorIngredientProductsMutationVariables> = (props) => {
+          const {ingredientId} = props ?? {};
+
+          return  deleteCalculatorIngredientProducts(ingredientId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteCalculatorIngredientProductsMutationResult = NonNullable<Awaited<ReturnType<typeof deleteCalculatorIngredientProducts>>>
+
+    export type DeleteCalculatorIngredientProductsMutationError = ErrorType<void>
+    export type DeleteCalculatorIngredientProductsMutationVariables = {ingredientId: string}
+
+    /**
+ * @summary Remove all manually curated product cards for one ingredient
+ */
+export const useDeleteCalculatorIngredientProducts = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCalculatorIngredientProducts>>, TError,DeleteCalculatorIngredientProductsMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteCalculatorIngredientProducts>>,
+        TError,
+        DeleteCalculatorIngredientProductsMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteCalculatorIngredientProductsMutationOptions(options));
     }
 
 export const getListRecipesUrl = () => {

@@ -5,6 +5,7 @@ import FormulaResults, {
   type FormulaCalculation,
   type OilResultRow,
 } from '@/components/FormulaResults';
+import CalculatorIngredientProductRecommendations from '@/components/CalculatorIngredientProductRecommendations';
 import type { FragranceRow } from '@/lib/formulation';
 
 type PrintableFormula = {
@@ -132,6 +133,9 @@ export default function FormulaPrintPage() {
           result={formula.result}
           liquidName={formula.liquidName}
           superfat={formula.superfat}
+        />
+        <CalculatorIngredientProductRecommendations
+          selections={formula.oils.map(({ id, name }) => ({ id, name }))}
         />
 
         <footer className="mt-6 rounded-2xl border border-amber-300/70 bg-amber-50 p-5 text-sm leading-6 text-amber-950">

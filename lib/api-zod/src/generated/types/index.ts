@@ -7,6 +7,9 @@
  */
 
 export * from './adminIngredient';
+export * from './calculatorIngredientProduct';
+export * from './calculatorIngredientProductGroup';
+export * from './calculatorIngredientProductsInput';
 export * from './error';
 export * from './getIngredientsCategory';
 export * from './getIngredientsParams';

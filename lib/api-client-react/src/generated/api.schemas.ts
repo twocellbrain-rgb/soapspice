@@ -77,6 +77,46 @@ export interface StarterGuideProductGroup {
   updatedAt: string;
 }
 
+export interface CalculatorIngredientProduct {
+  /**
+     * @minLength 1
+     * @maxLength 160
+     */
+  title: string;
+  /**
+     * @minLength 1
+     * @maxLength 400
+     */
+  note: string;
+  /**
+     * @minLength 1
+     * @maxLength 2000
+     */
+  url: string;
+}
+
+export interface CalculatorIngredientProductsInput {
+  /**
+     * @minItems 1
+     * @maxItems 3
+     */
+  products: CalculatorIngredientProduct[];
+}
+
+export interface CalculatorIngredientProductGroup {
+  /**
+     * @minLength 1
+     * @maxLength 100
+     */
+  ingredientId: string;
+  /**
+     * @minItems 1
+     * @maxItems 3
+     */
+  products: CalculatorIngredientProduct[];
+  updatedAt: string;
+}
+
 export interface RecipeOilInput {
   /**
      * @minLength 1

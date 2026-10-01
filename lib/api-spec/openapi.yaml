@@ -18,6 +18,8 @@ tags:
     description: Private maker formulas
   - name: starter guide
     description: Public soapmaking setup guidance and staff-managed product recommendations
+  - name: calculator products
+    description: Public ingredient-matched product recommendations managed by staff
 paths:
   /starter-guide-products:
     get:
@@ -32,6 +34,19 @@ paths:
               schema:
                 type: array
                 items: { $ref: "#/components/schemas/StarterGuideProductGroup" }
+  /calculator-ingredient-products:
+    get:
+      operationId: listCalculatorIngredientProducts
+      tags: [calculator products]
+      summary: List manually curated product cards grouped by catalog ingredient
+      responses:
+        "200":
+          description: Product cards grouped by eligible ingredient
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/CalculatorIngredientProductGroup" }
   /starter-guide-admin/amazon/status:
     get:
       operationId: getStarterGuideAmazonApiStatus
@@ -98,6 +113,43 @@ paths:
       summary: Remove all product links for a tool
       responses:
         "204": { description: Product links removed }
+        "401": { description: Sign in required }
+        "403": { description: Ingredient staff access required }
+  /calculator-ingredient-products-admin/{ingredientId}:
+    parameters:
+      - in: path
+        name: ingredientId
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 100
+    put:
+      operationId: replaceCalculatorIngredientProducts
+      tags: [calculator products]
+      summary: Replace manually curated product cards for one ingredient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CalculatorIngredientProductsInput" }
+      responses:
+        "200":
+          description: Saved product cards
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CalculatorIngredientProductGroup" }
+        "400": { description: Invalid product list or non-Amazon URL }
+        "401": { description: Sign in required }
+        "403": { description: Ingredient staff access required }
+        "404": { description: Ingredient not found or not publicly available }
+    delete:
+      operationId: deleteCalculatorIngredientProducts
+      tags: [calculator products]
+      summary: Remove all manually curated product cards for one ingredient
+      responses:
+        "204": { description: Product cards removed }
+        "400": { description: Invalid ingredient ID }
         "401": { description: Sign in required }
         "403": { description: Ingredient staff access required }
   /recipes:
@@ -424,6 +476,36 @@ components:
           minItems: 2
           maxItems: 3
           items: { $ref: "#/components/schemas/StarterGuideProduct" }
+        updatedAt: { type: string, format: date-time }
+    CalculatorIngredientProduct:
+      type: object
+      additionalProperties: false
+      required: [title, note, url]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 160 }
+        note: { type: string, minLength: 1, maxLength: 400 }
+        url: { type: string, format: uri, minLength: 1, maxLength: 2000 }
+    CalculatorIngredientProductsInput:
+      type: object
+      additionalProperties: false
+      required: [products]
+      properties:
+        products:
+          type: array
+          minItems: 1
+          maxItems: 3
+          items: { $ref: "#/components/schemas/CalculatorIngredientProduct" }
+    CalculatorIngredientProductGroup:
+      type: object
+      additionalProperties: false
+      required: [ingredientId, products, updatedAt]
+      properties:
+        ingredientId: { type: string, minLength: 1, maxLength: 100 }
+        products:
+          type: array
+          minItems: 1
+          maxItems: 3
+          items: { $ref: "#/components/schemas/CalculatorIngredientProduct" }
         updatedAt: { type: string, format: date-time }
     RecipeOilInput:
       type: object
