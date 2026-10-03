@@ -400,7 +400,7 @@ function CalculatorPage() {
     [baseFormulaInput],
   );
   const strengthAmounts = useMemo(
-    () => scentStrengthAmounts(totalOilGrams, baseCalculation?.naoh ?? 0),
+    () => scentStrengthAmounts(totalOilGrams, baseCalculation?.naoh ?? Number.NaN),
     [totalOilGrams, baseCalculation?.naoh],
   );
   const calculatedFragrances = useMemo(
@@ -408,7 +408,7 @@ function CalculatorPage() {
       fragrances,
       scentStrength,
       totalOilGrams,
-      baseCalculation?.naoh ?? 0,
+      baseCalculation?.naoh ?? Number.NaN,
     ),
     [fragrances, scentStrength, totalOilGrams, baseCalculation?.naoh],
   );
@@ -709,7 +709,7 @@ function CalculatorPage() {
             onScentStrengthChange={updateScentStrength}
             strengthAmounts={strengthAmounts}
           />
-           <div className="print-card rounded-3xl border border-[hsl(var(--primary)/.3)] bg-[hsl(var(--primary)/.06)] p-5 sm:p-7"><div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Step 04</p><h2 className="mt-2 font-display text-3xl">Check your formula</h2><p className="mt-2 max-w-lg text-sm text-[hsl(var(--muted-foreground))]">Validate oil percentages, NaOH math, and fragrance amounts before printing or saving. Supplier IFRA rates are screened only when you select a documented product or enter a matching rate; a missing limit remains unverified.</p></div><button type="button" onClick={validate} className={`${buttonPrimary} shrink-0`} data-testid="button-validate-formula"><Check size={17} /> Validate formula</button></div>{validated && <div className={`mt-5 rounded-2xl p-4 text-sm ${validationErrors.length ? 'bg-[hsl(var(--destructive)/.1)] text-[hsl(var(--destructive))]' : freshValidation ? 'bg-[hsl(184_75%_35%/.12)] text-[hsl(var(--primary))]' : 'bg-[hsl(var(--accent)/.12)] text-[hsl(var(--secondary-foreground))]'}`} data-testid="status-validation">{validationErrors.length ? <ul className="list-disc space-y-1 pl-5">{validationErrors.map((error) => <li key={error}>{error}</li>)}</ul> : freshValidation ? <div className="flex items-center gap-2 font-bold"><Check size={17} /> Lye math checked. Review the liquid estimate and fragrance IFRA flags below.</div> : <div className="flex items-center gap-2 font-bold"><CircleAlert size={17} /> Formula or ingredient data changed. Validate again before saving or printing.</div>}</div>}</div>
+           <div className="print-card rounded-3xl border border-[hsl(var(--primary)/.3)] bg-[hsl(var(--primary)/.06)] p-5 sm:p-7"><div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Step 04</p><h2 className="mt-2 font-display text-3xl">Check your formula</h2><p className="mt-2 max-w-lg text-sm text-[hsl(var(--muted-foreground))]">Validate oil percentages, NaOH math, and fragrance amounts before printing or saving. Supplier IFRA rates are screened only when you select a documented product or enter a matching rate; missing limits hold automatic fragrance amounts at zero.</p></div><button type="button" onClick={validate} className={`${buttonPrimary} shrink-0`} data-testid="button-validate-formula"><Check size={17} /> Validate formula</button></div>{validated && <div className={`mt-5 rounded-2xl p-4 text-sm ${validationErrors.length ? 'bg-[hsl(var(--destructive)/.1)] text-[hsl(var(--destructive))]' : freshValidation ? 'bg-[hsl(184_75%_35%/.12)] text-[hsl(var(--primary))]' : 'bg-[hsl(var(--accent)/.12)] text-[hsl(var(--secondary-foreground))]'}`} data-testid="status-validation">{validationErrors.length ? <ul className="list-disc space-y-1 pl-5">{validationErrors.map((error) => <li key={error}>{error}</li>)}</ul> : freshValidation ? <div className="flex items-center gap-2 font-bold"><Check size={17} /> Lye math checked. Review the liquid estimate and fragrance IFRA flags below.</div> : <div className="flex items-center gap-2 font-bold"><CircleAlert size={17} /> Formula or ingredient data changed. Validate again before saving or printing.</div>}</div>}</div>
         </div>
         <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
           <div className="rounded-3xl border border-[hsl(var(--border))] bg-white p-6 shadow-card">

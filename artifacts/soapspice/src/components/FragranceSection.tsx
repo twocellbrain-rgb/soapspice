@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { CircleAlert, Plus, Trash2 } from 'lucide-react';
 import type { FragranceRow, ScentStrength } from '@/lib/formulation';
-import { fragranceIfraScreen, fragranceWeightGrams, scentStrengthAmounts } from '@/lib/formulation';
+import { fragranceIfraScreen, fragranceWeightGrams, fragrancesAtDoseTarget, scentStrengthAmounts } from '@/lib/formulation';
 import { BRAMBLE_BERRY_FRAGRANCES, chooseSupplierFragrance, renameFragrance, selectedSupplierFragrance } from '@/lib/supplier-fragrances';
 
 type FragranceSectionProps = {
@@ -18,6 +18,14 @@ const fieldClass =
 
 function displayGrams(grams: number) {
   return Number.isFinite(grams) ? grams.toFixed(2) : '0.00';
+}
+
+function displayAmount(amount: number, unit: FragranceRow['unit']) {
+  return Number.isFinite(amount) ? amount.toFixed(unit === 'percent' ? 3 : 2) : '0.00';
+}
+
+function amountUnitLabel(unit: FragranceRow['unit']) {
+  return unit === 'percent' ? '% of oils' : unit;
 }
 
 export default function FragranceSection({
@@ -99,14 +107,20 @@ export default function FragranceSection({
         <section className="mt-6 rounded-2xl border border-[hsl(var(--primary)/.25)] bg-[hsl(var(--primary)/.04)] p-4 sm:p-5" aria-labelledby="fragrance-strength-heading" data-testid="fragrance-strength-picker">
           <h3 id="fragrance-strength-heading" className="font-bold text-[hsl(var(--foreground))]">Choose a scent strength for the whole batch</h3>
           <p className="mt-1 text-xs leading-5 text-[hsl(var(--muted-foreground))]">
-            Amounts use the unscented batch estimate (oils, NaOH, and estimated liquid). If you add multiple fragrances, the selected total is split evenly between them. These are guide amounts, not supplier-specific safety limits.
+            Amounts use the unscented batch estimate (oils, NaOH, and estimated liquid). Multiple fragrances share the total evenly, then each amount is capped at its conservative IFRA screen. Without a valid supplier maximum, that fragrance stays at 0 until you enter one.
           </p>
-          {totalOilGrams <= 0 ? (
-            <p className="mt-3 text-xs font-semibold text-[hsl(var(--muted-foreground))]" role="status">Enter valid oil weights to calculate fragrance amounts.</p>
+          {totalOilGrams <= 0 || strengthAmounts.every((tier) => tier.grams <= 0) ? (
+            <p className="mt-3 text-xs font-semibold text-[hsl(var(--muted-foreground))]" role="status">Complete valid oil weights and SAP details to calculate fragrance amounts.</p>
           ) : (
             <div className="mt-4 grid gap-3 sm:grid-cols-3">
               {strengthAmounts.map((tier) => {
                 const selected = scentStrength === tier.key;
+                const cappedRows = fragrancesAtDoseTarget(fragrances, tier.grams, totalOilGrams);
+                const cappedBatchGrams = cappedRows.reduce(
+                  (sum, row) => sum + fragranceWeightGrams(row, totalOilGrams),
+                  0,
+                );
+                const isCapped = cappedBatchGrams + 1e-9 < tier.grams;
                 return (
                   <button
                     key={tier.key}
@@ -117,8 +131,11 @@ export default function FragranceSection({
                     data-testid={`button-scent-strength-${tier.key}`}
                   >
                     <span className="text-xs font-bold uppercase tracking-wider text-[hsl(var(--foreground))]">{tier.label}</span>
-                    <span className="font-data text-lg font-bold text-[hsl(var(--primary))]">{displayGrams(tier.grams)} g</span>
-                    <span className="text-[11px] text-[hsl(var(--muted-foreground))]">{(tier.grams / 28.349523125).toFixed(2)} oz for the batch</span>
+                    <span className="font-data text-lg font-bold text-[hsl(var(--primary))]" data-testid={`text-scent-dose-${tier.key}`}>{displayGrams(cappedBatchGrams)} g</span>
+                    <span className="text-[11px] text-[hsl(var(--muted-foreground))]">{(cappedBatchGrams / 28.349523125).toFixed(2)} oz total after IFRA screens</span>
+                    <span className="text-[10px] text-[hsl(var(--muted-foreground))]">
+                      {isCapped ? `Guide target ${displayGrams(tier.grams)} g · reduced by IFRA limit(s)` : `Guide target ${displayGrams(tier.grams)} g`}
+                    </span>
                   </button>
                 );
               })}
@@ -131,6 +148,8 @@ export default function FragranceSection({
         {fragrances.map((row, index) => {
           const grams = fragranceWeightGrams(row, totalOilGrams);
           const ifra = fragranceIfraScreen(row, totalOilGrams);
+          const targetPerFragranceGrams = (strengthAmounts.find((tier) => tier.key === scentStrength)?.grams ?? 0) / fragrances.length;
+          const cappedByIfra = ifra.maximumGrams !== null && targetPerFragranceGrams > ifra.maximumGrams + 1e-9;
           const selectedSupplier = selectedSupplierFragrance(row);
           return (
             <div
@@ -177,7 +196,7 @@ export default function FragranceSection({
                   <p className="mt-2 text-xs leading-5 text-[hsl(var(--muted-foreground))]">Choose one of the six source-linked menu options, or enter another supplier’s fragrance and its own IFRA limit below. Similar names are not interchangeable.</p>
                 )}
               </div>
-              <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(180px,.65fr)]">
+              <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(240px,.8fr)]">
                 <div>
                   <label htmlFor={`fragrance-name-${row.id}`} className="mb-2 block text-xs font-bold text-[hsl(var(--foreground))]">Fragrance name</label>
                   <input
@@ -192,11 +211,30 @@ export default function FragranceSection({
                   />
                 </div>
                 <div className="rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary)/.4)] px-3 py-2">
-                  <span className="text-xs font-bold text-[hsl(var(--foreground))]">Calculated amount</span>
-                  <p className="mt-1 font-data text-lg font-bold text-[hsl(var(--primary))]" data-testid={`text-fragrance-grams-${row.id}`}>
-                    {displayGrams(row.amount)} g
+                  <div className="grid grid-cols-[minmax(0,1fr)_115px] items-end gap-3">
+                    <div>
+                      <span className="text-xs font-bold text-[hsl(var(--foreground))]">Calculated amount</span>
+                      <p className="mt-1 font-data text-lg font-bold text-[hsl(var(--primary))]" data-testid={`text-fragrance-amount-${row.id}`}>
+                        {displayAmount(row.amount, row.unit)} {amountUnitLabel(row.unit)}
+                      </p>
+                    </div>
+                    <label className="block">
+                      <span className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">Unit</span>
+                      <select
+                        value={row.unit}
+                        onChange={(event) => updateRow(row.id, { unit: event.target.value as FragranceRow['unit'] })}
+                        className={`${fieldClass} h-9 px-2 text-xs`}
+                        data-testid={`select-fragrance-unit-${row.id}`}
+                      >
+                        <option value="g">Grams (g)</option>
+                        <option value="oz">Ounces (oz)</option>
+                        <option value="percent">% of oil weight</option>
+                      </select>
+                    </label>
+                  </div>
+                  <p className="mt-1 text-[10px] leading-4 text-[hsl(var(--muted-foreground))]">
+                    <span data-testid={`text-fragrance-grams-${row.id}`}>{displayGrams(grams)} g equivalent</span> · updates with batch size, strength, and IFRA limit.
                   </p>
-                  <p className="text-[10px] leading-4 text-[hsl(var(--muted-foreground))]">Auto-updates with batch size, scent level, and number of fragrances.</p>
                 </div>
               </div>
               <div className="mt-4 grid gap-4 border-t border-[hsl(var(--border))] pt-4 sm:grid-cols-2">
@@ -253,21 +291,29 @@ export default function FragranceSection({
               </div>
               {row.ifraMaxPercent === undefined ? (
                 <p className="mt-3 text-xs font-medium text-[hsl(var(--muted-foreground))]" data-testid={`status-ifra-input-${row.id}`}>
-                  IFRA maximum not supplied. This fragrance cannot be safety-screened yet.
+                  IFRA maximum not supplied. Automatic dose is held at zero until you enter this exact fragrance’s soap limit.
                 </p>
               ) : ifra.maximumGrams === null ? (
                 <p role="alert" className="mt-3 rounded-xl bg-[hsl(var(--destructive)/.1)] px-3 py-2 text-xs font-bold text-[hsl(var(--destructive))]" data-testid={`status-ifra-input-${row.id}`}>
                   Enter an IFRA maximum from 0% to 100% for this fragrance’s bar-soap application.
                 </p>
-              ) : totalOilGrams > 0 && row.amount > 0 ? (
+              ) : row.ifraMaxPercent === 0 ? (
+                <p role="alert" className="mt-3 rounded-xl bg-[hsl(var(--destructive)/.1)] px-3 py-2 text-xs font-bold text-[hsl(var(--destructive))]" data-testid={`status-ifra-input-${row.id}`}>
+                  The supplied limit is 0%, so this fragrance is not permitted in this batch.
+                </p>
+              ) : totalOilGrams > 0 && strengthAmounts.some((tier) => tier.grams > 0) && row.amount === 0 && ifra.maximumGrams !== null ? (
+                <p role="status" className="mt-3 rounded-xl bg-[hsl(var(--accent)/.14)] px-3 py-2 text-xs font-bold text-[hsl(var(--accent-foreground))]" data-testid={`status-ifra-input-${row.id}`}>
+                  This dose rounds down to 0 {amountUnitLabel(row.unit)} at the selected unit precision. Choose a finer unit or use a larger batch.
+                </p>
+              ) : totalOilGrams > 0 && (row.amount > 0 || cappedByIfra) ? (
                 <p
-                  role={ifra.exceeds ? 'alert' : 'status'}
-                  className={`mt-3 rounded-xl px-3 py-2 text-xs font-bold ${ifra.exceeds ? 'bg-[hsl(var(--destructive)/.1)] text-[hsl(var(--destructive))]' : 'bg-[hsl(var(--primary)/.08)] text-[hsl(var(--primary))]'}`}
+                  role="status"
+                  className={`mt-3 rounded-xl px-3 py-2 text-xs font-bold ${cappedByIfra ? 'bg-[hsl(var(--accent)/.14)] text-[hsl(var(--accent-foreground))]' : 'bg-[hsl(var(--primary)/.08)] text-[hsl(var(--primary))]'}`}
                   data-testid={`status-ifra-input-${row.id}`}
                 >
-                  {ifra.exceeds
-                    ? `Above the conservative IFRA screen by ${(ifra.enteredGrams - ifra.maximumGrams!).toFixed(2)} g. Reduce the fragrance or verify finished-product usage with the supplier.`
-                    : `Within the conservative IFRA screen of ${ifra.maximumGrams!.toFixed(2)} g for this oil weight. Verify the finished bar with the supplier.`}
+                  {cappedByIfra
+                    ? `Dose automatically capped at ${displayGrams(grams)} g to stay within the conservative ${ifra.maximumGrams!.toFixed(2)} g screen for this oil weight. Verify the finished bar with the supplier.`
+                    : `Calculated dose is within the conservative IFRA screen of ${ifra.maximumGrams!.toFixed(2)} g for this oil weight. Verify the finished bar with the supplier.`}
                 </p>
               ) : null}
               <div className="mt-4 flex items-center justify-between gap-3 border-t border-[hsl(var(--border))] pt-3 text-xs text-[hsl(var(--muted-foreground))]">
@@ -286,7 +332,7 @@ export default function FragranceSection({
 
       <div role="note" className="mt-4 flex items-start gap-3 rounded-2xl border border-[hsl(var(--accent)/.35)] bg-[hsl(var(--accent)/.1)] px-4 py-3 text-xs leading-5 text-[hsl(var(--accent-foreground))]">
         <CircleAlert size={18} className="mt-0.5 shrink-0" aria-hidden="true" />
-        <p><strong>Check before making.</strong> The six documented entries use product-linked IFRA 51 statements assessed in September 2026; verify the supplier’s current statement for your exact product and batch. For other products, enter the matching soap-specific maximum yourself; a missing rate stays unverified. Our conservative screen uses oil weight because cured soap weight is not known. Blends need separate supplier review. Fragrance changes liquid, never NaOH.</p>
+        <p><strong>Check before making.</strong> The six documented entries use product-linked IFRA 51 statements assessed in September 2026; verify the supplier’s current statement for your exact product and batch. For other products, enter the matching soap-specific maximum yourself; without it, the automatic dose stays at zero. Our conservative screen uses oil weight because cured soap weight is not known. Blends need separate supplier review. Fragrance changes liquid, never NaOH.</p>
       </div>
     </section>
   );

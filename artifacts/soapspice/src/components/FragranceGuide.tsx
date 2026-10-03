@@ -40,11 +40,11 @@ export default function FragranceGuide({ fragrances, totalOilGrams, naohGrams }:
 
       <div className="mt-4 space-y-5">
         {fragrances.map((fragrance) => {
-          const guide = fragranceScentGuide(fragrance, totalOilGrams, naohGrams);
+          const guide = fragranceScentGuide(fragrance, totalOilGrams, naohGrams, fragrances.length);
           const selectedSupplier = selectedSupplierFragrance(fragrance);
           const sourceIsLink = fragrance.ifraSourceUrl && /^https?:\/\//i.test(fragrance.ifraSourceUrl);
           const status = guide.maximumGrams === null
-            ? 'No supplier IFRA maximum was entered. These scent amounts are not safety checked.'
+            ? 'No supplier IFRA maximum was entered. The automatic dose is held at zero; the general scent guide is not safety checked.'
             : guide.exceeds
               ? `Entered ${amount(guide.enteredGrams, 'g')} g exceeds the conservative ${amount(guide.maximumGrams, 'g')} g screen by ${amount(guide.enteredGrams - guide.maximumGrams, 'g')} g. Reduce the amount or verify the finished product with your supplier.`
               : `Entered ${amount(guide.enteredGrams, 'g')} g is within the conservative ${amount(guide.maximumGrams, 'g')} g screen. This does not certify the finished soap or a blend.`;
@@ -78,7 +78,7 @@ export default function FragranceGuide({ fragrances, totalOilGrams, naohGrams }:
                       <th scope="col" className={header}>Concentration basis</th>
                       <th scope="col" className={`${header} text-right`}>Grams</th>
                       <th scope="col" className={`${header} text-right`}>Ounces</th>
-                      <th scope="col" className={header}>IFRA screen</th>
+                      <th scope="col" className={header}>IFRA check on equal share</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -92,7 +92,7 @@ export default function FragranceGuide({ fragrances, totalOilGrams, naohGrams }:
                     {guide.tiers.map((tier) => (
                       <tr key={tier.label} className="border-t border-[hsl(var(--border))]" data-testid={`row-guide-${fragrance.id}-${tier.label.toLowerCase()}`}>
                         <th scope="row" className={`${cell} font-medium`}>{tier.label}</th>
-                        <td className={cell}>{tier.ouncesPerPound.toFixed(2)} oz/lb · {tier.percentOfBatch.toFixed(2)}% of guide batch</td>
+                        <td className={cell}>{tier.ouncesPerPound.toFixed(2)} oz/lb · {tier.percentOfBatch.toFixed(2)}% of guide batch · {amount(tier.grams / fragrances.length, 'g')} g per fragrance</td>
                         <td className={`${cell} text-right font-data`}>{amount(tier.grams, 'g')}</td>
                         <td className={`${cell} text-right font-data`}>{amount(tier.grams, 'oz')}</td>
                         <td className={`${cell} ${tier.exceeds ? 'font-bold text-[hsl(var(--destructive))]' : ''}`}>
@@ -108,7 +108,7 @@ export default function FragranceGuide({ fragrances, totalOilGrams, naohGrams }:
         })}
       </div>
       <p className="mt-3 text-xs leading-5 text-[hsl(var(--muted-foreground))]">
-        IFRA rates are stated for finished product. Because cured weight is unknown, the maximum shown uses oil weight as a conservative screening base; it is not an exact permitted dose or a compliance certificate. Strength rows are whole-batch targets repeated for context under each fragrance, not additive allowances; the selected total is split evenly between chosen fragrances. Individual IFRA screens cannot assess shared restricted ingredients in a blend.
+        IFRA rates are stated for finished product. Because cured weight is unknown, the maximum shown uses oil weight as a conservative screening base; it is not an exact permitted dose or a compliance certificate. Strength rows are whole-batch targets repeated for context under each fragrance, not additive allowances; the target is split evenly first, then each fragrance is capped by its own screen, so the final blend can be below the target and uneven. Individual IFRA screens cannot assess shared restricted ingredients in a blend.
       </p>
     </section>
   );

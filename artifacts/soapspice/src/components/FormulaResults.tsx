@@ -175,7 +175,7 @@ export default function FormulaResults({
         <section aria-labelledby="results-fragrance-heading" className="min-w-0 2xl:col-span-2">
           <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
             <h3 id="results-fragrance-heading" className="font-bold text-[hsl(var(--foreground))]">Fragrance inputs</h3>
-             <span className="text-xs text-[hsl(var(--muted-foreground))]">Only supplier limits you enter are screened below.</span>
+            <span className="text-xs text-[hsl(var(--muted-foreground))]">Each automatic dose is capped by its supplier IFRA screen; missing limits hold the dose at zero.</span>
           </div>
           <div className="overflow-x-auto rounded-2xl border border-[hsl(var(--border))]">
             <table className="w-full min-w-[720px] border-collapse text-left" data-testid="table-fragrance-inputs">

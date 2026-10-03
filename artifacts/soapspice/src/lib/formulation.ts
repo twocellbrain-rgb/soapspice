@@ -90,21 +90,44 @@ export function scentStrengthAmounts(totalOilGrams: number, naohGrams: number) {
   }));
 }
 
+export function fragrancesAtDoseTarget(
+  fragrances: FragranceRow[],
+  targetTotalGrams: number,
+  totalOilGrams: number,
+): FragranceRow[] {
+  if (fragrances.length === 0) return [];
+  const totalDoseGrams = Number.isFinite(targetTotalGrams) && targetTotalGrams > 0
+    ? targetTotalGrams
+    : 0;
+  const targetPerFragranceGrams = totalDoseGrams / fragrances.length;
+  return fragrances.map((row) => {
+    const maximumGrams = fragranceIfraScreen(row, totalOilGrams).maximumGrams;
+    // An unknown limit cannot be treated as permission to use the general scent guide.
+    const doseGrams = maximumGrams === null || !Number.isFinite(maximumGrams) || maximumGrams <= 0
+      ? 0
+      : Math.min(targetPerFragranceGrams, maximumGrams);
+    const exactAmount = row.unit === 'oz'
+      ? doseGrams / GRAMS_PER_OUNCE
+      : row.unit === 'percent'
+        ? totalOilGrams > 0 ? doseGrams / totalOilGrams * 100 : 0
+        : doseGrams;
+    // Round down to the precision shown to makers so the displayed dose never
+    // exceeds its screen after a unit conversion.
+    const precision = row.unit === 'percent' ? 1000 : 100;
+    const amount = Math.floor((exactAmount + 1e-12) * precision) / precision;
+    return { ...row, amount, unit: row.unit };
+  });
+}
+
 export function fragrancesAtScentStrength(
   fragrances: FragranceRow[],
   strength: ScentStrength,
   totalOilGrams: number,
   naohGrams: number,
 ): FragranceRow[] {
-  if (fragrances.length === 0) return [];
   const totalDoseGrams = scentStrengthAmounts(totalOilGrams, naohGrams)
     .find((tier) => tier.key === strength)?.grams ?? 0;
-  const dosePerFragranceGrams = totalDoseGrams / fragrances.length;
-  return fragrances.map((row) => ({
-    ...row,
-    amount: dosePerFragranceGrams,
-    unit: 'g' as const,
-  }));
+  return fragrancesAtDoseTarget(fragrances, totalDoseGrams, totalOilGrams);
 }
 
 export function inferScentStrength(
@@ -144,19 +167,26 @@ export function combinedScentStrength(fragrances: FragranceRow[], totalOilGrams:
   return { totalGrams, guideBatchGrams, ouncesPerPound, strengthLabel };
 }
 
-export function fragranceScentGuide(row: FragranceRow, totalOilGrams: number, naohGrams: number) {
+export function fragranceScentGuide(
+  row: FragranceRow,
+  totalOilGrams: number,
+  naohGrams: number,
+  fragranceCount = 1,
+) {
   // Bramble Berry's cold-process guide uses total soap weight (oils, liquid,
   // lye). Use the unscented baseline so adding fragrance never raises its own
   // recommendation. The existing liquid model is kept unchanged.
   const unscentedBatchGrams = unscentedGuideBatchGrams(totalOilGrams, naohGrams);
   const screen = fragranceIfraScreen(row, totalOilGrams);
   const tiers = scentStrengthAmounts(totalOilGrams, naohGrams);
+  const allocatedCount = Number.isFinite(fragranceCount) ? Math.max(1, Math.floor(fragranceCount)) : 1;
   return {
     ...screen,
     unscentedBatchGrams,
     tiers: tiers.map((tier) => ({
       ...tier,
-      exceeds: screen.maximumGrams !== null && tier.grams > screen.maximumGrams + 1e-9,
+      exceeds: screen.maximumGrams !== null &&
+        tier.grams / allocatedCount > screen.maximumGrams + 1e-9,
     })),
   };
 }
@@ -211,7 +241,14 @@ export function validateNaohFormula(input: NaohFormulaInput): string[] {
   if (fragrances.some((row) => !row.name.trim())) {
     errors.push('Name each fragrance before validating.');
   }
-  if (fragrances.some((row) => !Number.isFinite(row.amount) || row.amount <= 0 || !Number.isFinite(fragranceWeightGrams(row, totalOilGrams)))) {
+  if (fragrances.some((row) => row.ifraMaxPercent == null)) {
+    errors.push('Enter the exact supplier IFRA maximum before calculating a fragrance dose; its automatic amount stays at zero until then.');
+  }
+  if (fragrances.some((row) =>
+    !Number.isFinite(row.amount) ||
+    (row.amount <= 0 && !(row.amount === 0 && row.ifraMaxPercent == null)) ||
+    !Number.isFinite(fragranceWeightGrams(row, totalOilGrams))
+  )) {
     errors.push('Every fragrance needs a positive amount in grams, ounces, or percent of oils.');
   }
   if (fragrances.reduce((sum, row) => sum + fragranceWeightGrams(row, totalOilGrams), 0) > totalOilGrams) {
