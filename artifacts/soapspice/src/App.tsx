@@ -23,7 +23,7 @@ import {
 import { Link, Route, Switch, Redirect, Router as WouterRouter, useLocation, useParams } from 'wouter';
 import { getGetIngredientQueryKey, useGetIngredient, useGetIngredients, useGetIngredientStaff, getGetIngredientStaffQueryKey, useListRecipes, getListRecipesQueryKey, createRecipe, updateRecipe, deleteRecipe, importRecipe } from '@workspace/api-client-react';
 import type { RecipeInput, Recipe } from '@workspace/api-client-react';
-import { calculateNaohFormula, GRAMS_PER_OUNCE, oilWeightTotal, percentagesFromWeights, validateNaohFormula, type FragranceRow } from '@/lib/formulation';
+import { calculateNaohFormula, fragrancesAtScentStrength, GRAMS_PER_OUNCE, inferScentStrength, oilWeightTotal, percentagesFromWeights, scentStrengthAmounts, validateNaohFormula, type FragranceRow, type ScentStrength } from '@/lib/formulation';
 import FragranceSection from '@/components/FragranceSection';
 import FormulaResults from '@/components/FormulaResults';
 import IngredientAdmin from '@/components/IngredientAdmin';
@@ -348,6 +348,7 @@ function CalculatorPage() {
   const [legacyLiquidNotice, setLegacyLiquidNotice] = useState('');
   const [oils, setOils] = useState<OilRow[]>([]);
   const [fragrances, setFragrances] = useState<FragranceRow[]>([]);
+  const [scentStrength, setScentStrength] = useState<ScentStrength>('medium');
   const [selectedId, setSelectedId] = useState('');
   const [validated, setValidated] = useState(false);
   const [validatedFingerprint, setValidatedFingerprint] = useState('');
@@ -388,12 +389,35 @@ function CalculatorPage() {
   const totalPercent = oils.reduce((sum, oil) => sum + oil.percentage, 0);
   const totalOilGrams = oilWeightTotal(oils);
   const liquidName = liquidType === 'other' ? customLiquid.trim() || 'Other liquid' : liquidNames[liquidType];
+  const baseFormulaInput = useMemo(
+    () => ({ oils, ingredients: ingredientMap, totalOilGrams, superfat }),
+    [oils, ingredientMap, totalOilGrams, superfat],
+  );
+  const baseCalculation = useMemo(
+    () => validateNaohFormula(baseFormulaInput).length === 0
+      ? calculateNaohFormula(baseFormulaInput)
+      : null,
+    [baseFormulaInput],
+  );
+  const strengthAmounts = useMemo(
+    () => scentStrengthAmounts(totalOilGrams, baseCalculation?.naoh ?? 0),
+    [totalOilGrams, baseCalculation?.naoh],
+  );
+  const calculatedFragrances = useMemo(
+    () => fragrancesAtScentStrength(
+      fragrances,
+      scentStrength,
+      totalOilGrams,
+      baseCalculation?.naoh ?? 0,
+    ),
+    [fragrances, scentStrength, totalOilGrams, baseCalculation?.naoh],
+  );
   const formulaInput = useMemo(
-    () => ({ oils, ingredients: ingredientMap, totalOilGrams, superfat, fragrances }),
-    [oils, ingredientMap, totalOilGrams, superfat, fragrances],
+    () => ({ oils, ingredients: ingredientMap, totalOilGrams, superfat, fragrances: calculatedFragrances }),
+    [oils, ingredientMap, totalOilGrams, superfat, calculatedFragrances],
   );
   const formulaFingerprint = JSON.stringify({
-    oils, totalOilGrams, superfat, fragrances, liquidType, customLiquid,
+    oils, totalOilGrams, superfat, fragrances: calculatedFragrances, scentStrength, liquidType, customLiquid,
     sapValues: oils.map((oil) => [oil.id, ingredientMap.get(oil.id)?.naohSap ?? null]),
   });
   const catalogUnavailable = catalogQuery.isLoading || catalogQuery.isFetching || catalogQuery.isError;
@@ -416,6 +440,19 @@ function CalculatorPage() {
     if (Math.abs(oil.savedSap - current.naohSap) > 0.0000001) return [`${oil.name}: NaOH SAP changed from ${oil.savedSap.toFixed(4)} to ${current.naohSap.toFixed(4)}. Revalidate before using.`];
     return [];
   }) ?? [];
+
+  const inferRecipeScentStrength = (
+    recipeFragrances: FragranceRow[] | undefined,
+    recipeOils: { id: string; weight: number; savedSap?: number | null }[],
+    recipeSuperfat: number,
+  ) => {
+    const recipeOilGrams = oilWeightTotal(recipeOils);
+    const recipeNaohGrams = recipeOils.reduce((sum, oil) => {
+      const sap = ingredientMap.get(oil.id)?.naohSap ?? oil.savedSap ?? 0;
+      return sum + oil.weight * sap * (1 - recipeSuperfat / 100);
+    }, 0);
+    return inferScentStrength(recipeFragrances ?? [], recipeOilGrams, recipeNaohGrams);
+  };
 
   const updateOils = (next: OilRow[]) => { setOils(next); setValidated(false); setValidationErrors([]); setSaveFeedback(''); };
   const changePercent = (id: string, value: number) => updateOils(oils.map((oil) => oil.id === id ? { ...oil, percentage: value, weight: percentBaseGrams * value / 100 } : oil));
@@ -450,12 +487,13 @@ function CalculatorPage() {
     updateOils(oilInputUnit === 'percent' ? next : percentagesFromWeights(next));
   };
   const updateFragrances = (next: FragranceRow[]) => { setFragrances(next); setValidated(false); setValidationErrors([]); setSaveFeedback(''); };
+  const updateScentStrength = (next: ScentStrength) => { setScentStrength(next); setValidated(false); setValidationErrors([]); setSaveFeedback(''); };
   const validate = () => {
     setValidationErrors(currentErrors); setValidatedFingerprint(currentErrors.length ? '' : formulaFingerprint); setValidated(true); setSaveFeedback('');
   };
   const recipeInput = (): RecipeInput => ({
     name: recipeName.trim() || 'Untitled formula', batchSize: totalOilGrams, unit: 'g', superfat, oils: oils.map(oil => ({ id: oil.id, percentage: oil.percentage, weight: oil.weight })),
-    fragrances, liquidType, customLiquid, oilInputUnit, liquidMethod: 'batch-22',
+    fragrances: calculatedFragrances, liquidType, customLiquid, oilInputUnit, liquidMethod: 'batch-22',
   });
   const refreshRecipes = () => client.invalidateQueries({ queryKey: getListRecipesQueryKey() });
   const saveRecipe = async () => {
@@ -487,6 +525,7 @@ function CalculatorPage() {
     setActiveRecipeId(recipe.id); setOpenedSnapshot(recipe);
     seeded.current = true;
     setRecipeName(recipe.name); setSuperfat(recipe.superfat);
+    setScentStrength(inferRecipeScentStrength(recipe.fragrances, recipe.oils, recipe.superfat));
     setPercentBaseGrams(oilWeightTotal(recipe.oils));
     setOils(recipe.oils.map(o => ({ id: o.id, name: ingredientMap.get(o.id)?.name ?? o.name, percentage: o.percentage, weight: o.weight })));
     setFragrances(recipe.fragrances ?? []);
@@ -509,6 +548,7 @@ function CalculatorPage() {
       oils: recipe.oils.map(o => ({ id: o.id, name: o.name, percentage: o.percentage, weight: o.weight, savedSap: null })),
     });
     seeded.current = true;
+    setScentStrength(inferRecipeScentStrength(recipe.fragrances, recipe.oils, recipe.superfat));
     setRecipeName(recipe.name); setSuperfat(recipe.superfat);
     setPercentBaseGrams(oilWeightTotal(recipe.oils));
     setOils(recipe.oils); setFragrances(recipe.fragrances ?? []);
@@ -595,7 +635,7 @@ function CalculatorPage() {
         sap: ingredientMap.get(oil.id)?.naohSap ?? 0,
       })),
       oilInputUnit,
-      fragrances,
+      fragrances: calculatedFragrances,
       result: visibleResult,
       liquidName,
       superfat,
@@ -661,7 +701,14 @@ function CalculatorPage() {
             {superfat > 10 && <div role="status" data-testid="status-high-superfat" className="mt-5 flex gap-3 rounded-2xl border border-[hsl(var(--accent)/.4)] bg-[hsl(var(--accent)/.1)] p-4 text-sm leading-6 text-[hsl(var(--secondary-foreground))]"><CircleAlert size={19} className="mt-0.5 shrink-0" /><span><strong>High-superfat advisory.</strong> Above 10% superfat can leave a softer bar and more unsaponified oils. Consider testing a small batch and checking shelf life.</span></div>}
             <div className="mt-6 rounded-2xl border border-[hsl(var(--accent)/.3)] bg-[hsl(var(--accent)/.08)] p-4 text-sm leading-6 text-[hsl(var(--accent-foreground))]"><strong>Safety first.</strong> Slowly add lye to the measured liquid, never liquid to lye. Wear eye protection, gloves, and long sleeves, and work with ventilation. Milk mixtures need careful temperature control.</div>
           </div>
-          <FragranceSection fragrances={fragrances} totalOilGrams={totalOilGrams} onChange={updateFragrances} />
+          <FragranceSection
+            fragrances={calculatedFragrances}
+            totalOilGrams={totalOilGrams}
+            onChange={updateFragrances}
+            scentStrength={scentStrength}
+            onScentStrengthChange={updateScentStrength}
+            strengthAmounts={strengthAmounts}
+          />
            <div className="print-card rounded-3xl border border-[hsl(var(--primary)/.3)] bg-[hsl(var(--primary)/.06)] p-5 sm:p-7"><div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Step 04</p><h2 className="mt-2 font-display text-3xl">Check your formula</h2><p className="mt-2 max-w-lg text-sm text-[hsl(var(--muted-foreground))]">Validate oil percentages, NaOH math, and fragrance amounts before printing or saving. Supplier IFRA rates are screened only when you select a documented product or enter a matching rate; a missing limit remains unverified.</p></div><button type="button" onClick={validate} className={`${buttonPrimary} shrink-0`} data-testid="button-validate-formula"><Check size={17} /> Validate formula</button></div>{validated && <div className={`mt-5 rounded-2xl p-4 text-sm ${validationErrors.length ? 'bg-[hsl(var(--destructive)/.1)] text-[hsl(var(--destructive))]' : freshValidation ? 'bg-[hsl(184_75%_35%/.12)] text-[hsl(var(--primary))]' : 'bg-[hsl(var(--accent)/.12)] text-[hsl(var(--secondary-foreground))]'}`} data-testid="status-validation">{validationErrors.length ? <ul className="list-disc space-y-1 pl-5">{validationErrors.map((error) => <li key={error}>{error}</li>)}</ul> : freshValidation ? <div className="flex items-center gap-2 font-bold"><Check size={17} /> Lye math checked. Review the liquid estimate and fragrance IFRA flags below.</div> : <div className="flex items-center gap-2 font-bold"><CircleAlert size={17} /> Formula or ingredient data changed. Validate again before saving or printing.</div>}</div>}</div>
         </div>
         <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
@@ -710,7 +757,7 @@ function CalculatorPage() {
                 sap: ingredientMap.get(oil.id)!.naohSap,
               }))}
               oilInputUnit={oilInputUnit}
-              fragrances={fragrances}
+              fragrances={calculatedFragrances}
               result={visibleResult}
               liquidName={liquidName}
               superfat={superfat}

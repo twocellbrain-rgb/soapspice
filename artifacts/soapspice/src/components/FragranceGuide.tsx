@@ -24,7 +24,7 @@ export default function FragranceGuide({ fragrances, totalOilGrams, naohGrams }:
       <h3 id="results-scent-heading" className="font-bold text-[hsl(var(--foreground))]">Scent strength &amp; IFRA screen</h3>
       <p className="mt-2 text-xs leading-5 text-[hsl(var(--muted-foreground))]">
         Guidance uses the unscented batch weight (oils + NaOH + estimated liquid), not oils alone.
-        {' '}The medium scent starting point is 0.7 oz per lb of total soap. Mild (0.35 oz/lb) and strong (1.00 oz/lb) are SoapSpice guide levels, not fragrance-specific recommendations.
+        {' '}The medium scent starting point is 0.7 oz per lb of total soap. Light (0.35 oz/lb) and strong (1.00 oz/lb) are SoapSpice guide levels, not fragrance-specific recommendations.
       </p>
 
       <div className="mt-4 rounded-2xl border border-[hsl(var(--primary)/.3)] bg-[hsl(var(--primary)/.06)] p-4 sm:p-5" data-testid="guide-combined-scent">
@@ -71,7 +71,7 @@ export default function FragranceGuide({ fragrances, totalOilGrams, naohGrams }:
               </div>
               <div className="mt-3 overflow-x-auto rounded-xl border border-[hsl(var(--border))] bg-white">
                 <table className="w-full min-w-[700px] border-collapse text-left" data-testid={`table-scent-guide-${fragrance.id}`}>
-                  <caption className="sr-only">Maximum and scent strength amounts for {fragrance.name}</caption>
+                  <caption className="sr-only">Whole-batch scent strength targets and supplier limit screening for {fragrance.name}</caption>
                   <thead className="bg-[hsl(var(--secondary)/.55)]">
                     <tr>
                       <th scope="col" className={header}>Scent level</th>
@@ -108,7 +108,7 @@ export default function FragranceGuide({ fragrances, totalOilGrams, naohGrams }:
         })}
       </div>
       <p className="mt-3 text-xs leading-5 text-[hsl(var(--muted-foreground))]">
-        IFRA rates are stated for finished product. Because cured weight is unknown, the maximum shown uses oil weight as a conservative screening base; it is not an exact permitted dose or a compliance certificate. The strength rows are comparisons for one full batch, not additive allowances: divide a desired total scent between fragrances. Individual IFRA screens cannot assess shared restricted ingredients in a blend.
+        IFRA rates are stated for finished product. Because cured weight is unknown, the maximum shown uses oil weight as a conservative screening base; it is not an exact permitted dose or a compliance certificate. Strength rows are whole-batch targets repeated for context under each fragrance, not additive allowances; the selected total is split evenly between chosen fragrances. Individual IFRA screens cannot assess shared restricted ingredients in a blend.
       </p>
     </section>
   );

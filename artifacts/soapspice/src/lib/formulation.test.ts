@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { calculateNaohFormula, combinedScentStrength, fragranceIfraScreen, fragranceScentGuide, fragranceWeightGrams, GRAMS_PER_OUNCE, LIQUID_BATCH_FRACTION, oilWeightTotal, percentagesFromWeights, validateNaohFormula, type NaohFormulaInput } from './formulation.ts';
+import { calculateNaohFormula, combinedScentStrength, fragrancesAtScentStrength, fragranceIfraScreen, fragranceScentGuide, fragranceWeightGrams, GRAMS_PER_OUNCE, inferScentStrength, LIQUID_BATCH_FRACTION, oilWeightTotal, percentagesFromWeights, scentStrengthAmounts, validateNaohFormula, type NaohFormulaInput } from './formulation.ts';
 import { BRAMBLE_BERRY_FRAGRANCES, chooseSupplierFragrance, renameFragrance, selectedSupplierFragrance } from './supplier-fragrances.ts';
 
 const ingredients = new Map([
@@ -109,6 +109,30 @@ test('scent levels scale from unscented complete-batch weight and do not change 
   assert.equal(first.tiers[0].exceeds, true);
   assert.equal(first.tiers[1].exceeds, false);
   near(changed.tiers[1].grams, first.tiers[1].grams);
+});
+
+test('strength choices show batch-based amounts and split one selected total across fragrances', () => {
+  const base = calculateNaohFormula(oneOil());
+  const tiers = scentStrengthAmounts(1000, base.naoh);
+  assert.deepEqual(tiers.map((tier) => tier.key), ['strong', 'medium', 'light']);
+  near(tiers[0].grams, (1000 + base.naoh) / (1 - LIQUID_BATCH_FRACTION) / 16);
+  near(tiers[1].grams, tiers[0].grams * 0.7);
+  near(tiers[2].grams, tiers[0].grams * 0.35);
+
+  const rows = fragrancesAtScentStrength([
+    { id: 'a', name: 'Lavender', amount: 0, unit: 'g' },
+    { id: 'b', name: 'Cedar', amount: 0, unit: 'g' },
+  ], 'medium', 1000, base.naoh);
+  near(rows[0].amount, tiers[1].grams / 2);
+  near(rows[1].amount, tiers[1].grams / 2);
+  near(rows.reduce((sum, row) => sum + row.amount, 0), tiers[1].grams);
+  assert.equal(inferScentStrength(rows, 1000, base.naoh), 'medium');
+
+  const largerBase = calculateNaohFormula(oneOil({
+    oils: [{ id: 'olive', weight: 2000, percentage: 100 }],
+    totalOilGrams: 2000,
+  }));
+  near(scentStrengthAmounts(2000, largerBase.naoh)[1].grams, tiers[1].grams * 2);
 });
 
 test('missing, zero, and invalid IFRA rates cannot be mistaken for a safe maximum', () => {

@@ -1,22 +1,17 @@
-import { CircleAlert, Plus, Sparkles, Trash2 } from 'lucide-react';
-import type { FragranceRow } from '@/lib/formulation';
-import { fragranceIfraScreen, fragranceWeightGrams } from '@/lib/formulation';
+import { useState } from 'react';
+import { CircleAlert, Plus, Trash2 } from 'lucide-react';
+import type { FragranceRow, ScentStrength } from '@/lib/formulation';
+import { fragranceIfraScreen, fragranceWeightGrams, scentStrengthAmounts } from '@/lib/formulation';
 import { BRAMBLE_BERRY_FRAGRANCES, chooseSupplierFragrance, renameFragrance, selectedSupplierFragrance } from '@/lib/supplier-fragrances';
 
 type FragranceSectionProps = {
   fragrances: FragranceRow[];
   totalOilGrams: number;
   onChange: (next: FragranceRow[]) => void;
+  scentStrength: ScentStrength;
+  onScentStrengthChange: (strength: ScentStrength) => void;
+  strengthAmounts: ReturnType<typeof scentStrengthAmounts>;
 };
-
-const fragranceSuggestions = [
-  'Lavender',
-  'Sweet orange',
-  'Cedarwood',
-  'Rose geranium',
-  'Peppermint',
-  'Oat milk & honey',
-];
 
 const fieldClass =
   'h-11 w-full rounded-xl border border-[hsl(var(--input))] bg-[hsl(var(--background))] px-3 text-sm text-[hsl(var(--foreground))] outline-none transition-colors focus-visible:border-[hsl(var(--primary))] focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary)/.25)]';
@@ -29,7 +24,11 @@ export default function FragranceSection({
   fragrances,
   totalOilGrams,
   onChange,
+  scentStrength,
+  onScentStrengthChange,
+  strengthAmounts,
 }: FragranceSectionProps) {
+  const [unscentedConfirmed, setUnscentedConfirmed] = useState(false);
   const updateRow = (id: string, changes: Partial<FragranceRow>) => {
     onChange(fragrances.map((row) => row.id === id ? { ...row, ...changes } : row));
   };
@@ -38,7 +37,8 @@ export default function FragranceSection({
   };
 
   const addRow = () => {
-    onChange([...fragrances, { id: crypto.randomUUID(), name: '', amount: 0, unit: 'percent' }]);
+    setUnscentedConfirmed(false);
+    onChange([...fragrances, { id: crypto.randomUUID(), name: '', amount: 0, unit: 'g' }]);
   };
 
   const totalGrams = fragrances.reduce(
@@ -56,30 +56,79 @@ export default function FragranceSection({
           <p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Step 03 / optional</p>
           <h2 id="fragrance-heading" className="mt-2 font-display text-3xl text-[hsl(var(--foreground))]">Add your fragrance</h2>
           <p className="mt-1 max-w-lg text-sm leading-6 text-[hsl(var(--muted-foreground))]">
-            Select an exact source-linked product to fill its published soap IFRA limit, or enter a different fragrance manually.
+            Choose a fragrance from the menu. The calculator sets its amount from your batch size and selected scent strength.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={addRow}
-          className="inline-flex h-11 shrink-0 items-center justify-center gap-2 self-start rounded-full bg-[hsl(var(--primary))] px-5 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-[hsl(184_75%_29%)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[hsl(var(--primary))]"
-          data-testid="button-add-fragrance"
-        >
-          <Plus size={17} aria-hidden="true" /> Add fragrance
-        </button>
+        {fragrances.length > 0 && (
+          <button
+            type="button"
+            onClick={addRow}
+            className="inline-flex h-11 shrink-0 items-center justify-center gap-2 self-start rounded-full bg-[hsl(var(--primary))] px-5 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-[hsl(184_75%_29%)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[hsl(var(--primary))]"
+            data-testid="button-add-fragrance"
+          >
+            <Plus size={17} aria-hidden="true" /> Add another fragrance
+          </button>
+        )}
       </div>
 
-      <datalist id="soapspice-fragrance-suggestions">
-        {fragranceSuggestions.map((name) => <option key={name} value={name} />)}
-      </datalist>
+      {fragrances.length === 0 ? (
+        <div className="mt-6 rounded-2xl border border-dashed border-[hsl(var(--border))] bg-[hsl(var(--background))] p-5 sm:p-6" data-testid="prompt-add-fragrance">
+          <h3 className="font-bold text-[hsl(var(--foreground))]">Are you adding fragrance to this batch?</h3>
+          <p className="mt-1 text-sm leading-6 text-[hsl(var(--muted-foreground))]">You can leave it unscented, or choose a fragrance and let the calculator set the amount.</p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={() => setUnscentedConfirmed(true)}
+              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[hsl(var(--border))] px-4 text-sm font-bold text-[hsl(var(--foreground))] transition hover:border-[hsl(var(--primary))]"
+              data-testid="button-no-fragrance"
+            >
+              No, keep it unscented
+            </button>
+            <button
+              type="button"
+              onClick={addRow}
+              className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[hsl(var(--primary))] px-4 text-sm font-bold text-white transition hover:brightness-95"
+              data-testid="button-add-fragrance"
+            >
+              <Plus size={16} aria-hidden="true" /> Yes, choose a fragrance
+            </button>
+          </div>
+          {unscentedConfirmed && <p className="mt-3 text-xs font-semibold text-[hsl(var(--primary))]" role="status">Unscented batch selected. You can add a fragrance later.</p>}
+        </div>
+      ) : (
+        <section className="mt-6 rounded-2xl border border-[hsl(var(--primary)/.25)] bg-[hsl(var(--primary)/.04)] p-4 sm:p-5" aria-labelledby="fragrance-strength-heading" data-testid="fragrance-strength-picker">
+          <h3 id="fragrance-strength-heading" className="font-bold text-[hsl(var(--foreground))]">Choose a scent strength for the whole batch</h3>
+          <p className="mt-1 text-xs leading-5 text-[hsl(var(--muted-foreground))]">
+            Amounts use the unscented batch estimate (oils, NaOH, and estimated liquid). If you add multiple fragrances, the selected total is split evenly between them. These are guide amounts, not supplier-specific safety limits.
+          </p>
+          {totalOilGrams <= 0 ? (
+            <p className="mt-3 text-xs font-semibold text-[hsl(var(--muted-foreground))]" role="status">Enter valid oil weights to calculate fragrance amounts.</p>
+          ) : (
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              {strengthAmounts.map((tier) => {
+                const selected = scentStrength === tier.key;
+                return (
+                  <button
+                    key={tier.key}
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() => onScentStrengthChange(tier.key)}
+                    className={`grid gap-1 rounded-xl border p-3 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[hsl(var(--primary))] ${selected ? 'border-[hsl(var(--primary))] bg-white shadow-sm ring-2 ring-[hsl(var(--primary)/.15)]' : 'border-[hsl(var(--border))] bg-white/70 hover:border-[hsl(var(--primary)/.6)]'}`}
+                    data-testid={`button-scent-strength-${tier.key}`}
+                  >
+                    <span className="text-xs font-bold uppercase tracking-wider text-[hsl(var(--foreground))]">{tier.label}</span>
+                    <span className="font-data text-lg font-bold text-[hsl(var(--primary))]">{displayGrams(tier.grams)} g</span>
+                    <span className="text-[11px] text-[hsl(var(--muted-foreground))]">{(tier.grams / 28.349523125).toFixed(2)} oz for the batch</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </section>
+      )}
 
       <div className="space-y-3 pt-6">
-        {fragrances.length === 0 ? (
-          <div className="flex items-start gap-3 rounded-2xl border border-dashed border-[hsl(var(--border))] bg-[hsl(var(--background))] px-5 py-6 text-sm text-[hsl(var(--muted-foreground))]">
-            <Sparkles size={18} className="mt-0.5 shrink-0 text-[hsl(var(--primary))]" aria-hidden="true" />
-            <p>No fragrance added yet. Leave this step empty for an unscented batch, or add as many scents as you like.</p>
-          </div>
-        ) : fragrances.map((row, index) => {
+        {fragrances.map((row, index) => {
           const grams = fragranceWeightGrams(row, totalOilGrams);
           const ifra = fragranceIfraScreen(row, totalOilGrams);
           const selectedSupplier = selectedSupplierFragrance(row);
@@ -104,7 +153,7 @@ export default function FragranceSection({
                 </button>
               </div>
               <div className="mb-4 rounded-xl border border-[hsl(var(--primary)/.25)] bg-white p-3">
-                <label htmlFor={`supplier-fragrance-${row.id}`} className="mb-2 block text-xs font-bold text-[hsl(var(--foreground))]">Documented fragrance oil <span className="font-normal text-[hsl(var(--muted-foreground))]">(optional)</span></label>
+                <label htmlFor={`supplier-fragrance-${row.id}`} className="mb-2 block text-xs font-bold text-[hsl(var(--foreground))]">Choose a documented fragrance <span className="font-normal text-[hsl(var(--muted-foreground))]">(or choose manual entry)</span></label>
                 <select
                   id={`supplier-fragrance-${row.id}`}
                   value={selectedSupplier?.sku ?? ''}
@@ -125,54 +174,29 @@ export default function FragranceSection({
                     {' '}Recheck the current statement before making a batch.
                   </p>
                 ) : (
-                  <p className="mt-2 text-xs leading-5 text-[hsl(var(--muted-foreground))]">Six document-checked products are available. Similar names from other suppliers are not interchangeable; enter their own IFRA limit below.</p>
+                  <p className="mt-2 text-xs leading-5 text-[hsl(var(--muted-foreground))]">Choose one of the six source-linked menu options, or enter another supplier’s fragrance and its own IFRA limit below. Similar names are not interchangeable.</p>
                 )}
               </div>
-              <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(100px,.45fr)_minmax(130px,.55fr)]">
+              <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(180px,.65fr)]">
                 <div>
                   <label htmlFor={`fragrance-name-${row.id}`} className="mb-2 block text-xs font-bold text-[hsl(var(--foreground))]">Fragrance name</label>
                   <input
                     id={`fragrance-name-${row.id}`}
                     type="text"
-                    list="soapspice-fragrance-suggestions"
                     value={row.name}
                     onChange={(event) => replaceRow(row.id, renameFragrance(row, event.target.value))}
-                    placeholder="e.g. Lavender"
+                    placeholder="Choose from the menu or enter another fragrance"
                     autoComplete="off"
                     className={fieldClass}
                     data-testid={`input-fragrance-name-${row.id}`}
                   />
                 </div>
-                <div>
-                  <label htmlFor={`fragrance-amount-${row.id}`} className="mb-2 block text-xs font-bold text-[hsl(var(--foreground))]">Amount</label>
-                  <input
-                    id={`fragrance-amount-${row.id}`}
-                    type="number"
-                    min="0"
-                    step="any"
-                    inputMode="decimal"
-                    value={Number.isFinite(row.amount) ? row.amount : 0}
-                    onChange={(event) => {
-                      const value = Number(event.target.value);
-                      updateRow(row.id, { amount: Number.isFinite(value) ? Math.max(0, value) : 0 });
-                    }}
-                    className={`${fieldClass} font-data`}
-                    data-testid={`input-fragrance-amount-${row.id}`}
-                  />
-                </div>
-                <div>
-                  <label htmlFor={`fragrance-unit-${row.id}`} className="mb-2 block text-xs font-bold text-[hsl(var(--foreground))]">Unit</label>
-                  <select
-                    id={`fragrance-unit-${row.id}`}
-                    value={row.unit}
-                    onChange={(event) => updateRow(row.id, { unit: event.target.value as FragranceRow['unit'] })}
-                    className={fieldClass}
-                    data-testid={`select-fragrance-unit-${row.id}`}
-                  >
-                    <option value="percent">% of total oil weight</option>
-                    <option value="g">Grams (g)</option>
-                    <option value="oz">Ounces (oz)</option>
-                  </select>
+                <div className="rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary)/.4)] px-3 py-2">
+                  <span className="text-xs font-bold text-[hsl(var(--foreground))]">Calculated amount</span>
+                  <p className="mt-1 font-data text-lg font-bold text-[hsl(var(--primary))]" data-testid={`text-fragrance-grams-${row.id}`}>
+                    {displayGrams(row.amount)} g
+                  </p>
+                  <p className="text-[10px] leading-4 text-[hsl(var(--muted-foreground))]">Auto-updates with batch size, scent level, and number of fragrances.</p>
                 </div>
               </div>
               <div className="mt-4 grid gap-4 border-t border-[hsl(var(--border))] pt-4 sm:grid-cols-2">
@@ -247,10 +271,8 @@ export default function FragranceSection({
                 </p>
               ) : null}
               <div className="mt-4 flex items-center justify-between gap-3 border-t border-[hsl(var(--border))] pt-3 text-xs text-[hsl(var(--muted-foreground))]">
-                <span>Converted weight</span>
-                <strong className="font-data text-sm text-[hsl(var(--primary))]" data-testid={`text-fragrance-grams-${row.id}`}>
-                  {displayGrams(grams)} g
-                </strong>
+                <span>Fragrance share</span>
+                <strong className="font-data text-sm text-[hsl(var(--primary))]">{displayGrams(grams)} g</strong>
               </div>
             </div>
           );
@@ -264,7 +286,7 @@ export default function FragranceSection({
 
       <div role="note" className="mt-4 flex items-start gap-3 rounded-2xl border border-[hsl(var(--accent)/.35)] bg-[hsl(var(--accent)/.1)] px-4 py-3 text-xs leading-5 text-[hsl(var(--accent-foreground))]">
         <CircleAlert size={18} className="mt-0.5 shrink-0" aria-hidden="true" />
-        <p><strong>Check before making.</strong> The six documented entries use product-linked IFRA 51 statements checked in September 2026; verify the supplier’s current statement for your exact product and batch. For other products, enter the matching soap-specific maximum yourself; a missing rate stays unverified. Our conservative screen uses oil weight because cured soap weight is not known. Blends need separate supplier review. Fragrance changes liquid, never NaOH.</p>
+        <p><strong>Check before making.</strong> The six documented entries use product-linked IFRA 51 statements assessed in September 2026; verify the supplier’s current statement for your exact product and batch. For other products, enter the matching soap-specific maximum yourself; a missing rate stays unverified. Our conservative screen uses oil weight because cured soap weight is not known. Blends need separate supplier review. Fragrance changes liquid, never NaOH.</p>
       </div>
     </section>
   );

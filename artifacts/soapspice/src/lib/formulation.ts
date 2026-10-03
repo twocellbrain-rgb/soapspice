@@ -24,13 +24,13 @@ export const GRAMS_PER_OUNCE = 28.349523125;
 // Approximate typical liquid share of the complete pre-saponification batch.
 // This is our own disclosed starting model, not Bramble Berry's published formula.
 export const LIQUID_BATCH_FRACTION = 0.22;
-// Bramble Berry publishes 0.7 oz/lb of total cold-process soap as a general
-// medium-strength reference. Mild and strong are SoapSpice guide levels, not
-// fragrance-specific recommendations from Bramble Berry.
+// The medium level uses a published general cold-process reference of 0.7 oz/lb.
+// Light and strong are SoapSpice guide levels, not fragrance-specific rates.
+export type ScentStrength = 'strong' | 'medium' | 'light';
 export const SCENT_GUIDE_OZ_PER_LB = [
-  { label: 'Strong', ouncesPerPound: 1 },
-  { label: 'Medium', ouncesPerPound: 0.7 },
-  { label: 'Mild', ouncesPerPound: 0.35 },
+  { key: 'strong', label: 'Strong', ouncesPerPound: 1 },
+  { key: 'medium', label: 'Medium', ouncesPerPound: 0.7 },
+  { key: 'light', label: 'Light', ouncesPerPound: 0.35 },
 ] as const;
 
 export type FragranceRow = {
@@ -77,19 +77,68 @@ function unscentedGuideBatchGrams(totalOilGrams: number, naohGrams: number): num
   return (totalOilGrams + naohGrams) / (1 - LIQUID_BATCH_FRACTION);
 }
 
+export function scentStrengthAmounts(totalOilGrams: number, naohGrams: number) {
+  const hasValidBatch = Number.isFinite(totalOilGrams) && totalOilGrams > 0 &&
+    Number.isFinite(naohGrams) && naohGrams >= 0;
+  const unscentedBatchGrams = hasValidBatch
+    ? unscentedGuideBatchGrams(totalOilGrams, naohGrams)
+    : 0;
+  return SCENT_GUIDE_OZ_PER_LB.map((tier) => ({
+    ...tier,
+    grams: unscentedBatchGrams * tier.ouncesPerPound / 16,
+    percentOfBatch: tier.ouncesPerPound / 16 * 100,
+  }));
+}
+
+export function fragrancesAtScentStrength(
+  fragrances: FragranceRow[],
+  strength: ScentStrength,
+  totalOilGrams: number,
+  naohGrams: number,
+): FragranceRow[] {
+  if (fragrances.length === 0) return [];
+  const totalDoseGrams = scentStrengthAmounts(totalOilGrams, naohGrams)
+    .find((tier) => tier.key === strength)?.grams ?? 0;
+  const dosePerFragranceGrams = totalDoseGrams / fragrances.length;
+  return fragrances.map((row) => ({
+    ...row,
+    amount: dosePerFragranceGrams,
+    unit: 'g' as const,
+  }));
+}
+
+export function inferScentStrength(
+  fragrances: FragranceRow[],
+  totalOilGrams: number,
+  naohGrams: number,
+): ScentStrength {
+  const totalEnteredGrams = fragrances.reduce(
+    (sum, row) => sum + fragranceWeightGrams(row, totalOilGrams),
+    0,
+  );
+  if (fragrances.length === 0 || !Number.isFinite(totalEnteredGrams) || totalEnteredGrams <= 0) {
+    return 'medium';
+  }
+  return scentStrengthAmounts(totalOilGrams, naohGrams).reduce((closest, tier) =>
+    Math.abs(tier.grams - totalEnteredGrams) < Math.abs(closest.grams - totalEnteredGrams)
+      ? tier
+      : closest,
+  ).key;
+}
+
 export function combinedScentStrength(fragrances: FragranceRow[], totalOilGrams: number, naohGrams: number) {
   const totalGrams = fragrances.reduce((sum, row) => sum + fragranceWeightGrams(row, totalOilGrams), 0);
   const guideBatchGrams = unscentedGuideBatchGrams(totalOilGrams, naohGrams);
   const ouncesPerPound = totalGrams / guideBatchGrams * 16;
-  const mild = SCENT_GUIDE_OZ_PER_LB[2].ouncesPerPound;
+  const light = SCENT_GUIDE_OZ_PER_LB[2].ouncesPerPound;
   const medium = SCENT_GUIDE_OZ_PER_LB[1].ouncesPerPound;
   const strong = SCENT_GUIDE_OZ_PER_LB[0].ouncesPerPound;
   const closeTo = (value: number) => Math.abs(ouncesPerPound - value) < 1e-9;
-  const strengthLabel = closeTo(mild) ? 'At mild'
+  const strengthLabel = closeTo(light) ? 'At light'
     : closeTo(medium) ? 'At medium'
     : closeTo(strong) ? 'At strong'
-    : ouncesPerPound < mild ? 'Below mild'
-    : ouncesPerPound < medium ? 'Between mild and medium'
+    : ouncesPerPound < light ? 'Below light'
+    : ouncesPerPound < medium ? 'Between light and medium'
     : ouncesPerPound < strong ? 'Between medium and strong'
     : 'Above strong';
   return { totalGrams, guideBatchGrams, ouncesPerPound, strengthLabel };
@@ -101,18 +150,14 @@ export function fragranceScentGuide(row: FragranceRow, totalOilGrams: number, na
   // recommendation. The existing liquid model is kept unchanged.
   const unscentedBatchGrams = unscentedGuideBatchGrams(totalOilGrams, naohGrams);
   const screen = fragranceIfraScreen(row, totalOilGrams);
+  const tiers = scentStrengthAmounts(totalOilGrams, naohGrams);
   return {
     ...screen,
     unscentedBatchGrams,
-    tiers: SCENT_GUIDE_OZ_PER_LB.map((tier) => {
-      const grams = unscentedBatchGrams * tier.ouncesPerPound / 16;
-      return {
-        ...tier,
-        grams,
-        percentOfBatch: tier.ouncesPerPound / 16 * 100,
-        exceeds: screen.maximumGrams !== null && grams > screen.maximumGrams + 1e-9,
-      };
-    }),
+    tiers: tiers.map((tier) => ({
+      ...tier,
+      exceeds: screen.maximumGrams !== null && tier.grams > screen.maximumGrams + 1e-9,
+    })),
   };
 }
 
