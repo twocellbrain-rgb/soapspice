@@ -34,6 +34,8 @@ import type {
   Recipe,
   RecipeInput,
   SearchStarterGuideAmazonProductsParams,
+  SoapmakingLibraryInput,
+  SoapmakingLibraryItem,
   StarterGuideAmazonApiStatus,
   StarterGuideAmazonProduct,
   StarterGuideProductGroup,
@@ -872,6 +874,245 @@ export const useCreateRecipe = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getCreateRecipeMutationOptions(options));
+    }
+
+export const getListSoapmakingLibraryUrl = () => {
+
+
+
+
+  return `/api/soapmaking-library`
+}
+
+/**
+ * @summary List my saved soapmaking sources
+ */
+export const listSoapmakingLibrary = async ( options?: Parameters<typeof customFetch>[1]): Promise<SoapmakingLibraryItem[]> => {
+
+  return customFetch<SoapmakingLibraryItem[]>(getListSoapmakingLibraryUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListSoapmakingLibraryQueryKey = () => {
+    return [
+    `/api/soapmaking-library`
+    ] as const;
+    }
+
+
+export const getListSoapmakingLibraryQueryOptions = <TData = Awaited<ReturnType<typeof listSoapmakingLibrary>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listSoapmakingLibrary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListSoapmakingLibraryQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listSoapmakingLibrary>>> = ({ signal }) => listSoapmakingLibrary({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listSoapmakingLibrary>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListSoapmakingLibraryQueryResult = NonNullable<Awaited<ReturnType<typeof listSoapmakingLibrary>>>
+export type ListSoapmakingLibraryQueryError = ErrorType<void>
+
+
+/**
+ * @summary List my saved soapmaking sources
+ */
+
+export function useListSoapmakingLibrary<TData = Awaited<ReturnType<typeof listSoapmakingLibrary>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listSoapmakingLibrary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListSoapmakingLibraryQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getSaveSoapmakingLibraryItemUrl = () => {
+
+
+
+
+  return `/api/soapmaking-library`
+}
+
+/**
+ * @summary Save a source citation and personal notes
+ */
+export const saveSoapmakingLibraryItem = async (soapmakingLibraryInput: SoapmakingLibraryInput, options?: Parameters<typeof customFetch>[1]): Promise<SoapmakingLibraryItem> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<SoapmakingLibraryItem>(getSaveSoapmakingLibraryItemUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(soapmakingLibraryInput)
+  }
+);}
+
+
+
+
+
+export const getSaveSoapmakingLibraryItemMutationKey = () => ['saveSoapmakingLibraryItem'] as const;
+
+export const getSaveSoapmakingLibraryItemMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveSoapmakingLibraryItem>>, TError,SaveSoapmakingLibraryItemMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof saveSoapmakingLibraryItem>>, TError,SaveSoapmakingLibraryItemMutationVariables, TContext> => {
+
+const mutationKey = getSaveSoapmakingLibraryItemMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof saveSoapmakingLibraryItem>>, SaveSoapmakingLibraryItemMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  saveSoapmakingLibraryItem(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SaveSoapmakingLibraryItemMutationResult = NonNullable<Awaited<ReturnType<typeof saveSoapmakingLibraryItem>>>
+    export type SaveSoapmakingLibraryItemMutationBody = BodyType<SoapmakingLibraryInput>
+    export type SaveSoapmakingLibraryItemMutationError = ErrorType<void>
+    export type SaveSoapmakingLibraryItemMutationVariables = {data: BodyType<SoapmakingLibraryInput>}
+
+    /**
+ * @summary Save a source citation and personal notes
+ */
+export const useSaveSoapmakingLibraryItem = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveSoapmakingLibraryItem>>, TError,SaveSoapmakingLibraryItemMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof saveSoapmakingLibraryItem>>,
+        TError,
+        SaveSoapmakingLibraryItemMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSaveSoapmakingLibraryItemMutationOptions(options));
+    }
+
+export const getDeleteSoapmakingLibraryItemUrl = (articleId: string,) => {
+
+
+
+
+  return `/api/soapmaking-library/${articleId}`
+}
+
+/**
+ * @summary Remove a saved source
+ */
+export const deleteSoapmakingLibraryItem = async (articleId: string, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteSoapmakingLibraryItemUrl(articleId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteSoapmakingLibraryItemMutationKey = () => ['deleteSoapmakingLibraryItem'] as const;
+
+export const getDeleteSoapmakingLibraryItemMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSoapmakingLibraryItem>>, TError,DeleteSoapmakingLibraryItemMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteSoapmakingLibraryItem>>, TError,DeleteSoapmakingLibraryItemMutationVariables, TContext> => {
+
+const mutationKey = getDeleteSoapmakingLibraryItemMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteSoapmakingLibraryItem>>, DeleteSoapmakingLibraryItemMutationVariables> = (props) => {
+          const {articleId} = props ?? {};
+
+          return  deleteSoapmakingLibraryItem(articleId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteSoapmakingLibraryItemMutationResult = NonNullable<Awaited<ReturnType<typeof deleteSoapmakingLibraryItem>>>
+
+    export type DeleteSoapmakingLibraryItemMutationError = ErrorType<void>
+    export type DeleteSoapmakingLibraryItemMutationVariables = {articleId: string}
+
+    /**
+ * @summary Remove a saved source
+ */
+export const useDeleteSoapmakingLibraryItem = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSoapmakingLibraryItem>>, TError,DeleteSoapmakingLibraryItemMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteSoapmakingLibraryItem>>,
+        TError,
+        DeleteSoapmakingLibraryItemMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteSoapmakingLibraryItemMutationOptions(options));
     }
 
 export const getImportRecipeUrl = () => {

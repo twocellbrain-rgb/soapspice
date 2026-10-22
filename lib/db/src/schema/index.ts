@@ -19,5 +19,6 @@
 
 export * from "./ingredients";
 export * from "./recipes";
+export * from "./soapmaking-library";
 export * from "./starter-guide";
 export * from "./calculator-ingredient-products";

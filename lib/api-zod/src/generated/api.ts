@@ -384,6 +384,116 @@ export const CreateRecipeResponse = zod.object({
 
 
 /**
+ * @summary List my saved soapmaking sources
+ */
+export const listSoapmakingLibraryResponseTitleMax = 240;
+
+export const listSoapmakingLibraryResponseSourceUrlMax = 2000;
+
+export const listSoapmakingLibraryResponseSourceNameMax = 160;
+
+export const listSoapmakingLibraryResponseAuthorMax = 160;
+
+export const listSoapmakingLibraryResponseSummaryMax = 600;
+
+export const listSoapmakingLibraryResponseNotesMax = 1200;
+
+export const listSoapmakingLibraryResponseTagsItemMax = 40;
+
+export const listSoapmakingLibraryResponseTagsMax = 12;
+
+
+
+export const ListSoapmakingLibraryResponseItem = zod.object({
+  "id": zod.string().uuid(),
+  "title": zod.string().min(1).max(listSoapmakingLibraryResponseTitleMax),
+  "sourceUrl": zod.string().url().min(1).max(listSoapmakingLibraryResponseSourceUrlMax),
+  "sourceName": zod.string().min(1).max(listSoapmakingLibraryResponseSourceNameMax),
+  "kind": zod.enum(['article', 'recipe', 'tutorial', 'safety', 'other']),
+  "author": zod.string().max(listSoapmakingLibraryResponseAuthorMax).nullish(),
+  "summary": zod.string().max(listSoapmakingLibraryResponseSummaryMax).nullish(),
+  "notes": zod.string().max(listSoapmakingLibraryResponseNotesMax).nullish(),
+  "tags": zod.array(zod.string().min(1).max(listSoapmakingLibraryResponseTagsItemMax)).max(listSoapmakingLibraryResponseTagsMax),
+  "createdAt": zod.coerce.date()
+})
+export const ListSoapmakingLibraryResponse = zod.array(ListSoapmakingLibraryResponseItem)
+
+
+/**
+ * @summary Save a source citation and personal notes
+ */
+export const saveSoapmakingLibraryItemBodyTitleMax = 240;
+
+export const saveSoapmakingLibraryItemBodySourceUrlMax = 2000;
+
+export const saveSoapmakingLibraryItemBodySourceNameMax = 160;
+
+export const saveSoapmakingLibraryItemBodyAuthorMax = 160;
+
+export const saveSoapmakingLibraryItemBodySummaryMax = 600;
+
+export const saveSoapmakingLibraryItemBodyNotesMax = 1200;
+
+export const saveSoapmakingLibraryItemBodyTagsItemMax = 40;
+
+export const saveSoapmakingLibraryItemBodyTagsMax = 12;
+
+
+
+export const SaveSoapmakingLibraryItemBody = zod.object({
+  "title": zod.string().min(1).max(saveSoapmakingLibraryItemBodyTitleMax),
+  "sourceUrl": zod.string().url().min(1).max(saveSoapmakingLibraryItemBodySourceUrlMax),
+  "sourceName": zod.string().min(1).max(saveSoapmakingLibraryItemBodySourceNameMax),
+  "kind": zod.enum(['article', 'recipe', 'tutorial', 'safety', 'other']),
+  "author": zod.string().max(saveSoapmakingLibraryItemBodyAuthorMax).optional(),
+  "summary": zod.string().max(saveSoapmakingLibraryItemBodySummaryMax).optional(),
+  "notes": zod.string().max(saveSoapmakingLibraryItemBodyNotesMax).optional(),
+  "tags": zod.array(zod.string().min(1).max(saveSoapmakingLibraryItemBodyTagsItemMax)).max(saveSoapmakingLibraryItemBodyTagsMax).optional()
+})
+
+export const saveSoapmakingLibraryItemResponseTitleMax = 240;
+
+export const saveSoapmakingLibraryItemResponseSourceUrlMax = 2000;
+
+export const saveSoapmakingLibraryItemResponseSourceNameMax = 160;
+
+export const saveSoapmakingLibraryItemResponseAuthorMax = 160;
+
+export const saveSoapmakingLibraryItemResponseSummaryMax = 600;
+
+export const saveSoapmakingLibraryItemResponseNotesMax = 1200;
+
+export const saveSoapmakingLibraryItemResponseTagsItemMax = 40;
+
+export const saveSoapmakingLibraryItemResponseTagsMax = 12;
+
+
+
+export const SaveSoapmakingLibraryItemResponse = zod.object({
+  "id": zod.string().uuid(),
+  "title": zod.string().min(1).max(saveSoapmakingLibraryItemResponseTitleMax),
+  "sourceUrl": zod.string().url().min(1).max(saveSoapmakingLibraryItemResponseSourceUrlMax),
+  "sourceName": zod.string().min(1).max(saveSoapmakingLibraryItemResponseSourceNameMax),
+  "kind": zod.enum(['article', 'recipe', 'tutorial', 'safety', 'other']),
+  "author": zod.string().max(saveSoapmakingLibraryItemResponseAuthorMax).nullish(),
+  "summary": zod.string().max(saveSoapmakingLibraryItemResponseSummaryMax).nullish(),
+  "notes": zod.string().max(saveSoapmakingLibraryItemResponseNotesMax).nullish(),
+  "tags": zod.array(zod.string().min(1).max(saveSoapmakingLibraryItemResponseTagsItemMax)).max(saveSoapmakingLibraryItemResponseTagsMax),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Remove a saved source
+ */
+export const DeleteSoapmakingLibraryItemParams = zod.object({
+  "articleId": zod.coerce.string().uuid()
+})
+
+export const DeleteSoapmakingLibraryItemResponse = zod.void()
+
+
+/**
  * @summary Preserve a legacy browser formula as an unvalidated draft
  */
 export const importRecipeBodyLegacyIdMax = 120;

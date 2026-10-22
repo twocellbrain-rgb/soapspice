@@ -189,6 +189,52 @@ paths:
           description: Invalid formula
         "401":
           description: Sign in required
+  /soapmaking-library:
+    get:
+      operationId: listSoapmakingLibrary
+      tags: [soapmaking library]
+      summary: List my saved soapmaking sources
+      responses:
+        "200":
+          description: My saved sources
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/SoapmakingLibraryItem" }
+        "401": { description: Sign in required }
+    post:
+      operationId: saveSoapmakingLibraryItem
+      tags: [soapmaking library]
+      summary: Save a source citation and personal notes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SoapmakingLibraryInput" }
+      responses:
+        "201":
+          description: Saved source
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SoapmakingLibraryItem" }
+        "400": { description: Invalid source details }
+        "401": { description: Sign in required }
+        "409": { description: This source is already saved }
+  /soapmaking-library/{articleId}:
+    parameters:
+      - in: path
+        name: articleId
+        required: true
+        schema: { type: string, format: uuid }
+    delete:
+      operationId: deleteSoapmakingLibraryItem
+      tags: [soapmaking library]
+      summary: Remove a saved source
+      responses:
+        "204": { description: Removed }
+        "401": { description: Sign in required }
+        "404": { description: Source not found }
   /recipes/import:
     post:
       operationId: importRecipe
@@ -507,6 +553,43 @@ components:
           maxItems: 3
           items: { $ref: "#/components/schemas/CalculatorIngredientProduct" }
         updatedAt: { type: string, format: date-time }
+    SoapmakingLibraryKind:
+      type: string
+      enum: [article, recipe, tutorial, safety, other]
+    SoapmakingLibraryInput:
+      type: object
+      additionalProperties: false
+      required: [title, sourceUrl, sourceName, kind]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 240 }
+        sourceUrl: { type: string, format: uri, minLength: 1, maxLength: 2000 }
+        sourceName: { type: string, minLength: 1, maxLength: 160 }
+        kind: { $ref: "#/components/schemas/SoapmakingLibraryKind" }
+        author: { type: string, maxLength: 160 }
+        summary: { type: string, maxLength: 600 }
+        notes: { type: string, maxLength: 1200 }
+        tags:
+          type: array
+          maxItems: 12
+          items: { type: string, minLength: 1, maxLength: 40 }
+    SoapmakingLibraryItem:
+      type: object
+      additionalProperties: false
+      required: [id, title, sourceUrl, sourceName, kind, tags, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string, minLength: 1, maxLength: 240 }
+        sourceUrl: { type: string, format: uri, minLength: 1, maxLength: 2000 }
+        sourceName: { type: string, minLength: 1, maxLength: 160 }
+        kind: { $ref: "#/components/schemas/SoapmakingLibraryKind" }
+        author: { type: ["string", "null"], maxLength: 160 }
+        summary: { type: ["string", "null"], maxLength: 600 }
+        notes: { type: ["string", "null"], maxLength: 1200 }
+        tags:
+          type: array
+          maxItems: 12
+          items: { type: string, minLength: 1, maxLength: 40 }
+        createdAt: { type: string, format: date-time }
     RecipeOilInput:
       type: object
       required: [id, percentage, weight]

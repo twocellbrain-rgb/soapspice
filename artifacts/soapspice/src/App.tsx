@@ -35,6 +35,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import SoapmakingGlossaryPage from '@/pages/soapmaking-glossary';
 import HowToStartSoapmakingPage from '@/pages/how-to-start-soapmaking';
+import SoapmakingLibraryPage from '@/pages/soapmaking-library';
 import FormulaPrintPage from '@/pages/formula-print';
 import NotFound from '@/pages/not-found';
 import './bright-crafted.css';
@@ -166,6 +167,7 @@ function Shell({ children }: { children: ReactNode }) {
             <Link href="/ingredients" onClick={closeMenu} aria-current={location === '/ingredients' || location.startsWith('/ingredients/') ? 'page' : undefined} data-testid="link-ingredients">Ingredient catalog</Link>
             <Link href="/how-to-start-soapmaking" onClick={closeMenu} aria-current={location === '/how-to-start-soapmaking' ? 'page' : undefined} data-testid="link-how-to-start">How to start</Link>
             <Link href="/soapmaking-glossary" onClick={closeMenu} aria-current={location === '/soapmaking-glossary' ? 'page' : undefined} data-testid="link-glossary">Glossary</Link>
+            <Link href="/soapmaking-library" onClick={closeMenu} aria-current={location === '/soapmaking-library' ? 'page' : undefined} data-testid="link-soapmaking-library">Source library</Link>
             <AccountNav onNavigate={closeMenu} />
             <Link href="/calculators/cold-process-soap" onClick={closeMenu} data-testid="link-start-formula" className="sc-nav-cta">Start a formula <ArrowRight size={16} /></Link>
           </nav>
@@ -796,6 +798,9 @@ function Router() {
     } else if (location === '/ingredients') {
       title = 'Soapmaking Ingredient Catalog | SoapSpice';
       description = 'Search oils and butters for cold-process soapmaking, with descriptions, NaOH SAP values, and linked reference sources.';
+    } else if (location === '/soapmaking-library') {
+      title = 'Soapmaking Source Library | SoapSpice';
+      description = 'Search the web for soapmaking articles and recipes, then save source citations, links, and personal notes in your private library.';
     } else if (location === '/soapmaking-glossary') {
       title = 'Soapmaking Glossary | SoapSpice';
       description = 'Plain-language definitions for common handmade soapmaking terms, ingredients, formulas, methods, and safety.';
@@ -836,6 +841,7 @@ function Router() {
     <Route path="/formula-print" component={FormulaPrintPage} />
     <Route path="/ingredients" component={IngredientsPage} />
     <Route path="/soapmaking-glossary" component={() => <Shell><SoapmakingGlossaryPage /></Shell>} />
+    <Route path="/soapmaking-library" component={() => <Shell><SoapmakingLibraryPage /></Shell>} />
     <Route path="/how-to-start-soapmaking" component={() => <Shell><HowToStartSoapmakingPage /></Shell>} />
     <Route path="/ingredient-admin" component={IngredientAdmin} />
     <Route path="/starter-guide-admin" component={() => <Shell><StarterGuideAdmin /></Shell>} />

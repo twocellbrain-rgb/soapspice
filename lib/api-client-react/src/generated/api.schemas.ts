@@ -117,6 +117,90 @@ export interface CalculatorIngredientProductGroup {
   updatedAt: string;
 }
 
+export type SoapmakingLibraryKind = typeof SoapmakingLibraryKind[keyof typeof SoapmakingLibraryKind];
+
+
+export const SoapmakingLibraryKind = {
+  article: 'article',
+  recipe: 'recipe',
+  tutorial: 'tutorial',
+  safety: 'safety',
+  other: 'other',
+} as const;
+
+export interface SoapmakingLibraryInput {
+  /**
+     * @minLength 1
+     * @maxLength 240
+     */
+  title: string;
+  /**
+     * @minLength 1
+     * @maxLength 2000
+     */
+  sourceUrl: string;
+  /**
+     * @minLength 1
+     * @maxLength 160
+     */
+  sourceName: string;
+  kind: SoapmakingLibraryKind;
+  /** @maxLength 160 */
+  author?: string;
+  /** @maxLength 600 */
+  summary?: string;
+  /** @maxLength 1200 */
+  notes?: string;
+  /**
+     * @maxItems 12
+     * @items.minLength 1
+     * @items.maxLength 40
+     */
+  tags?: string[];
+}
+
+export interface SoapmakingLibraryItem {
+  id: string;
+  /**
+     * @minLength 1
+     * @maxLength 240
+     */
+  title: string;
+  /**
+     * @minLength 1
+     * @maxLength 2000
+     */
+  sourceUrl: string;
+  /**
+     * @minLength 1
+     * @maxLength 160
+     */
+  sourceName: string;
+  kind: SoapmakingLibraryKind;
+  /**
+     * @maxLength 160
+     * @nullable
+     */
+  author?: string | null;
+  /**
+     * @maxLength 600
+     * @nullable
+     */
+  summary?: string | null;
+  /**
+     * @maxLength 1200
+     * @nullable
+     */
+  notes?: string | null;
+  /**
+     * @maxItems 12
+     * @items.minLength 1
+     * @items.maxLength 40
+     */
+  tags: string[];
+  createdAt: string;
+}
+
 export interface RecipeOilInput {
   /**
      * @minLength 1
