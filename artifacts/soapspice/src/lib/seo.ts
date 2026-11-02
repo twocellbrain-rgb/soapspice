@@ -1,4 +1,5 @@
 import catalog from '../data/ingredient-catalog.json';
+import soapmakingNotes from '../data/ingredient-soapmaking-notes.json';
 
 // The public Hostinger domain supplied by the site owner, not the Replit preview.
 export const SITE_ORIGIN = 'https://soapspice.com';
@@ -14,7 +15,7 @@ const pages: Record<string, { title: string; description: string }> = {
   },
   '/ingredients': {
     title: 'Soapmaking Oils, Butters & SAP Values | SoapSpice',
-    description: 'Browse 42 soapmaking oils and butters with NaOH and KOH SAP values, ingredient descriptions, alternate names, and links to reference sources.',
+    description: 'Compare 42 oils for cold-process soap by their bar effects and workability, with linked NaOH and KOH SAP values and supplier-grade notes.',
   },
   '/how-to-start-soapmaking': {
     title: 'How to Start Making Soap: Tools & Safety | SoapSpice',
@@ -60,9 +61,10 @@ export function pageSeo(rawPath: string) {
   const ingredient = path.startsWith('/ingredients/')
     ? catalog.find(({ id }) => path === `/ingredients/${id}`)
     : undefined;
-  const metadata = pages[path] ?? (ingredient ? {
-    title: `${ingredient.name}: Soapmaking SAP Values | SoapSpice`,
-    description: `Explore ${ingredient.name} for cold-process soapmaking: NaOH SAP ${ingredient.naohSap.toFixed(3)}, KOH SAP ${ingredient.kohSap.toFixed(3)}, ingredient details, and reference sources.`,
+  const note = ingredient ? soapmakingNotes[ingredient.id as keyof typeof soapmakingNotes] : undefined;
+  const metadata = pages[path] ?? (ingredient && note ? {
+    title: `${ingredient.name} for Soapmaking | SoapSpice`,
+    description: `${ingredient.name} in cold-process soap: ${note.seoSummary} Workability: ${note.workabilityLevel.toLowerCase()}.`,
   } : privatePages[path]);
   const indexable = Boolean(pages[path] || ingredient);
   // Static directory indexes are served with a trailing slash by Apache.

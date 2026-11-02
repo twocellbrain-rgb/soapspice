@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { Link, Route, Switch, Router as WouterRouter, useLocation, useParams } from 'wouter';
 import bundledIngredients from '@/data/ingredient-catalog.json';
+import bundledSoapmakingNotes from '@/data/ingredient-soapmaking-notes.json';
 import { calculateNaohFormula, convertFragrancesToWeightUnit, fragranceUnitForOilUnit, fragrancesAtScentStrength, GRAMS_PER_OUNCE, inferScentStrength, oilWeightTotal, percentagesFromWeights, scentStrengthAmounts, validateNaohFormula, type FragranceRow, type ScentStrength } from '@/lib/formulation';
 import FragranceSection from '@/components/FragranceSection';
 import FormulaResults from '@/components/FormulaResults';
@@ -55,6 +56,15 @@ type Ingredient = {
   sapProvenance: string;
   verificationStatus: 'source-linked-needs-review' | 'administrator-verified';
 };
+
+type IngredientSoapmakingNote = {
+  coldProcessEffect: string;
+  workabilityLevel: 'Easy' | 'Moderate' | 'Challenging';
+  workabilityNote: string;
+  seoSummary: string;
+};
+
+const ingredientSoapmakingNotes = bundledSoapmakingNotes as Record<string, IngredientSoapmakingNote>;
 
 type OilRow = {
   id: string;
@@ -122,7 +132,7 @@ function Shell({ children }: { children: ReactNode }) {
       <footer className="sc-footer">
         <div className="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-8 text-sm text-[hsl(var(--muted-foreground))] sm:flex-row sm:items-center sm:justify-between lg:px-8">
           <div className="flex items-center gap-3"><img src={`${publicImages}soapspice-logo.webp`} alt="" width="1200" height="701" /><span>Ingredient choices, made clearer.</span></div>
-          <p>NaOH cold-process bars only · source-linked values need review</p>
+          <p>NaOH cold-process bars only · source-linked SAP references</p>
         </div>
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-5 pb-8 text-xs text-[hsl(var(--muted-foreground))] sm:flex-row sm:items-center sm:justify-between lg:px-8">
           <AmazonDisclosure />
@@ -239,11 +249,18 @@ function IngredientsPage() {
   const normalizedSearch = search.trim().toLowerCase();
   const ingredients = source.filter((ingredient) =>
     (category === 'all' || ingredient.category === category) &&
-    (!normalizedSearch || [ingredient.name, ingredient.description, ...ingredient.alternateNames].join(' ').toLowerCase().includes(normalizedSearch)),
+    (!normalizedSearch || [
+      ingredient.name,
+      ingredient.description,
+      ...ingredient.alternateNames,
+      ingredientSoapmakingNotes[ingredient.id].coldProcessEffect,
+      ingredientSoapmakingNotes[ingredient.id].workabilityNote,
+      ingredientSoapmakingNotes[ingredient.id].workabilityLevel,
+    ].join(' ').toLowerCase().includes(normalizedSearch)),
   );
   return (
     <Shell>
-      <PageIntro eyebrow="Ingredient catalog" title="Know what goes into the bar." description="A small, source-linked field guide for the oils and butters you reach for most. Search by name or browse by role.">
+      <PageIntro eyebrow="Cold-process soapmaking ingredients" title="Find the right oils and butters for your bar." description="Compare soap effects and workability across 42 oils and butters. Notes are practical guidance, not safety ratings; verify the supplier's product grade and SAP.">
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <label className="relative block flex-1"><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))]" size={18} /><input value={search} onChange={(event) => setSearch(event.target.value)} type="search" placeholder="Search oils, butters, aliases..." className="h-12 w-full rounded-full border border-[hsl(var(--input))] bg-white pl-11 pr-5 text-sm outline-none ring-[hsl(var(--primary))] focus:ring-2" data-testid="input-search-ingredients" /></label>
           <div className="flex rounded-full border border-[hsl(var(--border))] bg-white p-1">
@@ -253,7 +270,16 @@ function IngredientsPage() {
       </PageIntro>
       <section className="mx-auto max-w-7xl px-5 pb-20 lg:px-8">
         {ingredients.length === 0 && <div className="rounded-3xl border border-dashed border-[hsl(var(--border))] bg-white p-14 text-center"><Search className="mx-auto mb-4 text-[hsl(var(--primary))]" /><h2 className="font-display text-3xl">No ingredients match that search.</h2><p className="mt-2 text-sm text-[hsl(var(--muted-foreground))]">Try a broader name, or clear the filters.</p><button type="button" onClick={() => { setSearch(''); setCategory('all'); }} className={`${buttonQuiet} mt-5`} data-testid="button-clear-filters">Clear filters</button></div>}
-        {ingredients.length > 0 && <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{ingredients.map((ingredient, index) => <Link href={`/ingredients/${ingredient.id}`} key={ingredient.id} className="group flex min-h-[245px] flex-col rounded-3xl border border-[hsl(var(--border))] bg-white p-6 shadow-card transition hover:-translate-y-1 hover:border-[hsl(var(--primary)/.35)] hover:shadow-lift animate-rise" style={{ animationDelay: `${Math.min(index * 45, 280)}ms` }} data-testid={`card-ingredient-${ingredient.id}`}><div className="flex items-start justify-between gap-3"><span className="rounded-full bg-[hsl(var(--secondary))] px-3 py-1 text-[10px] font-bold uppercase tracking-[.14em] text-[hsl(var(--secondary-foreground))]">{ingredient.category}</span><ArrowRight size={18} className="text-[hsl(var(--muted-foreground))] transition group-hover:translate-x-1 group-hover:text-[hsl(var(--primary))]" /></div><h2 className="mt-8 font-display text-3xl leading-none">{ingredient.name}</h2><p className="mt-3 line-clamp-3 text-sm leading-6 text-[hsl(var(--muted-foreground))]">{ingredient.description}</p><div className="mt-auto flex items-center gap-2 pt-5 text-xs font-bold text-[hsl(var(--primary))]"><span className="font-data">{ingredient.naohSap.toFixed(3)}</span> NaOH SAP <span className="ml-auto text-[hsl(var(--muted-foreground))]">{ingredient.verificationStatus === 'administrator-verified' ? 'Verified' : 'Review pending'}</span></div></Link>)}</div>}
+        {ingredients.length > 0 && <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{ingredients.map((ingredient, index) => {
+          const note = ingredientSoapmakingNotes[ingredient.id];
+          return <Link href={`/ingredients/${ingredient.id}`} key={ingredient.id} className="group flex min-h-[330px] flex-col rounded-3xl border border-[hsl(var(--border))] bg-white p-6 shadow-card transition hover:-translate-y-1 hover:border-[hsl(var(--primary)/.35)] hover:shadow-lift animate-rise" style={{ animationDelay: `${Math.min(index * 45, 280)}ms` }} data-testid={`card-ingredient-${ingredient.id}`}>
+            <div className="flex items-start justify-between gap-3"><span className="rounded-full bg-[hsl(var(--secondary))] px-3 py-1 text-[10px] font-bold uppercase tracking-[.14em] text-[hsl(var(--secondary-foreground))]">{ingredient.category}</span><ArrowRight size={18} className="text-[hsl(var(--muted-foreground))] transition group-hover:translate-x-1 group-hover:text-[hsl(var(--primary))]" /></div>
+            <h2 className="mt-6 font-display text-3xl leading-none">{ingredient.name}</h2>
+            <p className="mt-3 line-clamp-3 text-sm leading-6 text-[hsl(var(--muted-foreground))]">{note.coldProcessEffect}</p>
+            <div className="mt-4 rounded-xl bg-[hsl(var(--secondary)/.45)] p-3"><div className="text-[10px] font-bold uppercase tracking-[.12em] text-[hsl(var(--muted-foreground))]">Working with it</div><div className="mt-1 text-sm font-bold">{note.workabilityLevel}</div><p className="mt-1 line-clamp-2 text-xs leading-5 text-[hsl(var(--muted-foreground))]">{note.workabilityNote}</p></div>
+            <div className="mt-auto flex items-center gap-2 pt-5 text-xs font-bold text-[hsl(var(--primary))]"><span className="font-data">{ingredient.naohSap.toFixed(3)}</span> NaOH SAP <span className="ml-auto font-normal text-[hsl(var(--muted-foreground))]">Source linked</span></div>
+          </Link>;
+        })}</div>}
       </section>
     </Shell>
   );
@@ -263,12 +289,50 @@ function IngredientDetailPage() {
   const params = useParams<{ ingredientId: string }>();
   const id = params.ingredientId ?? '';
   const ingredient = bundledIngredientCatalog.find((item) => item.id === id);
+  const note = ingredient ? ingredientSoapmakingNotes[ingredient.id] : undefined;
   return (
     <Shell>
       <section className="mx-auto max-w-7xl px-5 pb-20 pt-12 lg:px-8 lg:pt-16">
         <Link href="/ingredients" className="mb-10 inline-flex items-center gap-2 text-sm font-bold text-[hsl(var(--primary))]" data-testid="link-back-catalog">← Back to catalog</Link>
         {!ingredient && <div role="status" className="rounded-2xl border border-[hsl(var(--border))] bg-white p-8">Ingredient not found in the published catalog.</div>}
-        {ingredient && <div className="grid gap-10 lg:grid-cols-[1.15fr_.85fr]"><div className="animate-rise"><div className="flex flex-wrap items-center gap-3"><span className="rounded-full bg-[hsl(var(--secondary))] px-3 py-1 text-xs font-bold uppercase tracking-[.14em] text-[hsl(var(--secondary-foreground))]">{ingredient.category}</span><span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-[.12em] text-[hsl(var(--primary))]"><ShieldCheck size={14} /> {ingredient.verificationStatus === 'administrator-verified' ? 'Administrator verified' : 'Source linked · review pending'}</span></div><h1 className="mt-7 font-display text-6xl leading-[.94] tracking-[-.05em] sm:text-8xl">{ingredient.name}</h1><p className="mt-7 max-w-2xl text-xl leading-9 text-[hsl(var(--muted-foreground))]">{ingredient.description}</p><div className="mt-8 flex flex-wrap gap-2">{ingredient.alternateNames.map((name) => <span key={name} className="rounded-full border border-[hsl(var(--border))] px-3 py-1.5 text-xs font-medium text-[hsl(var(--muted-foreground))]">{name}</span>)}</div><Link href={`/calculators/cold-process-soap?ingredient=${ingredient.id}`} className={`${buttonPrimary} mt-10`} data-testid="link-use-in-calculator">Use in calculator <ArrowRight size={16} /></Link></div><aside className="rounded-3xl bg-[hsl(193_46%_22%)] p-7 text-[hsl(var(--background))] shadow-lift sm:p-9"><div className="mb-12 flex h-14 w-14 items-center justify-center rounded-2xl bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]"><FlaskConical size={25} /></div><p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--accent))]">Soapmaking numbers</p><div className="mt-5 grid gap-5"><div className="border-b border-white/15 pb-5"><span className="text-sm text-white/65">NaOH SAP value</span><strong className="mt-1 block font-data text-4xl">{ingredient.naohSap.toFixed(3)}</strong><span className="text-xs text-white/55">g NaOH / g fat</span></div><div className="border-b border-white/15 pb-5"><span className="text-sm text-white/65">KOH SAP value</span><strong className="mt-1 block font-data text-4xl">{ingredient.kohSap.toFixed(3)}</strong><span className="text-xs text-white/55">g KOH / g fat</span></div><div><span className="text-sm text-white/65">Data source</span><a href={ingredient.sapSourceUrl} target="_blank" rel="noreferrer" className="mt-2 flex items-start gap-2 text-sm font-bold leading-5 text-[hsl(var(--accent))] hover:underline" data-testid="link-ingredient-source">{ingredient.sapSourceTitle}<ExternalLink size={14} className="mt-0.5 shrink-0" /></a></div></div></aside></div>}
+        {ingredient && note && <article className="grid gap-10 lg:grid-cols-[1.15fr_.85fr] lg:items-start">
+          <div className="animate-rise">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="rounded-full bg-[hsl(var(--secondary))] px-3 py-1 text-xs font-bold uppercase tracking-[.14em] text-[hsl(var(--secondary-foreground))]">{ingredient.category}</span>
+              <span className="text-xs font-bold uppercase tracking-[.12em] text-[hsl(var(--primary))]">Source-linked SAP reference</span>
+            </div>
+            <h1 className="mt-7 font-display text-6xl leading-[.94] tracking-[-.05em] sm:text-8xl">{ingredient.name}</h1>
+            <p className="mt-7 max-w-2xl text-xl leading-9 text-[hsl(var(--muted-foreground))]">{ingredient.description}</p>
+            <div className="mt-8 flex flex-wrap gap-2">{ingredient.alternateNames.map((name) => <span key={name} className="rounded-full border border-[hsl(var(--border))] px-3 py-1.5 text-xs font-medium text-[hsl(var(--muted-foreground))]">{name}</span>)}</div>
+            <section className="mt-10 max-w-3xl border-t border-[hsl(var(--border))] pt-8" aria-labelledby="ingredient-soapmaking-effect">
+              <h2 id="ingredient-soapmaking-effect" className="font-display text-3xl">How {ingredient.name} affects cold-process soap</h2>
+              <p className="mt-4 text-base leading-7 text-[hsl(var(--muted-foreground))]">{note.coldProcessEffect}</p>
+              <div className="mt-6 rounded-2xl border border-[hsl(var(--border))] bg-white p-5">
+                <div className="flex flex-wrap items-center gap-3"><h3 className="font-bold">Working with {ingredient.name}</h3><span className="rounded-full bg-[hsl(var(--secondary))] px-3 py-1 text-xs font-bold">{note.workabilityLevel}</span></div>
+                <p className="mt-2 text-sm leading-6 text-[hsl(var(--muted-foreground))]">{note.workabilityNote}</p>
+              </div>
+              <p className="mt-5 text-sm leading-6 text-[hsl(var(--muted-foreground))]">Workability is a practical guide, not a safety rating. Results depend on the whole oil blend, product grade, and process. Check the supplier’s specification before calculating sodium hydroxide; this linked SAP value is a reference, not a guarantee for every product.</p>
+              <div className="mt-6 space-y-2 text-sm">
+                <p className="font-bold">More about cold-process soap oils</p>
+                <ul className="list-inside list-disc space-y-1 text-[hsl(var(--muted-foreground))]">
+                  <li><a href="https://www.brambleberry.com/cold-process/formulating-cold-process-soap-recipes.html" target="_blank" rel="noreferrer" className="font-medium text-[hsl(var(--primary))] underline">Bramble Berry: Formulating Cold Process Soap Recipes</a></li>
+                  <li><a href="https://www.soapqueen.com/bath-and-body-tutorials/tips-and-tricks/single-oil-cold-process-soap-lather-tests/" target="_blank" rel="noreferrer" className="font-medium text-[hsl(var(--primary))] underline">Soap Queen: Single Oil Cold Process Soap Lather Tests</a></li>
+                </ul>
+              </div>
+            </section>
+            <Link href={`/calculators/cold-process-soap?ingredient=${ingredient.id}`} className={`${buttonPrimary} mt-10`} data-testid="link-use-in-calculator">Use in calculator <ArrowRight size={16} /></Link>
+          </div>
+          <aside className="rounded-3xl bg-[hsl(193_46%_22%)] p-7 text-[hsl(var(--background))] shadow-lift sm:p-9">
+            <div className="mb-12 flex h-14 w-14 items-center justify-center rounded-2xl bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]"><FlaskConical size={25} /></div>
+            <p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--accent))]">Soapmaking numbers</p>
+            <div className="mt-5 grid gap-5">
+              <div className="border-b border-white/15 pb-5"><span className="text-sm text-white/65">NaOH SAP value</span><strong className="mt-1 block font-data text-4xl">{ingredient.naohSap.toFixed(3)}</strong><span className="text-xs text-white/55">g NaOH / g fat</span></div>
+              <div className="border-b border-white/15 pb-5"><span className="text-sm text-white/65">KOH SAP value</span><strong className="mt-1 block font-data text-4xl">{ingredient.kohSap.toFixed(3)}</strong><span className="text-xs text-white/55">g KOH / g fat</span></div>
+              <div><span className="text-sm text-white/65">SAP reference source</span><a href={ingredient.sapSourceUrl} target="_blank" rel="noreferrer" className="mt-2 flex items-start gap-2 text-sm font-bold leading-5 text-[hsl(var(--accent))] hover:underline" data-testid="link-ingredient-source">{ingredient.sapSourceTitle}<ExternalLink size={14} className="mt-0.5 shrink-0" /></a></div>
+              <p className="text-xs leading-5 text-white/70">Reference values can differ from a supplier’s exact oil. Confirm product grade and SAP before measuring NaOH.</p>
+            </div>
+          </aside>
+        </article>}
       </section>
     </Shell>
   );

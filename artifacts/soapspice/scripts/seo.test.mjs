@@ -37,13 +37,31 @@ test('every route contains real React-rendered HTML, unique metadata, and one ca
 
 test('all 42 ingredient pages expose names, SAP values, and source citations without JavaScript', async () => {
   const catalog = JSON.parse(await readFile(new URL('../src/data/ingredient-catalog.json', import.meta.url)));
+  const notes = JSON.parse(await readFile(new URL('../src/data/ingredient-soapmaking-notes.json', import.meta.url)));
   assert.equal(catalog.length, 42);
+  assert.deepEqual(Object.keys(notes).sort(), catalog.map(({ id }) => id).sort());
+  const catalogHtml = (await htmlFor('/ingredients')).replace(/<!--[\s\S]*?-->/g, '').replace(/&#x27;/g, "'");
+  assert.ok(!/review pending|values need administrator review/i.test(catalogHtml));
+  for (const ingredient of catalog) {
+    assert.ok(catalogHtml.includes(notes[ingredient.id].coldProcessEffect), `Catalog card effect missing: ${ingredient.id}`);
+  }
   for (const ingredient of catalog) {
     const html = await htmlFor(`/ingredients/${ingredient.id}`);
+    const renderedText = html
+      .replace(/<!--[\s\S]*?-->/g, '')
+      .replace(/&#x27;/g, "'")
+      .replace(/&quot;/g, '"')
+      .replace(/&amp;/g, '&');
+    const note = notes[ingredient.id];
     assert.ok(html.includes(escape(ingredient.name)), ingredient.id);
     assert.ok(html.includes(ingredient.naohSap.toFixed(3)), ingredient.id);
     assert.ok(html.includes(escape(ingredient.sapSourceUrl)), ingredient.id);
     assert.ok(html.includes('Use in calculator'), ingredient.id);
+    assert.ok(renderedText.includes(note.coldProcessEffect), `Soap effect missing: ${ingredient.id}`);
+    assert.ok(renderedText.includes(note.workabilityNote), `Workability note missing: ${ingredient.id}`);
+    assert.ok(renderedText.includes(`How ${ingredient.name} affects cold-process soap`), ingredient.id);
+    assert.ok(renderedText.includes(note.workabilityLevel), ingredient.id);
+    assert.ok(!/review pending|values need administrator review/i.test(renderedText), `Review status should not appear on catalog details: ${ingredient.id}`);
   }
 });
 

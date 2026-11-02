@@ -1,0 +1,254 @@
+{
+  "apple-seed-oil": {
+    "coldProcessEffect": "A specialty liquid oil that can contribute a soft, mild-feeling quality in a blended bar. As a liquid oil, it does not provide the firming role of solid fats.",
+    "workabilityLevel": "Moderate",
+    "workabilityNote": "Check that the product is neat apple seed oil, not an extract or an infused carrier oil.",
+    "seoSummary": "a liquid specialty oil for blended bars"
+  },
+  "apricot-kernel-oil": {
+    "coldProcessEffect": "A soft liquid oil that can add a mild, smooth feel to a blended cold-process bar. It is not a hard-oil or big-bubble substitute on its own.",
+    "workabilityLevel": "Easy",
+    "workabilityNote": "It blends like other liquid oils; confirm the product is apricot kernel oil before recalculating a substitution.",
+    "seoSummary": "a soft liquid oil for mild-feeling blends"
+  },
+  "argan-oil": {
+    "coldProcessEffect": "A liquid specialty oil suited to a supporting role in a blend; it contributes softness rather than the firmness or large bubbles associated with some solid fats.",
+    "workabilityLevel": "Moderate",
+    "workabilityNote": "Match the supplier's exact argan oil and keep its own SAP reference when changing an existing recipe.",
+    "seoSummary": "a specialty liquid oil for blended soap"
+  },
+  "avocado-oil": {
+    "coldProcessEffect": "A soft liquid oil used in blended bars for a mild, conditioned feel. It generally traces more slowly than hard fats and will not firm a recipe by itself.",
+    "workabilityLevel": "Easy",
+    "workabilityNote": "A familiar blending oil; check the supplier's grade and recalculate lye whenever the oil changes.",
+    "seoSummary": "a soft liquid oil for mild, conditioned bars"
+  },
+  "babassu-oil": {
+    "coldProcessEffect": "Its lauric-rich profile can contribute firm bars and abundant bubbles, with cleansing character similar to—but not identical to—coconut oil.",
+    "workabilityLevel": "Moderate",
+    "workabilityNote": "Melt the solid oil fully and use its own SAP reference; do not substitute coconut-oil values.",
+    "seoSummary": "a firm, bubbly soap oil distinct from coconut"
+  },
+  "borage-oil": {
+    "coldProcessEffect": "A delicate, unsaturated liquid oil for specialty blends. It adds softness rather than bar structure; a formula's freshness and oxidation resistance matter.",
+    "workabilityLevel": "Challenging",
+    "workabilityNote": "Buy a fresh, well-stored product, identify it precisely, and avoid relying on it as the bar's main hardening oil.",
+    "seoSummary": "a delicate liquid oil best suited to specialty blends"
+  },
+  "canola-oil-high-oleic": {
+    "coldProcessEffect": "This high-oleic liquid oil can support a mild-feeling, slower-moving batter. Like other liquid oils, it contributes less firmness than solid fats.",
+    "workabilityLevel": "Moderate",
+    "workabilityNote": "Verify the high-oleic grade; ordinary and high-oleic canola have different fatty-acid profiles.",
+    "seoSummary": "a high-oleic liquid oil for mild soap blends"
+  },
+  "carrot-seed-oil-cold-pressed": {
+    "coldProcessEffect": "A specialty seed oil that behaves as a liquid blend ingredient; do not assume it will add a lasting carrot color or scent to finished soap.",
+    "workabilityLevel": "Challenging",
+    "workabilityNote": "Check the label carefully: this entry is cold-pressed fatty seed oil, not carrot-seed essential oil or an infusion.",
+    "seoSummary": "a specialty seed oil, not carrot essential oil"
+  },
+  "castor-oil": {
+    "coldProcessEffect": "Castor oil can support a stable, creamy lather in a balanced recipe. Its thick, sticky batter can become difficult to pour when castor dominates the oil blend.",
+    "workabilityLevel": "Moderate",
+    "workabilityNote": "Measure carefully: castor oil is unusually viscous. A single-oil castor batch behaves very differently from a normal blend.",
+    "seoSummary": "a thick oil used to support creamy, stable lather"
+  },
+  "cocoa-butter": {
+    "coldProcessEffect": "This room-temperature solid butter can add firmness and a creamy lather to a blended bar; it does not create the fluffy bubbles of lauric-rich oils.",
+    "workabilityLevel": "Easy",
+    "workabilityNote": "Melt fully and combine evenly with the liquid oils before making the lye calculation.",
+    "seoSummary": "a firm butter for harder bars and creamy lather"
+  },
+  "coconut-oil-76": {
+    "coldProcessEffect": "Coconut oil can add firmness, large fluffy bubbles, and a more cleansing feel. A formula's overall balance matters; the ingredient alone does not predict the finished bar.",
+    "workabilityLevel": "Easy",
+    "workabilityNote": "Melt and mix evenly; use the 76-degree product's own SAP, not values for fractionated coconut oil.",
+    "seoSummary": "a firming oil known for large, fluffy bubbles"
+  },
+  "cupuacu-butter": {
+    "coldProcessEffect": "A firm plant butter that can add structure and a creamy quality to a blended cold-process bar.",
+    "workabilityLevel": "Moderate",
+    "workabilityNote": "Melt completely and identify the supplier's exact butter grade; cupuaçu is not interchangeable with cocoa or shea butter.",
+    "seoSummary": "a firm plant butter for structured soap blends"
+  },
+  "evening-primrose-oil": {
+    "coldProcessEffect": "A delicate liquid seed oil suited to specialty blends. It contributes a softer feel rather than the firmness and fluffy lather of hard oils.",
+    "workabilityLevel": "Challenging",
+    "workabilityNote": "Check freshness and storage history, and verify the exact supplier specification before using its reference SAP.",
+    "seoSummary": "a delicate liquid seed oil for specialty blends"
+  },
+  "fractionated-coconut-oil": {
+    "coldProcessEffect": "This liquid caprylic/capric oil does not have the same lauric-rich profile as regular coconut oil, so it will not reproduce the same lather and cleansing role.",
+    "workabilityLevel": "Challenging",
+    "workabilityNote": "Confirm the product is caprylic/capric triglycerides. Never swap in 76-degree coconut oil's SAP value.",
+    "seoSummary": "a specialty liquid oil unlike solid coconut oil"
+  },
+  "grapeseed-oil": {
+    "coldProcessEffect": "A light, unsaturated liquid oil that can make a bar softer. Its high-linoleic profile makes freshness and oxidation considerations important in a formula.",
+    "workabilityLevel": "Moderate",
+    "workabilityNote": "Use a fresh, properly stored product and keep the exact grade in mind when reformulating.",
+    "seoSummary": "a light liquid oil whose freshness matters in soap"
+  },
+  "hemp-seed-oil": {
+    "coldProcessEffect": "A soft, unsaturated liquid oil for blended recipes; it contributes less firmness than room-temperature solid fats.",
+    "workabilityLevel": "Moderate",
+    "workabilityNote": "Protect this delicate oil from heat, light, and air, and distinguish plain seed oil from blended hemp products.",
+    "seoSummary": "a delicate liquid seed oil for blended bars"
+  },
+  "jojoba-oil-golden": {
+    "coldProcessEffect": "Jojoba is a liquid wax ester, not a typical triglyceride oil. Its unusual composition means it does not behave like common soapmaking oils.",
+    "workabilityLevel": "Challenging",
+    "workabilityNote": "Use only a jojoba-specific SAP reference and test cautiously; its very low saponification value and unusual behavior make substitutions tricky.",
+    "seoSummary": "a liquid wax ester with unusual soapmaking behavior"
+  },
+  "kokum-butter": {
+    "coldProcessEffect": "A very firm plant butter that can contribute structure and a harder feel to a blended bar.",
+    "workabilityLevel": "Moderate",
+    "workabilityNote": "Break up and melt fully before blending; confirm the exact butter because its reference SAP differs from other butters.",
+    "seoSummary": "a very firm butter for structured soap bars"
+  },
+  "kukui-nut-oil": {
+    "coldProcessEffect": "A soft liquid nut oil for blended recipes. It contributes less bar firmness than solid fats, so the full formula determines hardness and cure behavior.",
+    "workabilityLevel": "Moderate",
+    "workabilityNote": "Check that the oil is fresh and confirm its botanical/product identity in the supplier specification.",
+    "seoSummary": "a soft liquid nut oil for blended soap"
+  },
+  "mango-butter": {
+    "coldProcessEffect": "A room-temperature solid butter that can increase firmness and contribute a creamy lather in a balanced blend.",
+    "workabilityLevel": "Easy",
+    "workabilityNote": "Melt completely and weigh accurately; mango butter's SAP is not the same as shea or cocoa butter.",
+    "seoSummary": "a firming butter with a creamy lather profile"
+  },
+  "marula-oil": {
+    "coldProcessEffect": "A liquid specialty oil for balanced blends. Its liquid-oil character adds softness rather than the firmness or large bubbles supplied by hard fats.",
+    "workabilityLevel": "Moderate",
+    "workabilityNote": "Match the supplier's exact marula oil and recalculate lye if replacing another ingredient.",
+    "seoSummary": "a specialty liquid oil for balanced blends"
+  },
+  "moringa-seed-oil": {
+    "coldProcessEffect": "A high-oleic liquid oil that can suit a mild-feeling blend. It remains a soft oil, so the complete formula provides the bar's structure.",
+    "workabilityLevel": "Moderate",
+    "workabilityNote": "Choose the pressed seed oil, not a botanical extract, and verify the product's stated grade.",
+    "seoSummary": "a high-oleic liquid seed oil for soap blends"
+  },
+  "murumuru-butter": {
+    "coldProcessEffect": "A hard, lauric-rich butter that can contribute a firm bar and abundant lather. Its SAP is notably different from many common butters.",
+    "workabilityLevel": "Challenging",
+    "workabilityNote": "Melt thoroughly and recheck the exact supplier SAP; do not substitute a generic butter value.",
+    "seoSummary": "a hard, high-SAP butter for bubbly soap"
+  },
+  "neem-oil": {
+    "coldProcessEffect": "A liquid specialty oil with a strong, distinctive odor that may remain noticeable in finished soap. It contributes softness, not bar structure.",
+    "workabilityLevel": "Moderate",
+    "workabilityNote": "Plan for its strong natural scent and verify that the product is neem seed oil rather than an extract or blend.",
+    "seoSummary": "a strongly scented liquid specialty oil"
+  },
+  "oat-oil": {
+    "coldProcessEffect": "A soft liquid oil that can add a mild-feeling quality to a blend; it does not provide the firming effect of solid fats.",
+    "workabilityLevel": "Moderate",
+    "workabilityNote": "This entry is oat-derived oil, not colloidal oatmeal, oat extract, or oat protein; confirm the supplier's exact product.",
+    "seoSummary": "a soft oat-derived oil, not colloidal oatmeal"
+  },
+  "olive-oil": {
+    "coldProcessEffect": "Olive oil contributes a mild-feeling bar and a small, dense lather. A high-olive recipe can trace slowly and may need extra time to harden and cure.",
+    "workabilityLevel": "Easy",
+    "workabilityNote": "A familiar liquid oil, but patience may be needed before unmolding and during the cure of olive-heavy recipes.",
+    "seoSummary": "a mild-feeling oil that can make slow-tracing soap"
+  },
+  "olive-oil-pomace": {
+    "coldProcessEffect": "Pomace olive oil contributes a mild-feeling bar with dense lather, much like other olive-oil soaps. It can behave differently from other grades during mixing.",
+    "workabilityLevel": "Moderate",
+    "workabilityNote": "Identify the pomace grade and follow a recipe designed for it; do not assume every olive oil has identical handling or SAP.",
+    "seoSummary": "an olive-oil grade for mild, dense-lather soap"
+  },
+  "palm-kernel-flakes-hydrogenated": {
+    "coldProcessEffect": "These hard flakes can add firmness and large bubbles, like other lauric-rich fats. They are a distinct grade and do not share every palm-oil property.",
+    "workabilityLevel": "Challenging",
+    "workabilityNote": "Melt fully and confirm hydrogenation and product identity; regular palm kernel oil and palm fruit oil are different ingredients.",
+    "seoSummary": "hard palm-kernel flakes for bubbly soap"
+  },
+  "palm-kernel-oil": {
+    "coldProcessEffect": "Palm kernel oil can contribute firmness, large bubbles, and a more cleansing feel because of its lauric-rich profile.",
+    "workabilityLevel": "Moderate",
+    "workabilityNote": "Melt and stir thoroughly; distinguish kernel oil from palm fruit oil and hydrogenated palm-kernel flakes.",
+    "seoSummary": "a lauric-rich oil for firm, bubbly soap"
+  },
+  "palm-oil": {
+    "coldProcessEffect": "Palm fruit oil can add firmness and a stable, creamy lather to a blended bar. It is different from palm kernel oil, which has a more bubbly profile.",
+    "workabilityLevel": "Easy",
+    "workabilityNote": "If the container separates, mix it evenly before weighing; verify that the product is palm fruit oil.",
+    "seoSummary": "a firming oil with stable, creamy lather"
+  },
+  "plum-kernel-oil": {
+    "coldProcessEffect": "A soft liquid specialty oil that can add a silky quality to a blended bar; it does not replace the hardening role of solid fats.",
+    "workabilityLevel": "Moderate",
+    "workabilityNote": "Check that the seller means plum kernel oil, not an extract, and use the specific supplier's SAP information.",
+    "seoSummary": "a soft specialty oil for silky soap blends"
+  },
+  "raspberry-seed-oil": {
+    "coldProcessEffect": "A delicate, unsaturated liquid oil for specialty blends. It contributes softness, while freshness and oxidation resistance should be considered.",
+    "workabilityLevel": "Challenging",
+    "workabilityNote": "Use a fresh, well-stored product and confirm the seed oil rather than a fruit extract or scented oil.",
+    "seoSummary": "a delicate liquid seed oil for specialty soap"
+  },
+  "rice-bran-oil": {
+    "coldProcessEffect": "A versatile liquid oil used in blended cold-process recipes for a mild, conditioned feel. It does not add the same firmness as palm or cocoa butter.",
+    "workabilityLevel": "Easy",
+    "workabilityNote": "A useful blending oil; this reference applies to refined rice bran oil, so check the supplier's grade.",
+    "seoSummary": "a versatile liquid oil for mild soap blends"
+  },
+  "rosehip-seed-oil": {
+    "coldProcessEffect": "A delicate liquid seed oil best used as a specialty blend ingredient. It adds softness rather than a firm bar structure.",
+    "workabilityLevel": "Challenging",
+    "workabilityNote": "Buy fresh, store carefully, and confirm that the product is pressed seed oil rather than an infused preparation.",
+    "seoSummary": "a delicate specialty oil for blended soap"
+  },
+  "safflower-oil": {
+    "coldProcessEffect": "A soft liquid oil; high-oleic and conventional high-linoleic safflower can behave differently in soap and have different shelf-life considerations.",
+    "workabilityLevel": "Moderate",
+    "workabilityNote": "Identify whether the oil is high oleic or conventional, then match its SAP reference and freshness needs.",
+    "seoSummary": "a liquid oil whose safflower grade matters"
+  },
+  "shea-butter": {
+    "coldProcessEffect": "A solid plant butter that can add firmness and a creamy, dense lather to a blend, balancing softer liquid oils.",
+    "workabilityLevel": "Easy",
+    "workabilityNote": "Melt fully, blend evenly, and check whether the supplier's raw or refined grade matches the recipe.",
+    "seoSummary": "a firming butter for creamy, dense lather"
+  },
+  "shea-oil-fractionated": {
+    "coldProcessEffect": "A liquid, processed shea ingredient that behaves differently from whole shea butter; do not expect the same solid-fat contribution to firmness.",
+    "workabilityLevel": "Challenging",
+    "workabilityNote": "Confirm the fractionation and product specification. Its SAP must not be replaced with the whole-shea-butter value.",
+    "seoSummary": "a liquid shea ingredient unlike whole shea butter"
+  },
+  "sunflower-oil": {
+    "coldProcessEffect": "A liquid oil for blended cold-process soap. High-oleic and high-linoleic sunflower types differ in fatty-acid profile, firmness, and storage considerations.",
+    "workabilityLevel": "Moderate",
+    "workabilityNote": "Check the variety on the supplier label; identify whether it is high oleic before changing a formula.",
+    "seoSummary": "a liquid soapmaking oil with grade-dependent properties"
+  },
+  "sweet-almond-oil": {
+    "coldProcessEffect": "A soft liquid oil that can bring a mild, smooth feel to a balanced blend. It contributes less firmness than solid fats.",
+    "workabilityLevel": "Easy",
+    "workabilityNote": "Straightforward to blend; this is sweet-almond carrier oil, not bitter almond essential oil.",
+    "seoSummary": "a mild-feeling liquid oil for blended bars"
+  },
+  "tamanu-oil": {
+    "coldProcessEffect": "A liquid specialty oil with a distinct natural odor that can affect the scent of finished soap. It adds no solid-fat structure by itself.",
+    "workabilityLevel": "Moderate",
+    "workabilityNote": "Plan for its characteristic scent and confirm that the supplier's product and SAP match this tamanu-oil entry.",
+    "seoSummary": "a specialty liquid oil with a distinct natural scent"
+  },
+  "watermelon-seed-oil": {
+    "coldProcessEffect": "A light liquid seed oil for specialty blends. Like other soft oils, it adds little firmness on its own.",
+    "workabilityLevel": "Moderate",
+    "workabilityNote": "Confirm the product is pressed watermelon seed oil rather than a fruit extract or fragrance.",
+    "seoSummary": "a light liquid seed oil for soap blends"
+  },
+  "wheat-germ-oil": {
+    "coldProcessEffect": "A rich liquid germ oil that can contribute softness in a blend. Its tendency to oxidize makes freshness and finished-bar storage important.",
+    "workabilityLevel": "Challenging",
+    "workabilityNote": "Check the harvest/product date and store it carefully; do not treat it as a hard butter or assume it lengthens shelf life.",
+    "seoSummary": "a rich liquid oil where freshness matters"
+  }
+}
