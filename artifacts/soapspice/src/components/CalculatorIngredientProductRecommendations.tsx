@@ -24,10 +24,12 @@ export default function CalculatorIngredientProductRecommendations({
   if (selections.length === 0) return null;
 
   const groups = productsQuery.data ?? [];
-  const recommendations = selections.flatMap((selection) => {
-    const group = groups.find((entry) => entry.ingredientId === selection.id);
-    return group ? [{ ...selection, products: group.products }] : [];
-  });
+  const recommendations = selections.map((selection) => ({
+    ...selection,
+    products: groups.find((entry) => entry.ingredientId === selection.id)?.products ?? [],
+    searchUrl: `https://www.amazon.com/s?k=${encodeURIComponent(`${selection.name} soap making`)}`,
+  }));
+  const hasCuratedProducts = recommendations.some((item) => item.products.length > 0);
 
   return (
     <section
@@ -37,46 +39,30 @@ export default function CalculatorIngredientProductRecommendations({
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Manually curated</p>
+          <p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Shopping links · Amazon.com</p>
           <h2 id="calculator-product-recommendations-heading" className="mt-2 font-display text-2xl font-bold text-[hsl(var(--foreground))]">
-            Product picks for your ingredients
+            Check your ingredients on Amazon
           </h2>
         </div>
         <p className="max-w-xl text-xs leading-5 text-[hsl(var(--muted-foreground))]">
-          Affiliate disclosure: SoapSpice may earn a commission from qualifying purchases. Product cards are entered by staff; this page does not import live prices or images.
+          Each oil and butter in your formula is listed below. Links open Amazon search results; SoapSpice does not show live prices. These searches are not affiliate links.
+          {hasCuratedProducts && ' Some manually curated product links may earn SoapSpice a commission from qualifying purchases.'}
         </p>
       </div>
 
-      {productsQuery.isLoading ? (
-        <p className="mt-4 text-sm text-[hsl(var(--muted-foreground))]" role="status">Loading product suggestions…</p>
-      ) : productsQuery.isError ? (
-        <div className="mt-4 flex flex-wrap items-center gap-3 text-sm" role="status">
-          <span className="text-[hsl(var(--muted-foreground))]">Product suggestions are temporarily unavailable.</span>
-          <button
-            type="button"
-            onClick={() => void productsQuery.refetch()}
-            className="font-bold text-[hsl(var(--primary))] underline underline-offset-2"
-          >
-            Try again
-          </button>
-        </div>
-      ) : recommendations.length === 0 ? (
-        <p className="mt-4 text-sm leading-6 text-[hsl(var(--muted-foreground))]" data-testid="text-no-matched-products">
-          There are no curated product suggestions for these oils or butters yet.
-        </p>
-      ) : (
-        <div className="mt-5 grid gap-4 md:grid-cols-2">
-          {recommendations.map((group) => (
+      <div className="mt-5 grid gap-4 md:grid-cols-2">
+          {recommendations.map((item) => (
             <section
-              key={group.id}
+              key={item.id}
               className="rounded-2xl border border-[hsl(var(--border))] bg-white p-4"
-              aria-label={`Product picks for ${group.name}`}
-              data-testid={`product-picks-${group.id}`}
+              aria-label={`Amazon links for ${item.name}`}
+              data-testid={`product-picks-${item.id}`}
             >
-              <h3 className="font-bold text-[hsl(var(--foreground))]">{group.name}</h3>
-              <ul className="mt-3 space-y-3">
-                {group.products.map((product, index) => (
-                  <li key={`${group.id}-${index}`} className="rounded-xl bg-[hsl(var(--background))] p-3">
+              <h3 className="font-bold text-[hsl(var(--foreground))]">{item.name}</h3>
+              {item.products.length > 0 ? (
+                <ul className="mt-3 space-y-3">
+                  {item.products.map((product, index) => (
+                    <li key={`${item.id}-${index}`} className="rounded-xl bg-[hsl(var(--background))] p-3">
                     <h4 className="text-sm font-bold text-[hsl(var(--foreground))]">{product.title}</h4>
                     <p className="mt-1 text-xs leading-5 text-[hsl(var(--muted-foreground))]">{product.note}</p>
                     <a
@@ -85,15 +71,24 @@ export default function CalculatorIngredientProductRecommendations({
                       rel="sponsored nofollow noopener noreferrer"
                       className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-[hsl(var(--primary))] underline underline-offset-2"
                     >
-                      View on Amazon <ExternalLink size={13} aria-hidden="true" />
+                      Check Amazon for price <ExternalLink size={13} aria-hidden="true" />
                     </a>
                   </li>
-                ))}
-              </ul>
+                  ))}
+                </ul>
+              ) : (
+                <a
+                  href={item.searchUrl}
+                  target="_blank"
+                  rel="nofollow noopener noreferrer"
+                  className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-[hsl(var(--primary))] underline underline-offset-2"
+                >
+                  Check Amazon for price <ExternalLink size={14} aria-hidden="true" />
+                </a>
+              )}
             </section>
           ))}
-        </div>
-      )}
+      </div>
     </section>
   );
 }
