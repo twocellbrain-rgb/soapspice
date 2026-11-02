@@ -7,27 +7,27 @@ export const SITE_ORIGIN = 'https://soapspice.com';
 const pages: Record<string, { title: string; description: string }> = {
   '/': {
     title: 'SoapSpice | Cold Process Soap Calculator & Ingredients',
-    description: 'Build cold-process soap formulas with a transparent NaOH calculator and source-linked ingredient data. Explore oils, butters, and formulation guidance.',
+    description: 'Plan your next cold-process soap batch with SoapSpice. Calculate NaOH, compare source-linked oil SAP values, and explore ingredient and formulation guides.',
   },
   '/calculators/cold-process-soap': {
     title: 'Cold-Process Soap Calculator | SoapSpice',
-    description: 'Calculate sodium hydroxide (NaOH), liquid, and fragrance amounts in grams or ounces using source-linked oil and butter SAP values.',
+    description: 'Calculate NaOH (sodium hydroxide), liquid, and fragrance for cold-process soap in grams or ounces. Check source-linked oil SAP values before planning a batch.',
   },
   '/ingredients': {
     title: 'Soapmaking Oils, Butters & SAP Values | SoapSpice',
-    description: 'Compare 42 oils for cold-process soap by their bar effects and workability, with linked NaOH and KOH SAP values and supplier-grade notes.',
+    description: 'Compare 42 cold-process soap oils and butters by lather, hardness, trace, and workability. Explore source-linked NaOH and KOH SAP values to plan a formula.',
   },
   '/how-to-start-soapmaking': {
     title: 'How to Start Making Soap: Tools & Safety | SoapSpice',
-    description: 'Explore protective gear, accurate scales, sodium-hydroxide-safe tools, and molds for getting started with cold-process soapmaking.',
+    description: 'New to cold-process soapmaking? Learn which tools, protective gear, scales, and lye-safe materials to gather before planning your first batch.',
   },
   '/soapmaking-glossary': {
     title: 'Soapmaking Glossary: Terms & Definitions | SoapSpice',
-    description: 'Understand common soapmaking terms, from sodium hydroxide and SAP values to superfat, trace, curing, fragrances, and safety.',
+    description: 'Explore plain-language definitions for cold-process soapmaking terms, including SAP, superfat, trace, curing, fragrance, and sodium hydroxide (NaOH).',
   },
   '/privacy': {
     title: 'Privacy & Shopping Links | SoapSpice',
-    description: 'Learn how SoapSpice uses browser storage for formulas and session drafts, and how third-party shopping links and disclosures work.',
+    description: 'See how SoapSpice stores formulas privately in your browser and explains third-party shopping links, affiliate disclosures, and data handling.',
   },
 };
 
@@ -64,7 +64,7 @@ export function pageSeo(rawPath: string) {
   const note = ingredient ? soapmakingNotes[ingredient.id as keyof typeof soapmakingNotes] : undefined;
   const metadata = pages[path] ?? (ingredient && note ? {
     title: `${ingredient.name} for Soapmaking | SoapSpice`,
-    description: `${ingredient.name} in cold-process soap: ${note.seoSummary} Workability: ${note.workabilityLevel.toLowerCase()}.`,
+    description: `Learn how ${ingredient.name} affects cold-process soap: ${note.seoSummary}. See its SAP reference and workability notes.`,
   } : privatePages[path]);
   const indexable = Boolean(pages[path] || ingredient);
   // Static directory indexes are served with a trailing slash by Apache.

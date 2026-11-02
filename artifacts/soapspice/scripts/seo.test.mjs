@@ -22,17 +22,31 @@ test('every route contains real React-rendered HTML, unique metadata, and one ca
     assert.ok(html.includes(`name="robots" content="${seo.robots}"`), route);
     assert.ok(html.includes(`rel="canonical" href="${escape(seo.canonical)}"`), route);
     assert.ok(html.includes(`property="og:url" content="${escape(seo.canonical)}"`), route);
+    assert.ok(html.includes('property="og:site_name" content="SoapSpice"'), route);
+    assert.ok(html.includes('property="og:locale" content="en_US"'), route);
+    assert.ok(html.includes('property="og:image" content="https://soapspice.com/images/soapspice-social-card.jpg"'), route);
+    assert.ok(html.includes('name="twitter:card" content="summary_large_image"'), route);
+    assert.ok(html.includes('name="twitter:image" content="https://soapspice.com/images/soapspice-social-card.jpg"'), route);
     assert.equal((html.match(/rel="canonical"/g) ?? []).length, 1, route);
     assert.equal((html.match(/<title>/g) ?? []).length, 1, route);
     assert.ok(!html.includes('janeway.replit.dev'), route);
     assert.ok(!titles.has(seo.title), `Duplicate title: ${route}`);
     assert.ok(!descriptions.has(seo.description), `Duplicate description: ${route}`);
+    if (seo.indexable) {
+      assert.ok(seo.description.length >= 130 && seo.description.length <= 160, `Description should be concise but useful: ${route}`);
+    }
     titles.add(seo.title);
     descriptions.add(seo.description);
     for (const match of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
       assert.equal(JSON.parse(match[1]).url, seo.canonical, route);
     }
   }
+});
+
+test('the social sharing image is present and is a usable JPEG', async () => {
+  const image = await readFile(new URL('images/soapspice-social-card.jpg', output));
+  assert.ok(image.length > 30_000, 'Social card image should contain the complete card');
+  assert.deepEqual([...image.subarray(0, 3)], [0xff, 0xd8, 0xff]);
 });
 
 test('all 42 ingredient pages expose names, SAP values, and source citations without JavaScript', async () => {
