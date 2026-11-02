@@ -11,14 +11,14 @@ export const starterGuideTools = [
     title: "A reliable digital scale",
     label: "Essential",
     description:
-      "Weigh every oil, liquid, and lye amount by mass. Choose a stable scale that reads in grams and has enough capacity for your bowl plus the full batch.",
+      "Weigh every oil, liquid, and sodium hydroxide (NaOH) amount by mass. Choose a stable scale that reads in grams and has enough capacity for your bowl plus the full batch.",
   },
   {
     slug: "lye-safe-containers",
-    title: "Lye-safe containers and utensils",
+    title: "Sodium-hydroxide-safe containers and utensils",
     label: "Essential",
     description:
-      "Use dedicated, clearly marked HDPE (#2) or polypropylene (#5) containers for lye solution and stainless-steel tools where appropriate. Never use aluminum with sodium hydroxide.",
+      "Use dedicated, clearly marked HDPE (#2) or polypropylene (#5) containers for NaOH solution and stainless-steel tools where appropriate. Never use aluminum with sodium hydroxide.",
   },
   {
     slug: "stick-blender",

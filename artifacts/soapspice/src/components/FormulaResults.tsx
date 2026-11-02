@@ -55,7 +55,7 @@ export default function FormulaResults({
       <header className="flex flex-col justify-between gap-4 border-b border-[hsl(var(--border))] pb-5 sm:flex-row sm:items-center">
         <div>
           <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">
-            <Check size={15} aria-hidden="true" /> Lye math checked
+            <Check size={15} aria-hidden="true" /> NaOH calculation checked
           </p>
           <h2 id="formula-results-heading" className="mt-2 font-display text-3xl">Your batch at a glance</h2>
           <p className="mt-1 text-sm text-[hsl(var(--muted-foreground))]">
@@ -70,7 +70,7 @@ export default function FormulaResults({
           <h3 id="results-required-heading" className="mb-3 font-bold text-[hsl(var(--foreground))]">Required amounts</h3>
           <div className="overflow-x-auto rounded-2xl border border-[hsl(var(--border))]">
             <table className="w-full min-w-[540px] border-collapse text-left" data-testid="table-required-amounts">
-              <caption className="sr-only">Required lye and liquid amounts and total batch weight</caption>
+              <caption className="sr-only">Required sodium hydroxide and liquid amounts and total batch weight</caption>
               <thead className="bg-[hsl(var(--background))]">
                 <tr>
                   <th scope="col" className={header}>Material</th>
@@ -87,7 +87,7 @@ export default function FormulaResults({
                   <td className={`${cell} text-right font-data`}>{mass(totalOilGrams, 'lb')}</td>
                 </tr>
                 <tr className="border-t border-[hsl(var(--border))]">
-                  <th scope="row" className={`${cell} font-medium`}>NaOH before superfat</th>
+                  <th scope="row" className={`${cell} font-medium`}>NaOH (sodium hydroxide) before superfat</th>
                   <td className={`${cell} text-right font-data`}>{mass(result.naohBeforeSuperfat, 'g')}</td>
                   <td className={`${cell} text-right font-data`}>{mass(result.naohBeforeSuperfat, 'oz')}</td>
                   <td className={`${cell} text-right font-data`}>{mass(result.naohBeforeSuperfat, 'lb')}</td>
@@ -99,7 +99,7 @@ export default function FormulaResults({
                   <td className={`${cell} text-right font-data font-bold text-[hsl(var(--primary))]`}>{mass(result.naoh, 'lb')}</td>
                 </tr>
                 <tr className="border-t border-[hsl(var(--border))]">
-                  <th scope="row" className={cell} data-testid="text-liquid-type">{liquidName} for lye solution</th>
+                  <th scope="row" className={cell} data-testid="text-liquid-type">{liquidName} for NaOH solution</th>
                   <td className={`${cell} text-right font-data`} data-testid="result-liquid">{mass(result.liquid, 'g')}</td>
                   <td className={`${cell} text-right font-data`}>{mass(result.liquid, 'oz')}</td>
                   <td className={`${cell} text-right font-data`}>{mass(result.liquid, 'lb')}</td>
@@ -126,7 +126,7 @@ export default function FormulaResults({
             </table>
           </div>
           <p className="mt-3 text-xs leading-5 text-[hsl(var(--muted-foreground))]">
-            Liquid is a starting estimate at about 22% of the complete pre-saponification batch. NaOH assumes 100% purity. Verify SAP and lye-label values; check fragrance limits with the supplier.
+            Liquid is a starting estimate at about 22% of the complete pre-saponification batch. NaOH calculations assume 100% sodium hydroxide purity. Verify the supplier’s NaOH purity and SAP values; check fragrance limits with the supplier.
           </p>
         </section>
 

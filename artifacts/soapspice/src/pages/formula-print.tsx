@@ -139,7 +139,7 @@ export default function FormulaPrintPage() {
         />
 
         <footer className="mt-6 rounded-2xl border border-amber-300/70 bg-amber-50 p-5 text-sm leading-6 text-amber-950">
-          <strong>Safety check:</strong> Verify the NaOH purity and every SAP value against your sources and lye label. Wear eye protection, gloves, and long sleeves; add lye to liquid, never liquid to lye. Fragrance doses are capped against conservative supplier IFRA screens; a missing limit holds the dose at zero, and the cap is not a compliance certificate.
+          <strong>Safety check:</strong> Verify the NaOH purity and every SAP value against your sources and the sodium hydroxide product label. Wear eye protection, gloves, and long sleeves; add NaOH to liquid, never liquid to NaOH. Fragrance doses are capped against conservative supplier IFRA screens; a missing limit holds the dose at zero, and the cap is not a compliance certificate.
         </footer>
       </article>
     </main>

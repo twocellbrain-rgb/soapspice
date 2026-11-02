@@ -21,12 +21,12 @@ export default function HowToStartSoapmakingPage() {
         </p>
       </header>
 
-      <aside className="mt-8 flex gap-4 rounded-3xl border border-amber-300/70 bg-amber-50 p-5 text-sm leading-6 text-amber-950 sm:p-6" aria-label="Lye safety">
+      <aside className="mt-8 flex gap-4 rounded-3xl border border-amber-300/70 bg-amber-50 p-5 text-sm leading-6 text-amber-950 sm:p-6" aria-label="Sodium hydroxide safety">
         <ShieldCheck className="mt-0.5 h-6 w-6 shrink-0" aria-hidden="true" />
         <div>
-          <h2 className="font-extrabold">Put lye safety first</h2>
+          <h2 className="font-extrabold">Handle sodium hydroxide safely</h2>
           <p className="mt-1">
-            Sodium hydroxide is caustic. Work with good ventilation, wear splash goggles and gloves, keep children and pets away, and follow a tested recipe. Always add lye to water—not water to lye—and never use aluminum tools or containers.
+            Sodium hydroxide (NaOH, commonly called lye in soapmaking) is caustic. Work with good ventilation, wear splash goggles and gloves, keep children and pets away, and follow a tested recipe. Slowly add NaOH to the measured liquid—never liquid to NaOH—and never use aluminum tools or containers.
           </p>
         </div>
       </aside>
