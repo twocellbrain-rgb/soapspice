@@ -650,7 +650,7 @@ function CalculatorPage() {
       return;
     }
     window.setTimeout(() => localStorage.removeItem(storageKey), 5 * 60 * 1000);
-    const url = `${basePath}/formula-print?draft=${encodeURIComponent(draftId)}`;
+    const url = `${basePath}/batch-sheet?draft=${encodeURIComponent(draftId)}`;
     window.open(url, '_blank', 'noopener,noreferrer');
   };
   const available = ingredients.filter((ingredient) => !oils.some((oil) => oil.id === ingredient.id));
@@ -746,7 +746,7 @@ function CalculatorPage() {
             </div>}
           </div>
           <button type="button" onClick={exportFormula} disabled={!visibleResult || !isSignedIn} className={`${buttonQuiet} print-hide w-full disabled:opacity-45`}>Export validated formula (.json)</button>
-          <button type="button" onClick={openPrintableFormula} disabled={!visibleResult} className={`${buttonQuiet} print-hide w-full disabled:cursor-not-allowed disabled:opacity-45`} data-testid="button-print-formula"><Printer size={17} /> Open printable result</button>
+          <button type="button" onClick={openPrintableFormula} disabled={!visibleResult} className={`${buttonQuiet} print-hide w-full disabled:cursor-not-allowed disabled:opacity-45`} data-testid="button-print-formula"><Printer size={17} /> Open batch &amp; shopping sheet</button>
           <p className="print-hide text-center text-xs leading-5 text-[hsl(var(--muted-foreground))]">Opens a separate print-ready tab. Allow pop-ups for SoapSpice if your browser blocks it.</p>
           <div className="rounded-3xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] p-6"><div className="flex items-center gap-2 text-[hsl(var(--secondary-foreground))]"><CircleAlert size={17} /><h2 className="font-bold">A note on the numbers</h2></div><p className="mt-3 text-sm leading-6 text-[hsl(var(--secondary-foreground)/.8)]">{ingredients.some(item => item.verificationStatus !== 'administrator-verified') || ingredients.length === 0 ? 'SAP values are linked to their sources, but still need administrator review.' : 'Catalog SAP values have been reviewed, but supplier specifications may differ.'} Treat every result as a starting point and verify your process independently.</p></div>
         </aside>
@@ -792,9 +792,9 @@ function Router() {
     } else if (location === '/calculators/cold-process-soap' || location === '/my-formulas') {
       title = 'Cold-Process Soap Calculator | SoapSpice';
       description = 'Calculate NaOH and water for cold-process bar soap from source-linked oil and butter SAP values. Review your formula and lye safety guidance.';
-    } else if (location === '/formula-print') {
-      title = 'Printable Soap Formula | SoapSpice';
-      description = 'Print or save a validated cold-process soap formula with its ingredient weights, lye amounts, and safety notes.';
+    } else if (location === '/batch-sheet' || location === '/formula-print') {
+      title = 'Batch Formula and Shopping Links | SoapSpice';
+      description = 'Review a validated cold-process soap batch formula and open Amazon shopping searches for each selected oil and butter.';
     } else if (location === '/ingredients') {
       title = 'Soapmaking Ingredient Catalog | SoapSpice';
       description = 'Search oils and butters for cold-process soapmaking, with descriptions, NaOH SAP values, and linked reference sources.';
@@ -838,6 +838,7 @@ function Router() {
     <Route path="/sign-up/*?"><div className="min-h-[100dvh] bg-[hsl(var(--background))] px-4 py-14"><Link href="/" className="mx-auto mb-8 block w-fit text-sm font-bold text-[hsl(var(--primary))]">← SoapSpice</Link><SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} fallbackRedirectUrl={`${basePath}/my-formulas`} /></div></Route>
     <Route path="/my-formulas"><><Show when="signed-in"><CalculatorPage /></Show><Show when="signed-out"><Redirect to="/" /></Show></></Route>
     <Route path="/calculators/cold-process-soap" component={CalculatorPage} />
+    <Route path="/batch-sheet" component={FormulaPrintPage} />
     <Route path="/formula-print" component={FormulaPrintPage} />
     <Route path="/ingredients" component={IngredientsPage} />
     <Route path="/soapmaking-glossary" component={() => <Shell><SoapmakingGlossaryPage /></Shell>} />

@@ -77,10 +77,10 @@ export default function FormulaPrintPage() {
   if (!formula) {
     return (
       <main className="mx-auto max-w-2xl px-5 py-16">
-        <p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Printable formula</p>
-        <h1 className="mt-3 font-display text-3xl font-bold text-[hsl(var(--foreground))]">This print sheet is no longer available</h1>
+        <p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Batch and shopping sheet</p>
+        <h1 className="mt-3 font-display text-3xl font-bold text-[hsl(var(--foreground))]">This batch sheet is no longer available</h1>
         <p className="mt-3 text-sm leading-6 text-[hsl(var(--muted-foreground))]">
-          Return to the calculator, validate your formula, and open a fresh printable result.
+          Return to the calculator, validate your formula, and open a fresh batch and shopping sheet.
         </p>
         <Link
           href="/calculators/cold-process-soap"
@@ -111,13 +111,13 @@ export default function FormulaPrintPage() {
           className="inline-flex items-center gap-2 rounded-full bg-[hsl(var(--primary))] px-5 py-3 text-sm font-bold text-white"
           data-testid="button-print-formula-page"
         >
-          <Printer size={16} /> Print or save as PDF
+          <Printer size={16} /> Print or save sheet as PDF
         </button>
       </div>
 
       <article>
         <header className="print-page-title mb-7 border-b border-[hsl(var(--border))] pb-6">
-          <p className="text-xs font-bold uppercase tracking-[.18em] text-[hsl(var(--primary))]">SoapSpice · Batch sheet</p>
+          <p className="text-xs font-bold uppercase tracking-[.18em] text-[hsl(var(--primary))]">SoapSpice · Batch formula and shopping links</p>
           <h1 className="mt-3 break-words font-display text-4xl font-bold tracking-tight text-[hsl(var(--foreground))] sm:text-5xl" data-testid="text-print-formula-name">
             {formula.name}
           </h1>
