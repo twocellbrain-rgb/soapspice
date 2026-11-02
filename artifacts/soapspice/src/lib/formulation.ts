@@ -42,6 +42,12 @@ export type FragranceRow = {
   ifraSourceUrl?: string;
 };
 
+export type FragranceWeightUnit = 'g' | 'oz';
+
+export function fragranceUnitForOilUnit(unit: 'percent' | 'g' | 'oz'): FragranceWeightUnit {
+  return unit === 'oz' ? 'oz' : 'g';
+}
+
 export type NaohFormulaInput = {
   oils: FormulaOil[];
   ingredients: Map<string, SapRecord>;
@@ -57,6 +63,22 @@ export function fragranceWeightGrams(row: FragranceRow, totalOilGrams: number): 
     case 'percent': return totalOilGrams * row.amount / 100;
     default: return NaN;
   }
+}
+
+export function convertFragrancesToWeightUnit(
+  fragrances: FragranceRow[],
+  unit: FragranceWeightUnit,
+  totalOilGrams: number,
+): FragranceRow[] {
+  return fragrances.map((row) => {
+    const grams = fragranceWeightGrams(row, totalOilGrams);
+    const amount = unit === 'oz' ? grams / GRAMS_PER_OUNCE : grams;
+    return {
+      ...row,
+      amount: Number.isFinite(amount) ? amount : row.amount,
+      unit,
+    };
+  });
 }
 
 export function fragranceIfraScreen(row: FragranceRow, totalOilGrams: number) {

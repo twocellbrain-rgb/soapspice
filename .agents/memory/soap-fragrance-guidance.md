@@ -20,3 +20,9 @@ Do not show the supplier's brand name in SoapSpice's rendered labels or explanat
 **Why:** The user explicitly asked to remove all supplier brand-name mentions from the site while the exact-product safety screen still needs its source documents.
 
 **How to apply:** Use neutral "supplier" wording for future fragrance UI changes. If an edit would remove source links or prefilled rates rather than just displayed names, clarify the tradeoff first.
+
+Fragrance weights and recommendations should follow the selected oil weight unit (grams or ounces). When oils are entered as percentages, show fragrance weights in grams; changing units must preserve the actual fragrance weight.
+
+**Why:** The user asked for fragrance units to match their oil-unit choice throughout the calculator.
+
+**How to apply:** Keep calculator inputs, scent recommendations, IFRA amounts, results, and print sheets consistent; retain oz/lb only when describing a concentration rate.

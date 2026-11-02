@@ -2,6 +2,6 @@
 - [Soap liquid guidance](soap-liquid-guidance.md) — Automatic liquid is a disclosed cold-process baseline, not an optimum inferred from SAP or fragrance weights.
 - [Legacy formula migration](legacy-formula-migration.md) — imported browser formulas remain drafts; originals stay intact because old saves lack historical SAP snapshots.
 - [SoapSpice preview API routing](soapspice-preview-api-routing.md) — Test API-backed calculator flows through the artifact preview proxy, not the frontend's direct dev-server port.
-- [Soap fragrance guidance](soap-fragrance-guidance.md) — Keep batch scent-strength suggestions separate from supplier-specific IFRA screening and blend safety.
+- [Soap fragrance guidance](soap-fragrance-guidance.md) — Keep IFRA screening distinct; fragrance weights follow oil units, with grams used for percentage-based oils.
 - [Amazon Creators API](amazon-creators-api.md) — Use server-side credentials and keep API catalog results temporary; manual product lists remain persistent.
 - [NaOH naming in SoapSpice](soap-naoh-terminology.md) — Use sodium hydroxide (NaOH) for calculator labels; define “lye” as the common name.

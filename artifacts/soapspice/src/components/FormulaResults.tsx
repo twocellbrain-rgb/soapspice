@@ -1,5 +1,5 @@
 import { Check, FileSpreadsheet } from 'lucide-react';
-import { fragranceIfraScreen, GRAMS_PER_OUNCE, type FragranceRow } from '@/lib/formulation';
+import { fragranceIfraScreen, GRAMS_PER_OUNCE, type FragranceRow, type FragranceWeightUnit } from '@/lib/formulation';
 import FragranceGuide from './FragranceGuide';
 
 export type OilResultRow = {
@@ -16,6 +16,7 @@ export type FormulaCalculation = ReturnType<typeof import('@/lib/formulation').c
 type FormulaResultsProps = {
   oils: OilResultRow[];
   oilInputUnit: OilInputUnit;
+  fragranceUnit: FragranceWeightUnit;
   fragrances: FragranceRow[];
   result: FormulaCalculation;
   liquidName: string;
@@ -38,6 +39,7 @@ function unitLabel(unit: OilInputUnit | FragranceRow['unit']): string {
 export default function FormulaResults({
   oils,
   oilInputUnit,
+  fragranceUnit,
   fragrances,
   result,
   liquidName,
@@ -111,10 +113,10 @@ export default function FormulaResults({
                   <td className={`${cell} text-right font-data`}>{mass(result.total, 'lb')}</td>
                 </tr>
                 <tr className="border-t border-[hsl(var(--border))]">
-                  <th scope="row" className={cell}>Total fragrance</th>
-                  <td className={`${cell} text-right font-data`} data-testid="result-fragrance-total">{mass(result.fragranceTotalGrams, 'g')}</td>
-                  <td className={`${cell} text-right font-data`}>{mass(result.fragranceTotalGrams, 'oz')}</td>
-                  <td className={`${cell} text-right font-data`}>{mass(result.fragranceTotalGrams, 'lb')}</td>
+                  <th scope="row" className={cell}>Total fragrance · {fragranceUnit}</th>
+                  <td colSpan={3} className={`${cell} text-right font-data`} data-testid="result-fragrance-total">
+                    {mass(result.fragranceTotalGrams, fragranceUnit)} {fragranceUnit}
+                  </td>
                 </tr>
                 <tr className="border-t border-[hsl(var(--border))] bg-[hsl(var(--secondary))]">
                   <th scope="row" className={`${cell} font-bold text-[hsl(var(--secondary-foreground))]`}>Total batch weight</th>
@@ -179,13 +181,11 @@ export default function FormulaResults({
           </div>
           <div className="overflow-x-auto rounded-2xl border border-[hsl(var(--border))]">
             <table className="w-full min-w-[720px] border-collapse text-left" data-testid="table-fragrance-inputs">
-              <caption className="sr-only">Entered fragrance amounts and converted weights</caption>
+              <caption className="sr-only">Fragrance amounts in the selected oil weight unit</caption>
               <thead className="bg-[hsl(var(--background))]">
                 <tr>
                   <th scope="col" className={header}>Fragrance</th>
-                  <th scope="col" className={`${header} text-right`}>Entered</th>
-                  <th scope="col" className={`${header} text-right`}>Grams</th>
-                  <th scope="col" className={`${header} text-right`}>Ounces</th>
+                  <th scope="col" className={`${header} text-right`}>Amount · {fragranceUnit}</th>
                   <th scope="col" className={`${header} text-right`}>% of oils</th>
                   <th scope="col" className={header}>IFRA screen</th>
                 </tr>
@@ -193,7 +193,7 @@ export default function FormulaResults({
               <tbody>
                 {fragrances.length === 0 ? (
                   <tr className="border-t border-[hsl(var(--border))]">
-                    <td colSpan={6} className={`${cell} text-[hsl(var(--muted-foreground))]`}>No fragrance added · unscented batch</td>
+                    <td colSpan={4} className={`${cell} text-[hsl(var(--muted-foreground))]`}>No fragrance added · unscented batch</td>
                   </tr>
                 ) : fragrances.map((fragrance) => {
                   const grams = fragrance.unit === 'g'
@@ -206,9 +206,7 @@ export default function FormulaResults({
                   return (
                     <tr key={fragrance.id} className="border-t border-[hsl(var(--border))]" data-testid={`result-fragrance-${fragrance.id}`}>
                       <th scope="row" className={`${cell} font-medium`}>{fragrance.name}</th>
-                      <td className={`${cell} whitespace-nowrap text-right font-data`}>{fragrance.amount.toFixed(2)} {unitLabel(fragrance.unit)}</td>
-                      <td className={`${cell} text-right font-data`}>{mass(grams, 'g')}</td>
-                      <td className={`${cell} text-right font-data`}>{mass(grams, 'oz')}</td>
+                      <td className={`${cell} whitespace-nowrap text-right font-data`}>{mass(grams, fragranceUnit)} {fragranceUnit}</td>
                       <td className={`${cell} text-right font-data`}>{percent.toFixed(2)}%</td>
                       <td className={`${cell} whitespace-nowrap ${screen.exceeds ? 'font-bold text-[hsl(var(--destructive))]' : ''}`} data-testid={`result-ifra-${fragrance.id}`}>
                         {screen.maximumGrams === null ? 'Not checked' : screen.exceeds ? 'Above limit' : 'Within screen'}
@@ -220,7 +218,7 @@ export default function FormulaResults({
             </table>
           </div>
         </section>
-        <FragranceGuide fragrances={fragrances} totalOilGrams={totalOilGrams} naohGrams={result.naoh} />
+        <FragranceGuide fragrances={fragrances} totalOilGrams={totalOilGrams} naohGrams={result.naoh} unit={fragranceUnit} />
       </div>
     </section>
   );

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { calculateNaohFormula, combinedScentStrength, fragrancesAtDoseTarget, fragrancesAtScentStrength, fragranceIfraScreen, fragranceScentGuide, fragranceWeightGrams, GRAMS_PER_OUNCE, inferScentStrength, LIQUID_BATCH_FRACTION, oilWeightTotal, percentagesFromWeights, scentStrengthAmounts, validateNaohFormula, type NaohFormulaInput } from './formulation.ts';
+import { calculateNaohFormula, combinedScentStrength, convertFragrancesToWeightUnit, fragranceUnitForOilUnit, fragrancesAtDoseTarget, fragrancesAtScentStrength, fragranceIfraScreen, fragranceScentGuide, fragranceWeightGrams, GRAMS_PER_OUNCE, inferScentStrength, LIQUID_BATCH_FRACTION, oilWeightTotal, percentagesFromWeights, scentStrengthAmounts, validateNaohFormula, type NaohFormulaInput } from './formulation.ts';
 import { BRAMBLE_BERRY_FRAGRANCES, chooseSupplierFragrance, renameFragrance, selectedSupplierFragrance } from './supplier-fragrances.ts';
 
 const ingredients = new Map([
@@ -93,6 +93,27 @@ test('fragrance names, units and positive amounts are required', () => {
   assert.ok(validateNaohFormula(oneOil({ fragrances: [{ id: 'a', name: '', amount: 2, unit: 'percent' }] })).some((error) => error.includes('Name')));
   assert.ok(validateNaohFormula(oneOil({ fragrances: [{ id: 'a', name: 'Rose', amount: -1, unit: 'oz' }] })).some((error) => error.includes('positive')));
   assert.ok(validateNaohFormula(oneOil({ fragrances: [{ id: 'a', name: 'Rose', amount: 150, unit: 'percent' }] })).some((error) => error.includes('more than')));
+});
+
+test('fragrance amounts follow the selected oil weight unit without changing their weight', () => {
+  const rows = [
+    { id: 'grams', name: 'Rose', amount: 12, unit: 'g' as const },
+    { id: 'ounces', name: 'Lavender', amount: 1, unit: 'oz' as const },
+    { id: 'percent', name: 'Citrus', amount: 2, unit: 'percent' as const },
+  ];
+  const ounces = convertFragrancesToWeightUnit(rows, 'oz', 1000);
+  assert.deepEqual(ounces.map((row) => row.unit), ['oz', 'oz', 'oz']);
+  near(fragranceWeightGrams(ounces[0], 1000), 12);
+  near(fragranceWeightGrams(ounces[1], 1000), GRAMS_PER_OUNCE);
+  near(fragranceWeightGrams(ounces[2], 1000), 20);
+  const grams = convertFragrancesToWeightUnit(ounces, 'g', 1000);
+  assert.deepEqual(grams.map((row) => row.unit), ['g', 'g', 'g']);
+  near(fragranceWeightGrams(grams[0], 1000), 12);
+  near(fragranceWeightGrams(grams[1], 1000), GRAMS_PER_OUNCE);
+  near(fragranceWeightGrams(grams[2], 1000), 20);
+  assert.equal(fragranceUnitForOilUnit('oz'), 'oz');
+  assert.equal(fragranceUnitForOilUnit('g'), 'g');
+  assert.equal(fragranceUnitForOilUnit('percent'), 'g');
 });
 
 test('scent levels scale from unscented complete-batch weight and do not change with entered scent amount', () => {

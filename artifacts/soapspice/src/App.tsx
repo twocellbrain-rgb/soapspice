@@ -23,7 +23,7 @@ import {
 import { Link, Route, Switch, Redirect, Router as WouterRouter, useLocation, useParams } from 'wouter';
 import { getGetIngredientQueryKey, useGetIngredient, useGetIngredients, useGetIngredientStaff, getGetIngredientStaffQueryKey, useListRecipes, getListRecipesQueryKey, createRecipe, updateRecipe, deleteRecipe, importRecipe } from '@workspace/api-client-react';
 import type { RecipeInput, Recipe } from '@workspace/api-client-react';
-import { calculateNaohFormula, fragrancesAtScentStrength, GRAMS_PER_OUNCE, inferScentStrength, oilWeightTotal, percentagesFromWeights, scentStrengthAmounts, validateNaohFormula, type FragranceRow, type ScentStrength } from '@/lib/formulation';
+import { calculateNaohFormula, convertFragrancesToWeightUnit, fragranceUnitForOilUnit, fragrancesAtScentStrength, GRAMS_PER_OUNCE, inferScentStrength, oilWeightTotal, percentagesFromWeights, scentStrengthAmounts, validateNaohFormula, type FragranceRow, type ScentStrength } from '@/lib/formulation';
 import FragranceSection from '@/components/FragranceSection';
 import FormulaResults from '@/components/FormulaResults';
 import IngredientAdmin from '@/components/IngredientAdmin';
@@ -471,6 +471,11 @@ function CalculatorPage() {
     } else if (oilInputUnit === 'percent') {
       setOils(percentagesFromWeights(oils));
     }
+    setFragrances(convertFragrancesToWeightUnit(
+      fragrances,
+      fragranceUnitForOilUnit(nextUnit),
+      totalOilGrams,
+    ));
     setOilInputUnit(nextUnit);
     setValidated(false); setValidationErrors([]); setSaveFeedback('');
   };
@@ -483,6 +488,7 @@ function CalculatorPage() {
   const removeOil = (id: string) => {
     const next = oils.filter((oil) => oil.id !== id);
     if (next.length === 0) {
+      setFragrances(convertFragrancesToWeightUnit(fragrances, 'g', totalOilGrams));
       setOilInputUnit('g');
       setPercentBaseGrams(0);
     }
@@ -530,9 +536,14 @@ function CalculatorPage() {
     setScentStrength(inferRecipeScentStrength(recipe.fragrances, recipe.oils, recipe.superfat));
     setPercentBaseGrams(oilWeightTotal(recipe.oils));
     setOils(recipe.oils.map(o => ({ id: o.id, name: ingredientMap.get(o.id)?.name ?? o.name, percentage: o.percentage, weight: o.weight })));
-    setFragrances(recipe.fragrances ?? []);
+    const recipeOilUnit = recipe.oilInputUnit ?? 'percent';
+    setFragrances(convertFragrancesToWeightUnit(
+      recipe.fragrances ?? [],
+      fragranceUnitForOilUnit(recipeOilUnit),
+      oilWeightTotal(recipe.oils),
+    ));
     setLiquidType(recipe.liquidType ?? 'distilled-water'); setCustomLiquid(recipe.customLiquid ?? '');
-    setOilInputUnit(recipe.oilInputUnit ?? 'percent'); setValidated(false); setValidatedFingerprint(''); setValidationErrors([]);
+    setOilInputUnit(recipeOilUnit); setValidated(false); setValidatedFingerprint(''); setValidationErrors([]);
     setLegacyLiquidNotice(recipe.liquidMethod === 'batch-22' ? ''
       : typeof recipe.concentration === 'number'
         ? `This saved formula used a ${recipe.concentration}% sodium hydroxide solution concentration. Its liquid amount now uses the 22%-of-total-batch estimate and may change. Review before making soap.`
@@ -553,9 +564,15 @@ function CalculatorPage() {
     setScentStrength(inferRecipeScentStrength(recipe.fragrances, recipe.oils, recipe.superfat));
     setRecipeName(recipe.name); setSuperfat(recipe.superfat);
     setPercentBaseGrams(oilWeightTotal(recipe.oils));
-    setOils(recipe.oils); setFragrances(recipe.fragrances ?? []);
+    const recipeOilUnit = recipe.oilInputUnit ?? 'percent';
+    setOils(recipe.oils);
+    setFragrances(convertFragrancesToWeightUnit(
+      recipe.fragrances ?? [],
+      fragranceUnitForOilUnit(recipeOilUnit),
+      oilWeightTotal(recipe.oils),
+    ));
     setLiquidType(recipe.liquidType ?? 'distilled-water'); setCustomLiquid(recipe.customLiquid ?? '');
-    setOilInputUnit(recipe.oilInputUnit ?? 'percent'); setValidated(false); setValidatedFingerprint(''); setValidationErrors([]);
+    setOilInputUnit(recipeOilUnit); setValidated(false); setValidatedFingerprint(''); setValidationErrors([]);
     setLegacyLiquidNotice(recipe.liquidMethod === 'batch-22' ? ''
       : typeof recipe.concentration === 'number'
         ? `This saved formula used a ${recipe.concentration}% sodium hydroxide solution concentration. Its liquid amount now uses the 22%-of-total-batch estimate and may change. Review before making soap.`
@@ -705,6 +722,7 @@ function CalculatorPage() {
           </div>
           <FragranceSection
             fragrances={calculatedFragrances}
+            unit={fragranceUnitForOilUnit(oilInputUnit)}
             totalOilGrams={totalOilGrams}
             onChange={updateFragrances}
             scentStrength={scentStrength}
@@ -759,6 +777,7 @@ function CalculatorPage() {
                 sap: ingredientMap.get(oil.id)!.naohSap,
               }))}
               oilInputUnit={oilInputUnit}
+              fragranceUnit={fragranceUnitForOilUnit(oilInputUnit)}
               fragrances={calculatedFragrances}
               result={visibleResult}
               liquidName={liquidName}

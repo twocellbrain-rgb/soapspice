@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { CircleAlert, Plus, Trash2 } from 'lucide-react';
-import type { FragranceRow, ScentStrength } from '@/lib/formulation';
-import { fragranceIfraScreen, fragranceWeightGrams, fragrancesAtDoseTarget, scentStrengthAmounts } from '@/lib/formulation';
+import type { FragranceRow, FragranceWeightUnit, ScentStrength } from '@/lib/formulation';
+import { fragranceIfraScreen, fragranceWeightGrams, fragrancesAtDoseTarget, GRAMS_PER_OUNCE, scentStrengthAmounts } from '@/lib/formulation';
 import { BRAMBLE_BERRY_FRAGRANCES, chooseSupplierFragrance, renameFragrance, selectedSupplierFragrance } from '@/lib/supplier-fragrances';
 
 type FragranceSectionProps = {
   fragrances: FragranceRow[];
+  unit: FragranceWeightUnit;
   totalOilGrams: number;
   onChange: (next: FragranceRow[]) => void;
   scentStrength: ScentStrength;
@@ -16,8 +17,9 @@ type FragranceSectionProps = {
 const fieldClass =
   'h-11 w-full rounded-xl border border-[hsl(var(--input))] bg-[hsl(var(--background))] px-3 text-sm text-[hsl(var(--foreground))] outline-none transition-colors focus-visible:border-[hsl(var(--primary))] focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary)/.25)]';
 
-function displayGrams(grams: number) {
-  return Number.isFinite(grams) ? grams.toFixed(2) : '0.00';
+function displayWeight(grams: number, unit: FragranceWeightUnit) {
+  const amount = unit === 'g' ? grams : grams / GRAMS_PER_OUNCE;
+  return Number.isFinite(amount) ? amount.toFixed(2) : '0.00';
 }
 
 function displayAmount(amount: number, unit: FragranceRow['unit']) {
@@ -30,6 +32,7 @@ function amountUnitLabel(unit: FragranceRow['unit']) {
 
 export default function FragranceSection({
   fragrances,
+  unit,
   totalOilGrams,
   onChange,
   scentStrength,
@@ -46,7 +49,7 @@ export default function FragranceSection({
 
   const addRow = () => {
     setUnscentedConfirmed(false);
-    onChange([...fragrances, { id: crypto.randomUUID(), name: '', amount: 0, unit: 'g' }]);
+    onChange([...fragrances, { id: crypto.randomUUID(), name: '', amount: 0, unit }]);
   };
 
   const totalGrams = fragrances.reduce(
@@ -64,7 +67,7 @@ export default function FragranceSection({
           <p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Step 03 / optional</p>
           <h2 id="fragrance-heading" className="mt-2 font-display text-3xl text-[hsl(var(--foreground))]">Add your fragrance</h2>
           <p className="mt-1 max-w-lg text-sm leading-6 text-[hsl(var(--muted-foreground))]">
-            Choose a fragrance from the menu. The calculator sets its amount from your batch size and selected scent strength.
+            Choose a fragrance from the menu. Its calculated amount follows your oil units ({unit}); when oil percentages are selected, fragrance amounts use grams.
           </p>
         </div>
         {fragrances.length > 0 && (
@@ -131,10 +134,9 @@ export default function FragranceSection({
                     data-testid={`button-scent-strength-${tier.key}`}
                   >
                     <span className="text-xs font-bold uppercase tracking-wider text-[hsl(var(--foreground))]">{tier.label}</span>
-                    <span className="font-data text-lg font-bold text-[hsl(var(--primary))]" data-testid={`text-scent-dose-${tier.key}`}>{displayGrams(cappedBatchGrams)} g</span>
-                    <span className="text-[11px] text-[hsl(var(--muted-foreground))]">{(cappedBatchGrams / 28.349523125).toFixed(2)} oz total after IFRA screens</span>
+                    <span className="font-data text-lg font-bold text-[hsl(var(--primary))]" data-testid={`text-scent-dose-${tier.key}`}>{displayWeight(cappedBatchGrams, unit)} {unit} total after IFRA screens</span>
                     <span className="text-[10px] text-[hsl(var(--muted-foreground))]">
-                      {isCapped ? `Guide target ${displayGrams(tier.grams)} g · reduced by IFRA limit(s)` : `Guide target ${displayGrams(tier.grams)} g`}
+                      {isCapped ? `Guide target ${displayWeight(tier.grams, unit)} ${unit} · reduced by IFRA limit(s)` : `Guide target ${displayWeight(tier.grams, unit)} ${unit}`}
                     </span>
                   </button>
                 );
@@ -218,22 +220,13 @@ export default function FragranceSection({
                         {displayAmount(row.amount, row.unit)} {amountUnitLabel(row.unit)}
                       </p>
                     </div>
-                    <label className="block">
-                      <span className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">Unit</span>
-                      <select
-                        value={row.unit}
-                        onChange={(event) => updateRow(row.id, { unit: event.target.value as FragranceRow['unit'] })}
-                        className={`${fieldClass} h-9 px-2 text-xs`}
-                        data-testid={`select-fragrance-unit-${row.id}`}
-                      >
-                        <option value="g">Grams (g)</option>
-                        <option value="oz">Ounces (oz)</option>
-                        <option value="percent">% of oil weight</option>
-                      </select>
-                    </label>
+                    <div className="pb-2 text-right">
+                      <span className="block text-[10px] font-bold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">Unit</span>
+                      <span className="font-data text-sm font-semibold text-[hsl(var(--foreground))]" data-testid={`text-fragrance-unit-${row.id}`}>{unit}</span>
+                    </div>
                   </div>
                   <p className="mt-1 text-[10px] leading-4 text-[hsl(var(--muted-foreground))]">
-                    <span data-testid={`text-fragrance-grams-${row.id}`}>{displayGrams(grams)} g equivalent</span> · updates with batch size, strength, and IFRA limit.
+                    <span data-testid={`text-fragrance-grams-${row.id}`}>{displayWeight(grams, unit)} {unit}</span> · updates with batch size, strength, and IFRA limit.
                   </p>
                 </div>
               </div>
@@ -312,13 +305,13 @@ export default function FragranceSection({
                   data-testid={`status-ifra-input-${row.id}`}
                 >
                   {cappedByIfra
-                    ? `Dose automatically capped at ${displayGrams(grams)} g to stay within the conservative ${ifra.maximumGrams!.toFixed(2)} g screen for this oil weight. Verify the finished bar with the supplier.`
-                    : `Calculated dose is within the conservative IFRA screen of ${ifra.maximumGrams!.toFixed(2)} g for this oil weight. Verify the finished bar with the supplier.`}
+                    ? `Dose automatically capped at ${displayWeight(grams, unit)} ${unit} to stay within the conservative ${displayWeight(ifra.maximumGrams!, unit)} ${unit} screen for this oil weight. Verify the finished bar with the supplier.`
+                    : `Calculated dose is within the conservative IFRA screen of ${displayWeight(ifra.maximumGrams!, unit)} ${unit} for this oil weight. Verify the finished bar with the supplier.`}
                 </p>
               ) : null}
               <div className="mt-4 flex items-center justify-between gap-3 border-t border-[hsl(var(--border))] pt-3 text-xs text-[hsl(var(--muted-foreground))]">
                 <span>Fragrance share</span>
-                <strong className="font-data text-sm text-[hsl(var(--primary))]">{displayGrams(grams)} g</strong>
+                <strong className="font-data text-sm text-[hsl(var(--primary))]">{displayWeight(grams, unit)} {unit}</strong>
               </div>
             </div>
           );
@@ -327,7 +320,7 @@ export default function FragranceSection({
 
       <div className="mt-5 flex items-center justify-between gap-4 rounded-2xl bg-[hsl(var(--secondary))] px-4 py-3 text-sm font-bold text-[hsl(var(--secondary-foreground))]">
         <span>Total fragrance</span>
-        <strong className="font-data text-lg" data-testid="text-fragrance-total">{displayGrams(totalGrams)} g</strong>
+        <strong className="font-data text-lg" data-testid="text-fragrance-total">{displayWeight(totalGrams, unit)} {unit}</strong>
       </div>
 
       <div role="note" className="mt-4 flex items-start gap-3 rounded-2xl border border-[hsl(var(--accent)/.35)] bg-[hsl(var(--accent)/.1)] px-4 py-3 text-xs leading-5 text-[hsl(var(--accent-foreground))]">
