@@ -62,6 +62,7 @@ test('all 42 ingredient pages expose names, SAP values, and source citations wit
     assert.ok(renderedText.includes(`How ${ingredient.name} affects cold-process soap`), ingredient.id);
     assert.ok(renderedText.includes(note.workabilityLevel), ingredient.id);
     assert.ok(!/review pending|values need administrator review/i.test(renderedText), `Review status should not appear on catalog details: ${ingredient.id}`);
+    assert.ok(!/bramble\s*berry|soap\s*queen/i.test(renderedText), `Third-party learning links should be hidden: ${ingredient.id}`);
   }
 });
 

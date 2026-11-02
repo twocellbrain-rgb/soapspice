@@ -312,13 +312,6 @@ function IngredientDetailPage() {
                 <p className="mt-2 text-sm leading-6 text-[hsl(var(--muted-foreground))]">{note.workabilityNote}</p>
               </div>
               <p className="mt-5 text-sm leading-6 text-[hsl(var(--muted-foreground))]">Workability is a practical guide, not a safety rating. Results depend on the whole oil blend, product grade, and process. Check the supplier’s specification before calculating sodium hydroxide; this linked SAP value is a reference, not a guarantee for every product.</p>
-              <div className="mt-6 space-y-2 text-sm">
-                <p className="font-bold">More about cold-process soap oils</p>
-                <ul className="list-inside list-disc space-y-1 text-[hsl(var(--muted-foreground))]">
-                  <li><a href="https://www.brambleberry.com/cold-process/formulating-cold-process-soap-recipes.html" target="_blank" rel="noreferrer" className="font-medium text-[hsl(var(--primary))] underline">Bramble Berry: Formulating Cold Process Soap Recipes</a></li>
-                  <li><a href="https://www.soapqueen.com/bath-and-body-tutorials/tips-and-tricks/single-oil-cold-process-soap-lather-tests/" target="_blank" rel="noreferrer" className="font-medium text-[hsl(var(--primary))] underline">Soap Queen: Single Oil Cold Process Soap Lather Tests</a></li>
-                </ul>
-              </div>
             </section>
             <Link href={`/calculators/cold-process-soap?ingredient=${ingredient.id}`} className={`${buttonPrimary} mt-10`} data-testid="link-use-in-calculator">Use in calculator <ArrowRight size={16} /></Link>
           </div>
