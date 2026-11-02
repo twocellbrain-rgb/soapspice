@@ -3,5 +3,5 @@
 - [Legacy formula migration](legacy-formula-migration.md) — imported browser formulas remain drafts; originals stay intact because old saves lack historical SAP snapshots.
 - [SoapSpice hosting and routing](soapspice-preview-api-routing.md) — Public Hostinger site must work without Clerk or a required API; preserve static deep-link support.
 - [Soap fragrance guidance](soap-fragrance-guidance.md) — Keep IFRA screening distinct; fragrance weights follow oil units, with grams used for percentage-based oils.
-- [Amazon Creators API](amazon-creators-api.md) — Use server-side credentials and keep API catalog results temporary; manual product lists remain persistent.
+- [Amazon affiliate purpose and API](amazon-creators-api.md) — SoapSpice is for affiliate marketing; keep credentials private, disclosures accurate, and API catalog data temporary.
 - [NaOH naming in SoapSpice](soap-naoh-terminology.md) — Use sodium hydroxide (NaOH) for calculator labels; define “lye” as the common name.

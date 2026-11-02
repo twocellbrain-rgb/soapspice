@@ -1,9 +1,21 @@
 ---
-name: Amazon Creators API
-description: Current Amazon affiliate catalog API choice and project data-retention constraints.
+name: Amazon affiliate purpose and API
+description: SoapSpice's affiliate-marketing purpose, disclosure/offline constraints, and API catalog retention.
 ---
 
 Use Amazon Creators API rather than Product Advertising API 5.0; Amazon's current documentation says PA-API 5.0 is deprecated. Keep the Credential ID, Secret, credential Version, partner tag, and marketplace configuration server-side in Replit Secrets.
+
+SoapSpice is supposed to be for Amazon affiliate marketing.
+
+**Why:** The user explicitly reminded us of this product purpose and asked that Amazon's terms be respected.
+
+**How to apply:** Keep useful original calculator/educational content and relevant shopping links. Do not confuse untracked searches with commission-generating Special Links or claim Associate membership without activation. Never invent an affiliate tag or matched product identity.
+
+Amazon's policies reviewed on November 2, 2026 restrict Special Links and Program Content in printed/offline material. Shopping promotions must remain online and user-clicked, not automatic Amazon redirects; disclosures must be near paid links, with the required Associate statement when active.
+
+**Why:** Future print/share enhancements could accidentally place paid links in prohibited offline output.
+
+**How to apply:** Keep promotions out of print/PDF and formula JSON; recheck current official policies before expanding distribution. The affiliate readiness guide in the app directory links the official policies and lists owner/account steps; implementation safeguards do not guarantee Amazon approval.
 
 Creators API catalog responses are temporary: ItemInfo and DetailPageURL content may be cached for up to one day, while Offers content has a one-hour TTL. The SoapSpice product search should remain discovery-only unless persistent API data is paired with TTL-aware refresh. Manual product entries remain the durable source for public recommendations.
 

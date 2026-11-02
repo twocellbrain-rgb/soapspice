@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ArrowLeft, Printer } from 'lucide-react';
 import { Link } from 'wouter';
+import { RESULTS_PATH } from '@/lib/calculator-draft';
 import FormulaResults, {
   type FormulaCalculation,
   type OilResultRow,
@@ -61,9 +62,9 @@ function loadPrintableFormula(): PrintableFormula | null {
     const draftId = new URLSearchParams(window.location.search).get('draft');
     if (!draftId || !/^[a-f0-9-]{36}$/i.test(draftId)) return null;
     const storageKey = `soapspice-print:${draftId}`;
-    const raw = localStorage.getItem(storageKey);
+    // Non-destructive: refreshing or printing this page must keep the sheet.
+    const raw = sessionStorage.getItem(storageKey) ?? localStorage.getItem(storageKey);
     if (!raw) return null;
-    localStorage.removeItem(storageKey);
     const parsed: unknown = JSON.parse(raw);
     return isPrintableFormula(parsed) ? parsed : null;
   } catch {
@@ -80,14 +81,14 @@ export default function FormulaPrintPage() {
         <p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Batch and shopping sheet</p>
         <h1 className="mt-3 font-display text-3xl font-bold text-[hsl(var(--foreground))]">This batch sheet is no longer available</h1>
         <p className="mt-3 text-sm leading-6 text-[hsl(var(--muted-foreground))]">
-          Return to the calculator, validate your formula, and open a fresh batch and shopping sheet.
+          Return to your results, or revalidate in the calculator, then open a fresh batch sheet.
         </p>
         <Link
-          href="/calculators/cold-process-soap"
+          href={RESULTS_PATH}
           className="mt-6 inline-flex items-center gap-2 rounded-full bg-[hsl(var(--primary))] px-5 py-3 text-sm font-bold text-white"
           data-testid="link-return-to-calculator"
         >
-          <ArrowLeft size={16} /> Back to calculator
+          <ArrowLeft size={16} /> Back to results
         </Link>
       </main>
     );
@@ -99,11 +100,11 @@ export default function FormulaPrintPage() {
     <main className="print-sheet mx-auto max-w-5xl px-5 py-8 sm:px-8 lg:px-10">
       <div className="print-hide mb-7 flex flex-wrap items-center justify-between gap-3">
         <Link
-          href="/calculators/cold-process-soap"
+          href={RESULTS_PATH}
           className="inline-flex items-center gap-2 text-sm font-bold text-[hsl(var(--primary))]"
           data-testid="link-return-to-calculator"
         >
-          <ArrowLeft size={16} /> Back to calculator
+          <ArrowLeft size={16} /> Back to results
         </Link>
         <button
           type="button"

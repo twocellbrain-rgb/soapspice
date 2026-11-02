@@ -1,4 +1,6 @@
 import { ExternalLink } from 'lucide-react';
+import AmazonDisclosure from '@/components/AmazonDisclosure';
+import { getAmazonLink } from '@/lib/amazon-links';
 
 type IngredientSelection = {
   id: string;
@@ -22,7 +24,7 @@ export default function CalculatorIngredientProductRecommendations({
 
   const recommendations = selections.map((selection) => ({
     ...selection,
-    searchUrl: `https://www.amazon.com/s?k=${encodeURIComponent(`${selection.name} soap making`)}`,
+    link: getAmazonLink(selection.id, `${selection.name} soap making`),
   }));
 
   return (
@@ -39,9 +41,10 @@ export default function CalculatorIngredientProductRecommendations({
           </h2>
         </div>
         <p className="max-w-xl text-xs leading-5 text-[hsl(var(--muted-foreground))]">
-          Oils, fragrances, sodium hydroxide, and your selected mixing liquid are listed below. Links open Amazon search results; SoapSpice does not show live prices. These search links are not affiliate links.
+          Oils, fragrances, sodium hydroxide, and your selected mixing liquid are listed below. Search results are not verified product recommendations. SoapSpice does not display live prices, stock status, ratings, or Amazon reviews.
         </p>
       </div>
+      <AmazonDisclosure />
 
       <div className="mt-5 grid gap-4 md:grid-cols-2">
           {recommendations.map((item) => (
@@ -53,16 +56,19 @@ export default function CalculatorIngredientProductRecommendations({
             >
               <h3 className="font-bold text-[hsl(var(--foreground))]">{item.name}</h3>
               <a
-                href={item.searchUrl}
+                href={item.link.href}
                 target="_blank"
-                rel="nofollow noopener noreferrer"
+                rel={item.link.isAffiliate ? 'sponsored nofollow noopener' : 'nofollow noopener'}
+                referrerPolicy="strict-origin-when-cross-origin"
                 className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-[hsl(var(--primary))] underline underline-offset-2"
               >
-                Check Amazon for price <ExternalLink size={14} aria-hidden="true" />
+                Check Amazon for price {item.link.isAffiliate && <span>(paid link)</span>} <ExternalLink size={14} aria-hidden="true" />
               </a>
             </section>
           ))}
-          {additionalMaterials.map((material) => (
+          {additionalMaterials.map((material) => {
+            const link = getAmazonLink(material.id, material.searchQuery);
+            return (
             <section
               key={material.id}
               className="rounded-2xl border border-[hsl(var(--border))] bg-white p-4"
@@ -71,15 +77,16 @@ export default function CalculatorIngredientProductRecommendations({
             >
               <h3 className="font-bold text-[hsl(var(--foreground))]">{material.name}</h3>
               <a
-                href={`https://www.amazon.com/s?k=${encodeURIComponent(material.searchQuery)}`}
+                href={link.href}
                 target="_blank"
-                rel="nofollow noopener noreferrer"
+                rel={link.isAffiliate ? 'sponsored nofollow noopener' : 'nofollow noopener'}
+                referrerPolicy="strict-origin-when-cross-origin"
                 className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-[hsl(var(--primary))] underline underline-offset-2"
               >
-                Check Amazon for price <ExternalLink size={14} aria-hidden="true" />
+                Check Amazon for price {link.isAffiliate && <span>(paid link)</span>} <ExternalLink size={14} aria-hidden="true" />
               </a>
             </section>
-          ))}
+          ); })}
       </div>
     </section>
   );

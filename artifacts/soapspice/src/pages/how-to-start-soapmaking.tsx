@@ -1,6 +1,8 @@
 import { ArrowRight, ExternalLink, ShieldCheck } from "lucide-react";
 import { Link } from "wouter";
 import { starterGuideTools } from "@/lib/starter-guide";
+import AmazonDisclosure from "@/components/AmazonDisclosure";
+import { getAmazonLink } from "@/lib/amazon-links";
 
 export default function HowToStartSoapmakingPage() {
   return (
@@ -36,6 +38,7 @@ export default function HowToStartSoapmakingPage() {
 
       <div className="mt-6 grid gap-5 lg:grid-cols-2">
         {starterGuideTools.map((tool, index) => {
+          const link = getAmazonLink(`tool-${tool.slug}`, `${tool.title} soap making`);
           return (
             <article key={tool.slug} className="flex flex-col rounded-[1.75rem] border border-[hsl(var(--border))] bg-white p-6 shadow-sm sm:p-7">
               <div className="flex items-start justify-between gap-4">
@@ -56,8 +59,8 @@ export default function HowToStartSoapmakingPage() {
                 <h4 className="text-xs font-black uppercase tracking-[0.15em] text-[hsl(var(--foreground))]">Product suggestions</h4>
                 <div className="mt-3 rounded-2xl border border-dashed border-[hsl(var(--border))] px-4 py-3 text-sm leading-5 text-[hsl(var(--muted-foreground))]">
                   <p>Search Amazon for this tool. Product prices and availability may change.</p>
-                  <a className="mt-2 inline-flex items-center gap-1.5 font-bold text-[hsl(var(--primary))] underline" href={`https://www.amazon.com/s?k=${encodeURIComponent(`${tool.title} soap making`)}`} target="_blank" rel="nofollow noopener noreferrer">
-                    Check Amazon for price <ExternalLink size={14} aria-hidden="true" />
+                  <a className="print-hide mt-2 inline-flex items-center gap-1.5 font-bold text-[hsl(var(--primary))] underline" href={link.href} target="_blank" rel={link.isAffiliate ? "sponsored nofollow noopener" : "nofollow noopener"} referrerPolicy="strict-origin-when-cross-origin">
+                    Check Amazon for price {link.isAffiliate && <span>(paid link)</span>} <ExternalLink size={14} aria-hidden="true" />
                   </a>
                 </div>
               </div>
@@ -82,8 +85,9 @@ export default function HowToStartSoapmakingPage() {
       </section>
 
       <p className="mt-8 text-xs leading-5 text-[hsl(var(--muted-foreground))]">
-        Amazon links open search results and are not affiliate links. Confirm materials and suitability with the seller before buying. This guide is educational and does not replace a tested recipe or appropriate safety practices.
+        Confirm materials and suitability with the seller before buying. This guide is educational and does not replace a tested recipe or appropriate safety practices.
       </p>
+      <AmazonDisclosure />
     </div>
   );
 }

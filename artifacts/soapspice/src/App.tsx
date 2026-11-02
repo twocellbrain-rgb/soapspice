@@ -1,4 +1,6 @@
 import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import { CALCULATOR_PATH, readCalculatorDraft, RESULTS_PATH, writeCalculatorDraft, type CalculatorDraft } from '@/lib/calculator-draft';
+import { ResultsHeader, ResultsRecovery } from '@/components/CalculatorResultsChrome';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   ArrowRight,
@@ -30,6 +32,8 @@ import SoapmakingGlossaryPage from '@/pages/soapmaking-glossary';
 import HowToStartSoapmakingPage from '@/pages/how-to-start-soapmaking';
 import FormulaPrintPage from '@/pages/formula-print';
 import NotFound from '@/pages/not-found';
+import PrivacyPage from '@/pages/privacy';
+import AmazonDisclosure from '@/components/AmazonDisclosure';
 import './bright-crafted.css';
 
 const queryClient = new QueryClient();
@@ -105,7 +109,7 @@ function Shell({ children }: { children: ReactNode }) {
             {menuOpen ? <X size={21} /> : <Menu size={21} />}
           </button>
           <nav className={`sc-nav${menuOpen ? ' is-open' : ''}`} aria-label="Main navigation">
-            <Link href="/calculators/cold-process-soap" onClick={closeMenu} aria-current={location === '/calculators/cold-process-soap' || location === '/my-formulas' ? 'page' : undefined} data-testid="link-calculator">Calculator</Link>
+            <Link href="/calculators/cold-process-soap" onClick={closeMenu} aria-current={location.startsWith('/calculators/cold-process-soap') || location === '/my-formulas' ? 'page' : undefined} data-testid="link-calculator">Calculator</Link>
             <Link href="/ingredients" onClick={closeMenu} aria-current={location === '/ingredients' || location.startsWith('/ingredients/') ? 'page' : undefined} data-testid="link-ingredients">Ingredient catalog</Link>
             <Link href="/how-to-start-soapmaking" onClick={closeMenu} aria-current={location === '/how-to-start-soapmaking' ? 'page' : undefined} data-testid="link-how-to-start">How to start</Link>
             <Link href="/soapmaking-glossary" onClick={closeMenu} aria-current={location === '/soapmaking-glossary' ? 'page' : undefined} data-testid="link-glossary">Glossary</Link>
@@ -118,6 +122,10 @@ function Shell({ children }: { children: ReactNode }) {
         <div className="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-8 text-sm text-[hsl(var(--muted-foreground))] sm:flex-row sm:items-center sm:justify-between lg:px-8">
           <div className="flex items-center gap-3"><img src={`${publicImages}soapspice-logo.webp`} alt="" width="1200" height="701" /><span>Ingredient choices, made clearer.</span></div>
           <p>NaOH cold-process bars only · source-linked values need review</p>
+        </div>
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-5 pb-8 text-xs text-[hsl(var(--muted-foreground))] sm:flex-row sm:items-center sm:justify-between lg:px-8">
+          <AmazonDisclosure />
+          <Link href="/privacy" className="shrink-0 font-bold text-[hsl(var(--primary))] hover:underline" data-testid="link-footer-privacy">Privacy</Link>
         </div>
       </footer>
     </div>
@@ -265,26 +273,28 @@ function IngredientDetailPage() {
   );
 }
 
-function CalculatorPage() {
+function CalculatorPage({ mode = 'edit' }: { mode?: 'edit' | 'results' }) {
   const ingredients = bundledIngredientCatalog;
+  const [, setLocation] = useLocation();
+  const [draft] = useState(readCalculatorDraft);
   const seeded = useRef(false);
-  const [superfat, setSuperfat] = useState(5);
-  const [oilInputUnit, setOilInputUnit] = useState<OilInputUnit>('g');
-  const [percentBaseGrams, setPercentBaseGrams] = useState(0);
-  const [liquidType, setLiquidType] = useState<LiquidType>('distilled-water');
-  const [customLiquid, setCustomLiquid] = useState('');
-  const [legacyLiquidNotice, setLegacyLiquidNotice] = useState('');
-  const [oils, setOils] = useState<OilRow[]>([]);
-  const [fragrances, setFragrances] = useState<FragranceRow[]>([]);
-  const [scentStrength, setScentStrength] = useState<ScentStrength>('medium');
+  const [superfat, setSuperfat] = useState(draft?.superfat ?? 5);
+  const [oilInputUnit, setOilInputUnit] = useState<OilInputUnit>(draft?.oilInputUnit ?? 'g');
+  const [percentBaseGrams, setPercentBaseGrams] = useState(draft?.percentBaseGrams ?? 0);
+  const [liquidType, setLiquidType] = useState<LiquidType>(draft?.liquidType ?? 'distilled-water');
+  const [customLiquid, setCustomLiquid] = useState(draft?.customLiquid ?? '');
+  const [legacyLiquidNotice, setLegacyLiquidNotice] = useState(draft?.legacyLiquidNotice ?? '');
+  const [oils, setOils] = useState<OilRow[]>((draft?.oils as OilRow[] | undefined) ?? []);
+  const [fragrances, setFragrances] = useState<FragranceRow[]>((draft?.fragrances as FragranceRow[] | undefined) ?? []);
+  const [scentStrength, setScentStrength] = useState<ScentStrength>((draft?.scentStrength as ScentStrength | undefined) ?? 'medium');
   const [selectedId, setSelectedId] = useState('');
-  const [validated, setValidated] = useState(false);
-  const [validatedFingerprint, setValidatedFingerprint] = useState('');
+  const [validated, setValidated] = useState(draft?.validated ?? false);
+  const [validatedFingerprint, setValidatedFingerprint] = useState(draft?.validatedFingerprint ?? '');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [saveFeedback, setSaveFeedback] = useState('');
-  const [recipeName, setRecipeName] = useState('My first bar');
-  const [activeRecipeId, setActiveRecipeId] = useState<string | null>(null);
-  const [openedSnapshot, setOpenedSnapshot] = useState<SavedRecipe | null>(null);
+  const [recipeName, setRecipeName] = useState(draft?.recipeName ?? 'My first bar');
+  const [activeRecipeId, setActiveRecipeId] = useState<string | null>(draft?.activeRecipeId ?? null);
+  const [openedSnapshot, setOpenedSnapshot] = useState<SavedRecipe | null>((draft?.openedSnapshot as SavedRecipe | null | undefined) ?? null);
   const [browserRecipes, setBrowserRecipes] = useState<SavedRecipe[]>(() => {
     try {
       const stored: unknown = JSON.parse(localStorage.getItem('soapspice-recipes') ?? '[]');
@@ -294,6 +304,7 @@ function CalculatorPage() {
 
   useEffect(() => {
     if (!seeded.current && ingredients.length > 0) {
+      if (mode === 'results') { seeded.current = true; return; }
       const requested = new URLSearchParams(window.location.search).get('ingredient');
       const ingredient = ingredients.find((item) => item.id === requested);
       if (ingredient) {
@@ -301,7 +312,7 @@ function CalculatorPage() {
       }
       seeded.current = true;
     }
-  }, [ingredients]);
+  }, [ingredients, mode]);
 
   const ingredientMap = useMemo(() => new Map(ingredients.map((ingredient) => [ingredient.id, ingredient])), [ingredients]);
   const totalPercent = oils.reduce((sum, oil) => sum + oil.percentage, 0);
@@ -348,6 +359,16 @@ function CalculatorPage() {
     () => currentErrors.length === 0 ? calculateNaohFormula(formulaInput) : null,
     [formulaInput, currentErrors],
   );
+  const buildDraft = (overrides: Partial<CalculatorDraft> = {}): CalculatorDraft => ({
+    version: 1, superfat, oilInputUnit, percentBaseGrams, liquidType, customLiquid, legacyLiquidNotice,
+    oils, fragrances, scentStrength, validated, validatedFingerprint, recipeName, activeRecipeId, openedSnapshot,
+    ...overrides,
+  });
+  const buildDraftRef = useRef(buildDraft);
+  buildDraftRef.current = buildDraft;
+  useEffect(() => {
+    writeCalculatorDraft(buildDraftRef.current());
+  }, [superfat, oilInputUnit, percentBaseGrams, liquidType, customLiquid, legacyLiquidNotice, oils, fragrances, scentStrength, validated, validatedFingerprint, recipeName, activeRecipeId, openedSnapshot]);
   const freshValidation = validated && validatedFingerprint === formulaFingerprint && validationErrors.length === 0 && currentErrors.length === 0;
   const visibleResult = freshValidation ? calculation : null;
   const savedRecipes = browserRecipes;
@@ -414,6 +435,13 @@ function CalculatorPage() {
   const updateScentStrength = (next: ScentStrength) => { setScentStrength(next); setValidated(false); setValidationErrors([]); setSaveFeedback(''); };
   const validate = () => {
     setValidationErrors(currentErrors); setValidatedFingerprint(currentErrors.length ? '' : formulaFingerprint); setValidated(true); setSaveFeedback('');
+    if (currentErrors.length === 0) {
+      if (!writeCalculatorDraft(buildDraft({ validated: true, validatedFingerprint: formulaFingerprint }))) {
+        setSaveFeedback('Could not open results because browser session storage is unavailable. Allow site storage and validate again. Your inputs are still here.');
+        return;
+      }
+      setLocation(RESULTS_PATH);
+    }
   };
   const saveRecipe = () => {
     if (currentErrors.length || !calculation || !freshValidation) {
@@ -540,24 +568,25 @@ function CalculatorPage() {
       generatedAt: new Date().toISOString(),
     };
     try {
-      localStorage.setItem(storageKey, JSON.stringify(printData));
+      sessionStorage.setItem(storageKey, JSON.stringify(printData));
     } catch {
-      setSaveFeedback('Could not prepare the print sheet in this browser. Check that local storage is available, then try again.');
+      setSaveFeedback('Could not prepare the print sheet in this browser. Check that browser storage is available, then try again.');
       return;
     }
-    window.setTimeout(() => localStorage.removeItem(storageKey), 5 * 60 * 1000);
-    const url = `${basePath}/batch-sheet?draft=${encodeURIComponent(draftId)}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
+    setLocation(`/batch-sheet?draft=${encodeURIComponent(draftId)}`);
   };
   const available = ingredients.filter((ingredient) => !oils.some((oil) => oil.id === ingredient.id));
 
   return (
     <Shell>
+      {mode === 'edit' ? (<>
       <section className="sc-calculator-intro mx-auto max-w-7xl px-5 pb-10 pt-12 lg:px-8 lg:pt-16">
         <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end"><div className="max-w-3xl animate-rise"><div className="mb-4 flex items-center gap-3 text-xs font-bold uppercase tracking-[.18em] text-[hsl(var(--primary))]"><span className="h-2 w-2 rounded-full bg-[hsl(var(--accent))]" /> Calculator / NaOH cold process</div><h1 className="font-display text-5xl leading-[.98] tracking-[-.04em] sm:text-6xl">Turn a good idea into a <span className="text-[hsl(var(--primary))]">clear formula.</span></h1><p className="mt-5 max-w-2xl text-lg leading-8 text-[hsl(var(--muted-foreground))]">Build a bar from source-linked SAP values. This first release supports NaOH cold-process bars only.</p></div><div className="flex shrink-0 items-center gap-3 rounded-2xl border border-[hsl(var(--accent)/.35)] bg-[hsl(var(--accent)/.1)] px-4 py-3 text-sm font-bold text-[hsl(var(--accent-foreground))]"><CircleAlert size={18} /> Always wear proper safety gear.</div></div>
         <div role="note" data-testid="notice-sap-review" className="mt-8 flex items-start gap-3 rounded-2xl border border-[hsl(var(--accent)/.35)] bg-[hsl(var(--secondary))] px-5 py-4 text-sm leading-6 text-[hsl(var(--secondary-foreground))]"><CircleAlert className="mt-0.5 shrink-0" size={18} /><span>{ingredients.length === 0 || ingredients.some(item => item.verificationStatus !== 'administrator-verified') ? <><strong>Source-linked, not yet administrator reviewed.</strong> Reference SAP values still need administrator review. </> : <><strong>Catalog SAP values reviewed.</strong> Supplier-specific values may differ. </>}Check the linked sources and independently verify the formula before handling sodium hydroxide (NaOH, commonly called lye).</span></div>
       </section>
-      <section className="mx-auto grid max-w-7xl gap-6 px-5 pb-24 lg:grid-cols-[1.4fr_.6fr] lg:px-8">
+      </>) : <ResultsHeader fresh={!!visibleResult} name={recipeName.trim() || 'Untitled formula'} superfat={superfat} liquidName={liquidName} onExport={exportFormula} onPrint={openPrintableFormula} />}
+      <section className="mx-auto max-w-7xl space-y-6 px-5 pb-24 lg:px-8">
+        {mode === 'edit' && (<>
         <div className="space-y-6">
           <div className="print-card rounded-3xl border border-[hsl(var(--border))] bg-white p-5 shadow-card sm:p-7">
             <div className="flex flex-col justify-between gap-4 border-b border-[hsl(var(--border))] pb-6 sm:flex-row sm:items-start"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Step 01</p><h2 className="mt-2 font-display text-3xl">Choose your ingredients</h2><p className="mt-1 text-sm text-[hsl(var(--muted-foreground))]">Enter the weight of each oil in grams or ounces. Their sum determines the formula size, NaOH, and liquid.</p></div><div className="flex items-center gap-2"><select aria-label="Add an ingredient" value={selectedId} onChange={(event) => setSelectedId(event.target.value)} className="h-11 max-w-[190px] rounded-full border border-[hsl(var(--input))] bg-[hsl(var(--background))] px-4 text-sm outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]" data-testid="select-add-ingredient"><option value="">Add an ingredient</option>{available.map((ingredient) => <option key={ingredient.id} value={ingredient.id}>{ingredient.name}</option>)}</select><button type="button" onClick={addOil} disabled={!selectedId} className={`${buttonPrimary} h-11 px-4`} data-testid="button-add-ingredient"><Plus size={17} /> Add</button></div></div>
@@ -608,35 +637,10 @@ function CalculatorPage() {
           />
             <div className="print-card rounded-3xl border border-[hsl(var(--primary)/.3)] bg-[hsl(var(--primary)/.06)] p-5 sm:p-7"><div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Step 04</p><h2 className="mt-2 font-display text-3xl">Check your formula</h2><p className="mt-2 max-w-lg text-sm text-[hsl(var(--muted-foreground))]">Validate oil percentages, NaOH calculations, and fragrance amounts before printing or saving. Supplier IFRA rates are screened only when you select a documented product or enter a matching rate; missing limits hold automatic fragrance amounts at zero.</p></div><button type="button" onClick={validate} className={`${buttonPrimary} shrink-0`} data-testid="button-validate-formula"><Check size={17} /> Validate formula</button></div>{validated && <div className={`mt-5 rounded-2xl p-4 text-sm ${validationErrors.length ? 'bg-[hsl(var(--destructive)/.1)] text-[hsl(var(--destructive))]' : freshValidation ? 'bg-[hsl(184_75%_35%/.12)] text-[hsl(var(--primary))]' : 'bg-[hsl(var(--accent)/.12)] text-[hsl(var(--secondary-foreground))]'}`} data-testid="status-validation">{validationErrors.length ? <ul className="list-disc space-y-1 pl-5">{validationErrors.map((error) => <li key={error}>{error}</li>)}</ul> : freshValidation ? <div className="flex items-center gap-2 font-bold"><Check size={17} /> NaOH calculation checked. Review the liquid estimate and fragrance IFRA flags below.</div> : <div className="flex items-center gap-2 font-bold"><CircleAlert size={17} /> Formula or ingredient data changed. Validate again before saving or printing.</div>}</div>}</div>
         </div>
-        <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
-          <div className="rounded-3xl border border-[hsl(var(--border))] bg-white p-6 shadow-card">
-            <div className="flex items-center gap-2 text-[hsl(var(--primary))]"><ShieldCheck size={17} /><h2 className="font-bold">Save this batch</h2></div>
-            <p className="mt-3 text-sm text-[hsl(var(--muted-foreground))]">Saved formulas stay in this browser and do not sync to other devices.</p>
-            <input value={recipeName} onChange={(event) => { setRecipeName(event.target.value); setSaveFeedback(''); }} className="mt-4 h-11 w-full rounded-xl border border-[hsl(var(--input))] bg-[hsl(var(--background))] px-3 text-sm outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]" placeholder="Formula name" data-testid="input-recipe-name" />
-            <button type="button" onClick={saveRecipe} disabled={catalogUnavailable || !freshValidation} className={`${buttonPrimary} mt-3 w-full disabled:cursor-not-allowed disabled:opacity-45`} data-testid="button-save-recipe">{activeRecipeId ? 'Update browser save' : 'Save in this browser'}</button>
-            {!freshValidation && <p className="mt-2 text-xs text-[hsl(var(--muted-foreground))]">Validate the current formula before saving.</p>}
-            {activeRecipeId && <button type="button" className={`${buttonQuiet} mt-2 w-full`} onClick={() => { setActiveRecipeId(null); setOpenedSnapshot(null); setRecipeName('My first bar'); setValidated(false); setSaveFeedback('Start a new formula, then validate it before saving.'); }}>Save as new instead</button>}
-            {catalogWarnings.length > 0 && <div role="alert" className="mt-4 rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950"><strong>Review catalog changes</strong><ul className="mt-2 list-disc pl-5">{catalogWarnings.map(message => <li key={message}>{message}</li>)}</ul></div>}
-            {saveFeedback && <p role="status" className={`mt-3 rounded-xl p-3 text-sm ${saveFeedback.startsWith('Saved') ? 'bg-[hsl(var(--primary)/.1)] text-[hsl(var(--primary))]' : 'bg-[hsl(var(--accent)/.12)] text-[hsl(var(--secondary-foreground))]'}`} data-testid="status-save-feedback">{saveFeedback}</p>}
-            <div className="mt-5 border-t border-[hsl(var(--border))] pt-4">
-              <p className="text-xs font-bold uppercase tracking-[.14em] text-[hsl(var(--muted-foreground))]">Saved in this browser</p>
-              {savedRecipes.length === 0 && <p className="mt-2 text-sm">No browser saves yet. Validate a formula and save it here.</p>}
-              <div className="mt-2 space-y-2">{savedRecipes.map(recipe => <div key={recipe.id} className="rounded-xl border border-[hsl(var(--border))] p-3">
-                <button type="button" onClick={() => loadRecipe(recipe.id)} className="w-full text-left text-sm font-bold hover:text-[hsl(var(--primary))]" data-testid={`button-load-recipe-${recipe.id}`}>{recipe.name}</button>
-                <p className="mt-1 text-xs text-[hsl(var(--muted-foreground))]">Saved {new Date(recipe.savedAt).toLocaleDateString()}</p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  <button type="button" onClick={() => duplicateRecipe(recipe)} className="text-xs font-bold text-[hsl(var(--primary))]">Duplicate</button>
-                  <button type="button" onClick={() => removeRecipe(recipe)} className="text-xs font-bold text-red-700">Delete</button>
-                </div>
-              </div>)}</div>
-            </div>
-          </div>
-          <button type="button" onClick={exportFormula} disabled={!visibleResult} className={`${buttonQuiet} print-hide w-full disabled:opacity-45`}>Export validated formula (.json)</button>
-          <button type="button" onClick={openPrintableFormula} disabled={!visibleResult} className={`${buttonQuiet} print-hide w-full disabled:cursor-not-allowed disabled:opacity-45`} data-testid="button-print-formula"><Printer size={17} /> Open batch &amp; shopping sheet</button>
-          <p className="print-hide text-center text-xs leading-5 text-[hsl(var(--muted-foreground))]">Opens a separate print-ready tab. Allow pop-ups for SoapSpice if your browser blocks it.</p>
-          <div className="rounded-3xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] p-6"><div className="flex items-center gap-2 text-[hsl(var(--secondary-foreground))]"><CircleAlert size={17} /><h2 className="font-bold">A note on the numbers</h2></div><p className="mt-3 text-sm leading-6 text-[hsl(var(--secondary-foreground)/.8)]">{ingredients.some(item => item.verificationStatus !== 'administrator-verified') || ingredients.length === 0 ? 'SAP values are linked to their sources, but still need administrator review.' : 'Catalog SAP values have been reviewed, but supplier specifications may differ.'} Treat every result as a starting point and verify your process independently.</p></div>
-        </aside>
-        {visibleResult ? (
+        </>)}
+        {mode === 'results' && (<>
+        {!visibleResult && <ResultsRecovery hasDraft={oils.length > 0} />}
+        {visibleResult && (
           <>
             <FormulaResults
               oils={oils.map((oil) => ({
@@ -675,11 +679,40 @@ function CalculatorPage() {
               ]}
             />
           </>
-        ) : (
-          <div role="status" data-testid="status-formula-placeholder" className="rounded-3xl border border-dashed border-[hsl(var(--border))] bg-white p-6 text-sm leading-6 text-[hsl(var(--muted-foreground))] lg:col-span-2">
-            Your ingredient inputs, required NaOH and solution liquid, fragrance amounts, and total batch weight will appear here after you validate a complete formula.
-          </div>
         )}
+        {visibleResult && <div className="rounded-3xl border border-amber-300/70 bg-amber-50 p-5 text-sm leading-6 text-amber-950" data-testid="notice-results-safety"><strong>Safety check:</strong> Verify the NaOH purity and every SAP value against your sources and the sodium hydroxide product label. Wear eye protection, gloves, and long sleeves; add NaOH to liquid, never liquid to NaOH. Fragrance doses are capped against conservative supplier IFRA screens; a missing limit holds the dose at zero, and the cap is not a compliance certificate.</div>}
+        </>)}
+        <aside className="grid items-start gap-6 lg:grid-cols-[1.1fr_.9fr]" data-testid="panel-save-batch">
+          <div className="rounded-3xl border border-[hsl(var(--border))] bg-white p-6 shadow-card">
+            <div className="flex items-center gap-2 text-[hsl(var(--primary))]"><ShieldCheck size={17} /><h2 className="font-bold">Save this batch</h2></div>
+            <p className="mt-3 text-sm text-[hsl(var(--muted-foreground))]">Saved formulas stay in this browser and do not sync to other devices.</p>
+            <input value={recipeName} onChange={(event) => { setRecipeName(event.target.value); setSaveFeedback(''); }} className="mt-4 h-11 w-full rounded-xl border border-[hsl(var(--input))] bg-[hsl(var(--background))] px-3 text-sm outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]" placeholder="Formula name" data-testid="input-recipe-name" />
+            <button type="button" onClick={saveRecipe} disabled={catalogUnavailable || !freshValidation} className={`${buttonPrimary} mt-3 w-full disabled:cursor-not-allowed disabled:opacity-45`} data-testid="button-save-recipe">{activeRecipeId ? 'Update browser save' : 'Save in this browser'}</button>
+            {!freshValidation && <p className="mt-2 text-xs text-[hsl(var(--muted-foreground))]">Validate the current formula before saving.</p>}
+            {activeRecipeId && <button type="button" className={`${buttonQuiet} mt-2 w-full`} onClick={() => { setActiveRecipeId(null); setOpenedSnapshot(null); setSaveFeedback('The next save creates a new browser formula. Your existing save stays unchanged.'); }} data-testid="button-save-as-new">Save as new instead</button>}
+            {catalogWarnings.length > 0 && <div role="alert" className="mt-4 rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950"><strong>Review catalog changes</strong><ul className="mt-2 list-disc pl-5">{catalogWarnings.map(message => <li key={message}>{message}</li>)}</ul></div>}
+            {saveFeedback && <p role="status" className={`mt-3 rounded-xl p-3 text-sm ${saveFeedback.startsWith('Saved') ? 'bg-[hsl(var(--primary)/.1)] text-[hsl(var(--primary))]' : 'bg-[hsl(var(--accent)/.12)] text-[hsl(var(--secondary-foreground))]'}`} data-testid="status-save-feedback">{saveFeedback}</p>}
+            {mode === 'results' && <Link href={CALCULATOR_PATH} className="mt-5 block border-t border-[hsl(var(--border))] pt-4 text-sm font-bold text-[hsl(var(--primary))]" data-testid="link-manage-saved">Manage {savedRecipes.length} saved formula{savedRecipes.length === 1 ? '' : 's'} on the calculator</Link>}
+            {mode === 'edit' && <div className="mt-5 border-t border-[hsl(var(--border))] pt-4">
+              <p className="text-xs font-bold uppercase tracking-[.14em] text-[hsl(var(--muted-foreground))]">Saved in this browser</p>
+              {savedRecipes.length === 0 && <p className="mt-2 text-sm">No browser saves yet. Validate a formula and save it here.</p>}
+              <div className="mt-2 space-y-2">{savedRecipes.map(recipe => <div key={recipe.id} className="rounded-xl border border-[hsl(var(--border))] p-3">
+                <button type="button" onClick={() => loadRecipe(recipe.id)} className="w-full text-left text-sm font-bold hover:text-[hsl(var(--primary))]" data-testid={`button-load-recipe-${recipe.id}`}>{recipe.name}</button>
+                <p className="mt-1 text-xs text-[hsl(var(--muted-foreground))]">Saved {new Date(recipe.savedAt).toLocaleDateString()}</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <button type="button" onClick={() => duplicateRecipe(recipe)} className="text-xs font-bold text-[hsl(var(--primary))]">Duplicate</button>
+                  <button type="button" onClick={() => removeRecipe(recipe)} className="text-xs font-bold text-red-700">Delete</button>
+                </div>
+              </div>)}</div>
+            </div>}
+          </div>
+          <div className="space-y-4">
+          <button type="button" onClick={exportFormula} disabled={!visibleResult} className={`${buttonQuiet} print-hide w-full disabled:opacity-45`}>Export validated formula (.json)</button>
+          <button type="button" onClick={openPrintableFormula} disabled={!visibleResult} className={`${buttonQuiet} print-hide w-full disabled:cursor-not-allowed disabled:opacity-45`} data-testid="button-print-formula"><Printer size={17} /> Open printable batch sheet</button>
+          <p className="print-hide text-center text-xs leading-5 text-[hsl(var(--muted-foreground))]">Opens a print-ready sheet in this tab. Use its back link to return to these results.</p>
+          <div className="rounded-3xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] p-6"><div className="flex items-center gap-2 text-[hsl(var(--secondary-foreground))]"><CircleAlert size={17} /><h2 className="font-bold">A note on the numbers</h2></div><p className="mt-3 text-sm leading-6 text-[hsl(var(--secondary-foreground)/.8)]">{ingredients.some(item => item.verificationStatus !== 'administrator-verified') || ingredients.length === 0 ? 'SAP values are linked to their sources, but still need administrator review.' : 'Catalog SAP values have been reviewed, but supplier specifications may differ.'} Treat every result as a starting point and verify your process independently.</p></div>
+          </div>
+        </aside>
       </section>
     </Shell>
   );
@@ -688,6 +721,7 @@ function CalculatorPage() {
 function Router() {
   const [location] = useLocation();
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     let title: string;
     let description: string;
     if (location === '/') {
@@ -696,9 +730,15 @@ function Router() {
     } else if (location === '/calculators/cold-process-soap' || location === '/my-formulas') {
       title = 'Cold-Process Soap Calculator | SoapSpice';
       description = 'Calculate sodium hydroxide (NaOH) and liquid for cold-process bar soap from source-linked oil and butter SAP values. Review your formula and sodium-hydroxide safety guidance.';
+    } else if (location === RESULTS_PATH) {
+      title = 'Your Cold-Process Soap Results | SoapSpice';
+      description = 'Validated NaOH, liquid, and fragrance amounts in grams and ounces for your cold-process soap formula, with safety notes and material links.';
     } else if (location === '/batch-sheet' || location === '/formula-print') {
       title = 'Batch Formula and Shopping Links | SoapSpice';
       description = 'Review a validated cold-process soap batch formula and open Amazon shopping searches for each selected oil and butter.';
+    } else if (location === '/privacy') {
+      title = 'Privacy | SoapSpice';
+      description = 'How SoapSpice handles browser-saved formulas, session drafts, and links to third-party shopping sites.';
     } else if (location === '/ingredients') {
       title = 'Soapmaking Ingredient Catalog | SoapSpice';
       description = 'Search oils and butters for cold-process soapmaking, with descriptions, NaOH SAP values, and linked reference sources.';
@@ -729,11 +769,13 @@ function Router() {
   }, [location]);
   return <ErrorBoundary resetKey={location}><Switch>
     <Route path="/" component={Home} />
-    <Route path="/my-formulas" component={CalculatorPage} />
-    <Route path="/calculators/cold-process-soap" component={CalculatorPage} />
+    <Route path="/my-formulas">{() => <CalculatorPage />}</Route>
+    <Route path="/calculators/cold-process-soap">{() => <CalculatorPage />}</Route>
+    <Route path="/calculators/cold-process-soap/results">{() => <CalculatorPage mode="results" />}</Route>
     <Route path="/batch-sheet" component={FormulaPrintPage} />
     <Route path="/formula-print" component={FormulaPrintPage} />
     <Route path="/ingredients" component={IngredientsPage} />
+    <Route path="/privacy">{() => <Shell><PrivacyPage /></Shell>}</Route>
     <Route path="/soapmaking-glossary" component={() => <Shell><SoapmakingGlossaryPage /></Shell>} />
     <Route path="/how-to-start-soapmaking" component={() => <Shell><HowToStartSoapmakingPage /></Shell>} />
     <Route path="/ingredients/:ingredientId" component={IngredientDetailPage} />

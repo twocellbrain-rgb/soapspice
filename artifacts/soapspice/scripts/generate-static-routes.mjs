@@ -8,6 +8,8 @@ const catalog = JSON.parse(await readFile(new URL('../src/data/ingredient-catalo
 const routes = [
   'ingredients',
   'calculators/cold-process-soap',
+  'calculators/cold-process-soap/results',
+  'privacy',
   'how-to-start-soapmaking',
   'soapmaking-glossary',
   'my-formulas',
