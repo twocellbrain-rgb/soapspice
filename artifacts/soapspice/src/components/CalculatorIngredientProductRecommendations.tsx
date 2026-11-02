@@ -1,8 +1,4 @@
 import { ExternalLink } from 'lucide-react';
-import {
-  getListCalculatorIngredientProductsQueryKey,
-  useListCalculatorIngredientProducts,
-} from '@workspace/api-client-react';
 
 type IngredientSelection = {
   id: string;
@@ -22,22 +18,12 @@ export default function CalculatorIngredientProductRecommendations({
   selections: IngredientSelection[];
   additionalMaterials?: AdditionalMaterial[];
 }) {
-  const productsQuery = useListCalculatorIngredientProducts({
-    query: {
-      queryKey: getListCalculatorIngredientProductsQueryKey(),
-      staleTime: 60_000,
-    },
-  });
-
   if (selections.length === 0 && additionalMaterials.length === 0) return null;
 
-  const groups = productsQuery.data ?? [];
   const recommendations = selections.map((selection) => ({
     ...selection,
-    products: groups.find((entry) => entry.ingredientId === selection.id)?.products ?? [],
     searchUrl: `https://www.amazon.com/s?k=${encodeURIComponent(`${selection.name} soap making`)}`,
   }));
-  const hasCuratedProducts = recommendations.some((item) => item.products.length > 0);
 
   return (
     <section
@@ -53,8 +39,7 @@ export default function CalculatorIngredientProductRecommendations({
           </h2>
         </div>
         <p className="max-w-xl text-xs leading-5 text-[hsl(var(--muted-foreground))]">
-          Oils, fragrances, sodium hydroxide, and your selected mixing liquid are listed below. Links open Amazon search results; SoapSpice does not show live prices. Search links are not affiliate links.
-          {hasCuratedProducts && ' Some manually curated product links may earn SoapSpice a commission from qualifying purchases.'}
+          Oils, fragrances, sodium hydroxide, and your selected mixing liquid are listed below. Links open Amazon search results; SoapSpice does not show live prices. These search links are not affiliate links.
         </p>
       </div>
 
@@ -67,33 +52,14 @@ export default function CalculatorIngredientProductRecommendations({
               data-testid={`product-picks-${item.id}`}
             >
               <h3 className="font-bold text-[hsl(var(--foreground))]">{item.name}</h3>
-              {item.products.length > 0 ? (
-                <ul className="mt-3 space-y-3">
-                  {item.products.map((product, index) => (
-                    <li key={`${item.id}-${index}`} className="rounded-xl bg-[hsl(var(--background))] p-3">
-                    <h4 className="text-sm font-bold text-[hsl(var(--foreground))]">{product.title}</h4>
-                    <p className="mt-1 text-xs leading-5 text-[hsl(var(--muted-foreground))]">{product.note}</p>
-                    <a
-                      href={product.url}
-                      target="_blank"
-                      rel="sponsored nofollow noopener noreferrer"
-                      className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-[hsl(var(--primary))] underline underline-offset-2"
-                    >
-                      Check Amazon for price <ExternalLink size={13} aria-hidden="true" />
-                    </a>
-                  </li>
-                  ))}
-                </ul>
-              ) : (
-                <a
-                  href={item.searchUrl}
-                  target="_blank"
-                  rel="nofollow noopener noreferrer"
-                  className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-[hsl(var(--primary))] underline underline-offset-2"
-                >
-                  Check Amazon for price <ExternalLink size={14} aria-hidden="true" />
-                </a>
-              )}
+              <a
+                href={item.searchUrl}
+                target="_blank"
+                rel="nofollow noopener noreferrer"
+                className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-[hsl(var(--primary))] underline underline-offset-2"
+              >
+                Check Amazon for price <ExternalLink size={14} aria-hidden="true" />
+              </a>
             </section>
           ))}
           {additionalMaterials.map((material) => (

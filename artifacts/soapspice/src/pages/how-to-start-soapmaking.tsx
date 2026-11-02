@@ -1,12 +1,8 @@
 import { ArrowRight, ExternalLink, ShieldCheck } from "lucide-react";
 import { Link } from "wouter";
-import { useListStarterGuideProducts } from "@workspace/api-client-react";
 import { starterGuideTools } from "@/lib/starter-guide";
 
 export default function HowToStartSoapmakingPage() {
-  const products = useListStarterGuideProducts();
-  const groups = products.data ?? [];
-
   return (
     <div className="mx-auto w-full max-w-7xl px-5 pb-20 pt-10 lg:px-8 lg:pt-16">
       <header className="max-w-3xl">
@@ -36,19 +32,10 @@ export default function HowToStartSoapmakingPage() {
           <p className="text-xs font-black uppercase tracking-[0.18em] text-[hsl(var(--primary))]">Build a simple kit</p>
           <h2 className="mt-2 font-display text-3xl font-black text-[hsl(var(--foreground))]">Tools for your first batches</h2>
         </div>
-        {products.isLoading && <p className="text-sm text-[hsl(var(--muted-foreground))]" role="status">Loading product suggestions…</p>}
       </div>
-
-      {products.isError && (
-        <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-900" role="alert">
-          Product recommendations could not be loaded. The equipment guidance is still available.
-          <button type="button" className="ml-2 font-bold underline" onClick={() => void products.refetch()}>Try again</button>
-        </div>
-      )}
 
       <div className="mt-6 grid gap-5 lg:grid-cols-2">
         {starterGuideTools.map((tool, index) => {
-          const group = groups.find((entry) => entry.toolSlug === tool.slug);
           return (
             <article key={tool.slug} className="flex flex-col rounded-[1.75rem] border border-[hsl(var(--border))] bg-white p-6 shadow-sm sm:p-7">
               <div className="flex items-start justify-between gap-4">
@@ -61,35 +48,18 @@ export default function HowToStartSoapmakingPage() {
                     <h3 className="mt-1 font-display text-xl font-extrabold text-[hsl(var(--foreground))]">{tool.title}</h3>
                   </div>
                 </div>
-                {group && <span className="shrink-0 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800">{group.products.length} picks</span>}
               </div>
 
               <p className="mt-4 text-sm leading-6 text-[hsl(var(--muted-foreground))]">{tool.description}</p>
 
               <div className="mt-5 border-t border-[hsl(var(--border))] pt-4">
                 <h4 className="text-xs font-black uppercase tracking-[0.15em] text-[hsl(var(--foreground))]">Product suggestions</h4>
-                {group ? (
-                  <ul className="mt-3 grid gap-3">
-                    {group.products.map((product, productIndex) => (
-                      <li key={`${tool.slug}-${productIndex}`} className="rounded-2xl bg-[hsl(var(--muted)/0.45)] p-4">
-                        <p className="font-bold text-[hsl(var(--foreground))]">{product.title}</p>
-                        <p className="mt-1 text-sm leading-5 text-[hsl(var(--muted-foreground))]">{product.note}</p>
-                        <a
-                          className="mt-3 inline-flex items-center gap-1.5 text-sm font-extrabold text-[hsl(var(--primary))] underline-offset-4 hover:underline"
-                          href={product.url}
-                          target="_blank"
-                          rel="sponsored nofollow noopener noreferrer"
-                        >
-                          View on Amazon <ExternalLink size={14} aria-hidden="true" />
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="mt-3 rounded-2xl border border-dashed border-[hsl(var(--border))] px-4 py-3 text-sm leading-5 text-[hsl(var(--muted-foreground))]">
-                    Product picks are being curated for this category.
-                  </p>
-                )}
+                <div className="mt-3 rounded-2xl border border-dashed border-[hsl(var(--border))] px-4 py-3 text-sm leading-5 text-[hsl(var(--muted-foreground))]">
+                  <p>Search Amazon for this tool. Product prices and availability may change.</p>
+                  <a className="mt-2 inline-flex items-center gap-1.5 font-bold text-[hsl(var(--primary))] underline" href={`https://www.amazon.com/s?k=${encodeURIComponent(`${tool.title} soap making`)}`} target="_blank" rel="nofollow noopener noreferrer">
+                    Check Amazon for price <ExternalLink size={14} aria-hidden="true" />
+                  </a>
+                </div>
               </div>
             </article>
           );
@@ -112,7 +82,7 @@ export default function HowToStartSoapmakingPage() {
       </section>
 
       <p className="mt-8 text-xs leading-5 text-[hsl(var(--muted-foreground))]">
-        Affiliate disclosure: Some links may earn SoapSpice a commission from qualifying purchases at no extra cost to you. Product links are manually curated; confirm materials and suitability with the seller before buying. This guide is educational and does not replace a tested recipe or appropriate safety practices.
+        Amazon links open search results and are not affiliate links. Confirm materials and suitability with the seller before buying. This guide is educational and does not replace a tested recipe or appropriate safety practices.
       </p>
     </div>
   );
