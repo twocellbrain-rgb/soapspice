@@ -62,6 +62,14 @@ test('generated sitemap includes every indexable canonical page and excludes ses
   assert.ok(robots.includes('Allow: /'));
 });
 
+test('the colorful branded SVG favicon is present in the deployment output', async () => {
+  const index = await readFile(new URL('index.html', output), 'utf8');
+  const icon = await readFile(new URL('favicon.svg', output), 'utf8');
+  assert.match(index, /rel="icon" type="image\/svg\+xml" href="\/favicon\.svg\?v=2" sizes="any"/);
+  assert.match(icon, /viewBox="0 0 64 64"/);
+  assert.ok(icon.includes('#21484A') && icon.includes('#F47A24') && icon.includes('>S</text>'));
+});
+
 test('404 and unknown ingredients are noindex; Apache no longer returns the homepage for unknown paths', async () => {
   const html = await readFile(new URL('404.html', output), 'utf8');
   assert.ok(html.includes('name="robots" content="noindex, follow"'));
