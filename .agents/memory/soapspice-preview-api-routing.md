@@ -9,6 +9,12 @@ The user chose a public site with browser-only saves and no Clerk, hosted on Hos
 
 **How to apply:** Keep public features usable on a static host. Cloud saves, admin tools, or live API-backed libraries require a separate hosting decision rather than silently restoring an API dependency.
 
+For public-page SEO, prefer build-time HTML generation over a required server-rendering runtime.
+
+**Why:** The user wants search-readable pages while retaining the existing static Hostinger hosting arrangement.
+
+**How to apply:** Keep generated public HTML and search metadata consistent with the interactive app; do not introduce a runtime Node server or serialize browser-private formulas into public pages.
+
 Preserve direct-link and refresh support for public routes.
 
 **Why:** Hostinger returned 404 for direct calculator, catalog, and guide URLs even while the homepage loaded. Vite's development SPA fallback hid this production problem.

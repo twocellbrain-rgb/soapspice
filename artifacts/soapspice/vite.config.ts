@@ -2,6 +2,7 @@ import path from 'path';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
+import { sitemapXml } from './src/lib/seo';
 
 import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
 
@@ -30,6 +31,16 @@ if (!basePath) {
 export default defineConfig({
   base: basePath,
   plugins: [
+    {
+      name: 'soapspice-sitemap',
+      configureServer(server) {
+        server.middlewares.use((request, response, next) => {
+          if (request.url?.split('?')[0] !== `${basePath.replace(/\/$/, '')}/sitemap.xml`) return next();
+          response.setHeader('Content-Type', 'application/xml; charset=utf-8');
+          response.end(sitemapXml());
+        });
+      },
+    },
     react(),
     tailwindcss({ optimize: false }),
     runtimeErrorOverlay(),

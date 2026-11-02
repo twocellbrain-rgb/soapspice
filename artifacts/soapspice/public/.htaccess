@@ -1,8 +1,5 @@
 DirectoryIndex index.html
 
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule ^ index.html [L]
-</IfModule>
+# Every supported route is generated as a directory containing index.html.
+# Unknown URLs must return a genuine 404, not an indexable copy of the homepage.
+ErrorDocument 404 /404.html

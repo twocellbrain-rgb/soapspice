@@ -34,6 +34,7 @@ import FormulaPrintPage from '@/pages/formula-print';
 import NotFound from '@/pages/not-found';
 import PrivacyPage from '@/pages/privacy';
 import AmazonDisclosure from '@/components/AmazonDisclosure';
+import { updatePageSeo } from '@/lib/seo';
 import './bright-crafted.css';
 
 const queryClient = new QueryClient();
@@ -722,50 +723,7 @@ function Router() {
   const [location] = useLocation();
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    let title: string;
-    let description: string;
-    if (location === '/') {
-      title = 'SoapSpice | Make soap with more confidence';
-      description = 'Explore source-linked soapmaking ingredients and build clear NaOH cold-process bar formulas with SoapSpice.';
-    } else if (location === '/calculators/cold-process-soap' || location === '/my-formulas') {
-      title = 'Cold-Process Soap Calculator | SoapSpice';
-      description = 'Calculate sodium hydroxide (NaOH) and liquid for cold-process bar soap from source-linked oil and butter SAP values. Review your formula and sodium-hydroxide safety guidance.';
-    } else if (location === RESULTS_PATH) {
-      title = 'Your Cold-Process Soap Results | SoapSpice';
-      description = 'Validated NaOH, liquid, and fragrance amounts in grams and ounces for your cold-process soap formula, with safety notes and material links.';
-    } else if (location === '/batch-sheet' || location === '/formula-print') {
-      title = 'Batch Formula and Shopping Links | SoapSpice';
-      description = 'Review a validated cold-process soap batch formula and open Amazon shopping searches for each selected oil and butter.';
-    } else if (location === '/privacy') {
-      title = 'Privacy | SoapSpice';
-      description = 'How SoapSpice handles browser-saved formulas, session drafts, and links to third-party shopping sites.';
-    } else if (location === '/ingredients') {
-      title = 'Soapmaking Ingredient Catalog | SoapSpice';
-      description = 'Search oils and butters for cold-process soapmaking, with descriptions, NaOH SAP values, and linked reference sources.';
-    } else if (location === '/soapmaking-glossary') {
-      title = 'Soapmaking Glossary | SoapSpice';
-      description = 'Plain-language definitions for common handmade soapmaking terms, ingredients, formulas, methods, and safety.';
-    } else if (location === '/how-to-start-soapmaking') {
-      title = 'How to Start Making Soap | SoapSpice';
-      description = 'A beginner-friendly soapmaking guide to protective gear, scales, sodium-hydroxide-safe tools, molds, and manually curated product suggestions.';
-    } else if (location.startsWith('/ingredients/')) {
-      const slug = location.slice('/ingredients/'.length);
-      let decoded = slug;
-      try { decoded = decodeURIComponent(slug); } catch { /* Keep the slug if malformed. */ }
-      const ingredientName = decoded.replace(/[-_]+/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
-      title = `${ingredientName} Soapmaking Ingredient | SoapSpice`;
-      description = `Explore ${ingredientName} for cold-process soapmaking, including its source-linked NaOH SAP value and ingredient details.`;
-    } else {
-      title = 'Page not found | SoapSpice';
-      description = 'Explore SoapSpice ingredients and the NaOH cold-process soap calculator.';
-    }
-    document.title = title;
-    for (const selector of ['meta[name="description"]', 'meta[property="og:description"]', 'meta[name="twitter:description"]']) {
-      document.querySelector<HTMLMetaElement>(selector)?.setAttribute('content', description);
-    }
-    for (const selector of ['meta[property="og:title"]', 'meta[name="twitter:title"]']) {
-      document.querySelector<HTMLMetaElement>(selector)?.setAttribute('content', title);
-    }
+    updatePageSeo(location);
   }, [location]);
   return <ErrorBoundary resetKey={location}><Switch>
     <Route path="/" component={Home} />
@@ -783,8 +741,8 @@ function Router() {
   </Switch></ErrorBoundary>;
 }
 
-function App() {
-  return <WouterRouter base={basePath}><QueryClientProvider client={queryClient}><TooltipProvider><Router /><Toaster /></TooltipProvider></QueryClientProvider></WouterRouter>;
+function App({ ssrPath }: { ssrPath?: string } = {}) {
+  return <WouterRouter base={basePath} ssrPath={ssrPath}><QueryClientProvider client={queryClient}><TooltipProvider><Router /><Toaster /></TooltipProvider></QueryClientProvider></WouterRouter>;
 }
 
 export default App;

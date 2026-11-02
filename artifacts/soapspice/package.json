@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --config vite.config.ts --host 0.0.0.0",
-    "build": "vite build --config vite.config.ts && node scripts/generate-static-routes.mjs",
+    "build": "vite build --config vite.config.ts && node scripts/generate-static-routes.mjs && node --test scripts/seo.test.mjs",
+    "test:seo": "node --test scripts/seo.test.mjs",
     "serve": "vite preview --config vite.config.ts --host 0.0.0.0",
     "test:calculator": "node --experimental-strip-types --test src/lib/formulation.test.ts src/lib/calculator-draft.test.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
