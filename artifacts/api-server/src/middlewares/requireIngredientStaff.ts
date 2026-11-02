@@ -8,6 +8,10 @@ export async function requireIngredientStaff(
   res: Response,
   next: NextFunction,
 ): Promise<void> {
+  if (process.env.SOAPSPICE_PUBLIC_ONLY === "true") {
+    res.status(404).json({ error: "Staff tools are disabled on the public-only site." });
+    return;
+  }
   const userId = getAuth(req)?.userId;
   if (!userId) {
     res.status(401).json({ error: "Sign in required" });

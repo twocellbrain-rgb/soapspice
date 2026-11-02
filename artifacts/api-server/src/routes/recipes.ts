@@ -15,6 +15,7 @@ function owner(req: Request): string | null {
   return auth?.userId ?? null;
 }
 function requireUser(req: Request, res: Response, next: NextFunction): void {
+  if (process.env.SOAPSPICE_PUBLIC_ONLY === "true") { res.status(404).json({ error: "Account formulas are disabled on this public site." }); return; }
   if (!owner(req)) { res.status(401).json({ error: "Sign in required" }); return; }
   next();
 }

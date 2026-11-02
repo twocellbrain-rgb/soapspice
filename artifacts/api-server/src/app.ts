@@ -28,13 +28,16 @@ app.use(
     },
   }),
 );
-app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
+const publicOnlyMode = process.env.SOAPSPICE_PUBLIC_ONLY === "true";
+if (!publicOnlyMode) app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
 app.use(cors({ credentials: true, origin: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(clerkMiddleware((req) => ({
-  publishableKey: publishableKeyFromHost(getClerkProxyHost(req) ?? "", process.env.CLERK_PUBLISHABLE_KEY),
-})));
+if (!publicOnlyMode) {
+  app.use(clerkMiddleware((req) => ({
+    publishableKey: publishableKeyFromHost(getClerkProxyHost(req) ?? "", process.env.CLERK_PUBLISHABLE_KEY),
+  })));
+}
 
 app.use("/api", router);
 
