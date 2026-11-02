@@ -788,6 +788,23 @@ function CalculatorPage() {
                 id: oil.id,
                 name: ingredientMap.get(oil.id)?.name ?? oil.name,
               }))}
+              additionalMaterials={[
+                ...calculatedFragrances.map((fragrance) => ({
+                  id: `fragrance-${fragrance.id}`,
+                  name: fragrance.name,
+                  searchQuery: `${fragrance.name} fragrance oil soap making`,
+                })),
+                {
+                  id: 'sodium-hydroxide',
+                  name: 'Sodium hydroxide (NaOH)',
+                  searchQuery: 'sodium hydroxide NaOH soap making',
+                },
+                {
+                  id: `mixing-liquid-${liquidType}`,
+                  name: liquidName,
+                  searchQuery: `${liquidName} soap making`,
+                },
+              ]}
             />
           </>
         ) : (

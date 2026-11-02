@@ -137,6 +137,23 @@ export default function FormulaPrintPage() {
         />
         <CalculatorIngredientProductRecommendations
           selections={formula.oils.map(({ id, name }) => ({ id, name }))}
+          additionalMaterials={[
+            ...formula.fragrances.map((fragrance) => ({
+              id: `fragrance-${fragrance.id}`,
+              name: fragrance.name,
+              searchQuery: `${fragrance.name} fragrance oil soap making`,
+            })),
+            {
+              id: 'sodium-hydroxide',
+              name: 'Sodium hydroxide (NaOH)',
+              searchQuery: 'sodium hydroxide NaOH soap making',
+            },
+            {
+              id: 'mixing-liquid',
+              name: formula.liquidName,
+              searchQuery: `${formula.liquidName} soap making`,
+            },
+          ]}
         />
 
         <footer className="mt-6 rounded-2xl border border-amber-300/70 bg-amber-50 p-5 text-sm leading-6 text-amber-950">

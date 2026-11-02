@@ -9,10 +9,18 @@ type IngredientSelection = {
   name: string;
 };
 
+type AdditionalMaterial = {
+  id: string;
+  name: string;
+  searchQuery: string;
+};
+
 export default function CalculatorIngredientProductRecommendations({
   selections,
+  additionalMaterials = [],
 }: {
   selections: IngredientSelection[];
+  additionalMaterials?: AdditionalMaterial[];
 }) {
   const productsQuery = useListCalculatorIngredientProducts({
     query: {
@@ -21,7 +29,7 @@ export default function CalculatorIngredientProductRecommendations({
     },
   });
 
-  if (selections.length === 0) return null;
+  if (selections.length === 0 && additionalMaterials.length === 0) return null;
 
   const groups = productsQuery.data ?? [];
   const recommendations = selections.map((selection) => ({
@@ -41,11 +49,11 @@ export default function CalculatorIngredientProductRecommendations({
         <div>
           <p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Shopping links · Amazon.com</p>
           <h2 id="calculator-product-recommendations-heading" className="mt-2 font-display text-2xl font-bold text-[hsl(var(--foreground))]">
-            Check your ingredients on Amazon
+            Check your batch materials on Amazon
           </h2>
         </div>
         <p className="max-w-xl text-xs leading-5 text-[hsl(var(--muted-foreground))]">
-          Each oil and butter in your formula is listed below. Links open Amazon search results; SoapSpice does not show live prices. These searches are not affiliate links.
+          Oils, fragrances, sodium hydroxide, and your selected mixing liquid are listed below. Links open Amazon search results; SoapSpice does not show live prices. Search links are not affiliate links.
           {hasCuratedProducts && ' Some manually curated product links may earn SoapSpice a commission from qualifying purchases.'}
         </p>
       </div>
@@ -86,6 +94,24 @@ export default function CalculatorIngredientProductRecommendations({
                   Check Amazon for price <ExternalLink size={14} aria-hidden="true" />
                 </a>
               )}
+            </section>
+          ))}
+          {additionalMaterials.map((material) => (
+            <section
+              key={material.id}
+              className="rounded-2xl border border-[hsl(var(--border))] bg-white p-4"
+              aria-label={`Amazon link for ${material.name}`}
+              data-testid={`product-pick-${material.id}`}
+            >
+              <h3 className="font-bold text-[hsl(var(--foreground))]">{material.name}</h3>
+              <a
+                href={`https://www.amazon.com/s?k=${encodeURIComponent(material.searchQuery)}`}
+                target="_blank"
+                rel="nofollow noopener noreferrer"
+                className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-[hsl(var(--primary))] underline underline-offset-2"
+              >
+                Check Amazon for price <ExternalLink size={14} aria-hidden="true" />
+              </a>
             </section>
           ))}
       </div>
