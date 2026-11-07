@@ -7,6 +7,7 @@
 - [Cold-process soap calculator](https://soapspice.com/calculators/cold-process-soap/): Plan a NaOH soap formula, liquid, and fragrance in grams or ounces.
 - [Ingredient catalog](https://soapspice.com/ingredients/): Compare 42 oils and butters, SAP values, soapmaking effects, workability notes, and sources.
 - [How to start soapmaking](https://soapspice.com/how-to-start-soapmaking/): Review equipment and safety preparation for beginners.
+- [Soapmaking articles and recipes](https://soapspice.com/soapmaking-library/): Browse SoapSpice guides, cited external sources, and browser-saved references.
 - [Soapmaking glossary](https://soapspice.com/soapmaking-glossary/): Look up soapmaking terms and definitions.
 
 ## About and policies

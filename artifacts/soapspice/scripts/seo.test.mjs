@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { indexablePaths, staticPaths, pageSeo, sitemapXml } from '../dist/prerender/entry-server.mjs';
+import { indexablePaths, staticPaths, pageSeo, sitemapXml, soapmakingLibraryResources } from '../dist/prerender/entry-server.mjs';
 
 const output = new URL('../dist/public/', import.meta.url);
 const escape = value => value.replace(/[&<>"']/g, char => ({
@@ -138,6 +138,27 @@ test('About and Contact pages are linked, crawlable, and represented in llms.txt
   const llms = await readFile(new URL('llms.txt', output), 'utf8');
   assert.ok(llms.includes('https://soapspice.com/about/'));
   assert.ok(llms.includes('https://soapspice.com/contact/'));
+  assert.ok(llms.includes('https://soapspice.com/soapmaking-library/'));
+});
+
+test('the public soapmaking library is crawlable and displays cited resources with local images', async () => {
+  const html = await htmlFor('/soapmaking-library');
+  assert.equal((html.match(/<main(?:\s|>)/g) ?? []).length, 1, 'the page should not nest main landmarks');
+  assert.ok(html.includes('Visit the publisher for its complete content'));
+  assert.ok(html.includes('Private to this browser'));
+  assert.ok(html.includes('External publisher'));
+  for (const resource of soapmakingLibraryResources) {
+    assert.ok(html.includes(escape(resource.title)), resource.id);
+    assert.ok(html.includes(escape(resource.summary)), resource.id);
+    assert.ok(html.includes(resource.href), resource.id);
+    assert.ok(html.includes(resource.image.replace(/^images\//, '/images/')), resource.id);
+    await readFile(new URL(resource.image, output));
+  }
+  const schema = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
+  const page = schema['@graph'].find(entity => entity.url === pageSeo('/soapmaking-library').canonical);
+  assert.equal(page['@type'], 'CollectionPage');
+  assert.equal(page.mainEntity['@type'], 'ItemList');
+  assert.equal(page.mainEntity.itemListElement.length, soapmakingLibraryResources.length);
 });
 
 test('the colorful branded SVG favicon is present in the deployment output', async () => {

@@ -1,5 +1,6 @@
 import catalog from '../data/ingredient-catalog.json';
 import soapmakingNotes from '../data/ingredient-soapmaking-notes.json';
+import { soapmakingLibraryResources } from '../data/soapmaking-library-resources';
 
 // The public Hostinger domain supplied by the site owner, not the Replit preview.
 export const SITE_ORIGIN = 'https://soapspice.com';
@@ -42,6 +43,10 @@ const pages: Record<string, { title: string; description: string }> = {
   '/contact': {
     title: 'Contact SoapSpice | Soapmaking Calculator Help',
     description: 'Contact SoapSpice about the cold-process soap calculator, ingredient references, or site corrections. Email contactus@soapspice.com for assistance.',
+  },
+  '/soapmaking-library': {
+    title: 'Soapmaking Articles & Recipes | SoapSpice Library',
+    description: 'Browse soapmaking articles, cold-process and melt-and-pour recipes, and SoapSpice guides. Search sources and save citations with images and notes.',
   },
 };
 
@@ -119,6 +124,7 @@ export function pageSeo(rawPath: string) {
         {
           '@type': path === '/about' ? 'AboutPage'
             : path === '/contact' ? 'ContactPage'
+              : path === '/soapmaking-library' ? 'CollectionPage'
               : path === '/calculators/cold-process-soap' ? 'WebApplication' : 'WebPage',
           '@id': canonical,
           name: metadata!.title,
@@ -129,6 +135,24 @@ export function pageSeo(rawPath: string) {
           ...(path === '/' ? { mainEntity: { '@id': WEBSITE_ID } } : {}),
           ...(path === '/about' ? { about: { '@id': ORGANIZATION_ID } } : {}),
           ...(path === '/contact' ? { mainEntity: { '@id': ORGANIZATION_ID } } : {}),
+          ...(path === '/soapmaking-library' ? {
+            mainEntity: {
+              '@type': 'ItemList',
+              name: 'Soapmaking Articles and Recipes',
+              numberOfItems: soapmakingLibraryResources.length,
+              itemListElement: soapmakingLibraryResources.map((resource, index) => ({
+                '@type': 'ListItem',
+                position: index + 1,
+                item: {
+                  '@type': 'CreativeWork',
+                  name: resource.title,
+                  url: resource.href.startsWith('http') ? resource.href : `${SITE_ORIGIN}${resource.href}`,
+                  description: resource.summary,
+                  image: `${SITE_ORIGIN}/${resource.image}`,
+                },
+              })),
+            },
+          } : {}),
           ...(path === '/calculators/cold-process-soap' ? {
             applicationCategory: 'EducationalApplication',
             operatingSystem: 'Web',

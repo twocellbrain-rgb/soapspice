@@ -5,3 +5,4 @@
 - [Soap fragrance guidance](soap-fragrance-guidance.md) — Keep IFRA screening distinct; fragrance weights follow oil units, with grams used for percentage-based oils.
 - [Amazon affiliate purpose and API](amazon-creators-api.md) — SoapSpice is for affiliate marketing; keep credentials private, disclosures accurate, and API catalog data temporary.
 - [NaOH naming in SoapSpice](soap-naoh-terminology.md) — Use sodium hydroxide (NaOH) for calculator labels; define “lye” as the common name.
+- [Soapmaking library sourcing](soapmaking-library-sources.md) — Use brief original summaries, publisher links, and SoapSpice-owned illustrative images for external sources.
