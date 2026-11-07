@@ -3,6 +3,12 @@ import soapmakingNotes from '../data/ingredient-soapmaking-notes.json';
 
 // The public Hostinger domain supplied by the site owner, not the Replit preview.
 export const SITE_ORIGIN = 'https://soapspice.com';
+export const ORGANIZATION_ID = `${SITE_ORIGIN}/#organization`;
+export const WEBSITE_ID = `${SITE_ORIGIN}/#website`;
+export const PUBLIC_CONTACT_EMAIL = 'contactus@soapspice.com';
+// This reflects the latest meaningful public-page metadata/content update.
+// Update it when indexable page content changes; don't stamp build time here.
+const SITEMAP_LAST_MODIFIED = '2026-11-07';
 
 const pages: Record<string, { title: string; description: string }> = {
   '/': {
@@ -28,6 +34,14 @@ const pages: Record<string, { title: string; description: string }> = {
   '/privacy': {
     title: 'Privacy & Shopping Links | SoapSpice',
     description: 'See how SoapSpice stores formulas privately in your browser and explains third-party shopping links, affiliate disclosures, and data handling.',
+  },
+  '/about': {
+    title: 'About SoapSpice | Soapmaking Calculator & Guides',
+    description: 'Learn about SoapSpice, an educational cold-process soapmaking calculator with browser-based formula planning, source-linked SAP values, and ingredient guides.',
+  },
+  '/contact': {
+    title: 'Contact SoapSpice | Soapmaking Calculator Help',
+    description: 'Contact SoapSpice about the cold-process soap calculator, ingredient references, or site corrections. Email contactus@soapspice.com for assistance.',
   },
 };
 
@@ -78,20 +92,55 @@ export function pageSeo(rawPath: string) {
     indexable,
     structuredData: indexable ? {
       '@context': 'https://schema.org',
-      '@type': path === '/' ? 'WebSite' : path === '/calculators/cold-process-soap' ? 'WebApplication' : 'WebPage',
-      name: path === '/' ? 'SoapSpice' : metadata!.title,
-      ...(path === '/' ? { alternateName: 'SoapSpice Soap Making Calculator' } : {}),
-      description: metadata!.description,
-      url: canonical,
-      ...(path === '/calculators/cold-process-soap' ? {
-        applicationCategory: 'EducationalApplication', operatingSystem: 'Web',
-      } : {}),
+      '@graph': [
+        {
+          '@type': 'Organization',
+          '@id': ORGANIZATION_ID,
+          name: 'SoapSpice',
+          url: `${SITE_ORIGIN}/`,
+          email: PUBLIC_CONTACT_EMAIL,
+          contactPoint: {
+            '@type': 'ContactPoint',
+            contactType: 'customer support',
+            email: PUBLIC_CONTACT_EMAIL,
+            url: `${SITE_ORIGIN}/contact/`,
+            availableLanguage: 'English',
+          },
+        },
+        {
+          '@type': 'WebSite',
+          '@id': WEBSITE_ID,
+          url: `${SITE_ORIGIN}/`,
+          name: 'SoapSpice',
+          alternateName: 'SoapSpice Soap Making Calculator',
+          publisher: { '@id': ORGANIZATION_ID },
+          about: { '@id': `${SITE_ORIGIN}/about/` },
+        },
+        {
+          '@type': path === '/about' ? 'AboutPage'
+            : path === '/contact' ? 'ContactPage'
+              : path === '/calculators/cold-process-soap' ? 'WebApplication' : 'WebPage',
+          '@id': canonical,
+          name: metadata!.title,
+          description: metadata!.description,
+          url: canonical,
+          isPartOf: { '@id': WEBSITE_ID },
+          publisher: { '@id': ORGANIZATION_ID },
+          ...(path === '/' ? { mainEntity: { '@id': WEBSITE_ID } } : {}),
+          ...(path === '/about' ? { about: { '@id': ORGANIZATION_ID } } : {}),
+          ...(path === '/contact' ? { mainEntity: { '@id': ORGANIZATION_ID } } : {}),
+          ...(path === '/calculators/cold-process-soap' ? {
+            applicationCategory: 'EducationalApplication',
+            operatingSystem: 'Web',
+          } : {}),
+        },
+      ],
     } : null,
   };
 }
 
 export function sitemapXml() {
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${indexablePaths.map(path => `  <url><loc>${pageSeo(path).canonical}</loc></url>`).join('\n')}\n</urlset>\n`;
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${indexablePaths.map(path => `  <url><loc>${pageSeo(path).canonical}</loc><lastmod>${SITEMAP_LAST_MODIFIED}</lastmod></url>`).join('\n')}\n</urlset>\n`;
 }
 
 export function updatePageSeo(path: string) {

@@ -34,6 +34,8 @@ import HowToStartSoapmakingPage from '@/pages/how-to-start-soapmaking';
 import FormulaPrintPage from '@/pages/formula-print';
 import NotFound from '@/pages/not-found';
 import PrivacyPage from '@/pages/privacy';
+import AboutPage from '@/pages/about';
+import ContactPage from '@/pages/contact';
 import AmazonDisclosure from '@/components/AmazonDisclosure';
 import { updatePageSeo } from '@/lib/seo';
 import './bright-crafted.css';
@@ -136,7 +138,11 @@ function Shell({ children }: { children: ReactNode }) {
         </div>
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-5 pb-8 text-xs text-[hsl(var(--muted-foreground))] sm:flex-row sm:items-center sm:justify-between lg:px-8">
           <AmazonDisclosure />
-          <Link href="/privacy" className="shrink-0 font-bold text-[hsl(var(--primary))] hover:underline" data-testid="link-footer-privacy">Privacy</Link>
+          <nav aria-label="Company information" className="flex flex-wrap items-center gap-4">
+            <Link href="/about" rel="about" className="shrink-0 font-bold text-[hsl(var(--primary))] hover:underline" data-testid="link-footer-about">About</Link>
+            <Link href="/contact" rel="contact" className="shrink-0 font-bold text-[hsl(var(--primary))] hover:underline" data-testid="link-footer-contact">Contact</Link>
+            <Link href="/privacy" className="shrink-0 font-bold text-[hsl(var(--primary))] hover:underline" data-testid="link-footer-privacy">Privacy</Link>
+          </nav>
         </div>
       </footer>
     </div>
@@ -790,6 +796,8 @@ function Router() {
     <Route path="/batch-sheet" component={FormulaPrintPage} />
     <Route path="/formula-print" component={FormulaPrintPage} />
     <Route path="/ingredients" component={IngredientsPage} />
+    <Route path="/about">{() => <Shell><AboutPage /></Shell>}</Route>
+    <Route path="/contact">{() => <Shell><ContactPage /></Shell>}</Route>
     <Route path="/privacy">{() => <Shell><PrivacyPage /></Shell>}</Route>
     <Route path="/soapmaking-glossary" component={() => <Shell><SoapmakingGlossaryPage /></Shell>} />
     <Route path="/how-to-start-soapmaking" component={() => <Shell><HowToStartSoapmakingPage /></Shell>} />

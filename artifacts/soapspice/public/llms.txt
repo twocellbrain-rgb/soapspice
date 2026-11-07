@@ -1,0 +1,22 @@
+# SoapSpice
+
+> SoapSpice is an educational cold-process soapmaking calculator and reference site with source-linked oil and butter SAP values.
+
+## Main tools
+
+- [Cold-process soap calculator](https://soapspice.com/calculators/cold-process-soap/): Plan a NaOH soap formula, liquid, and fragrance in grams or ounces.
+- [Ingredient catalog](https://soapspice.com/ingredients/): Compare 42 oils and butters, SAP values, soapmaking effects, workability notes, and sources.
+- [How to start soapmaking](https://soapspice.com/how-to-start-soapmaking/): Review equipment and safety preparation for beginners.
+- [Soapmaking glossary](https://soapspice.com/soapmaking-glossary/): Look up soapmaking terms and definitions.
+
+## About and policies
+
+- [About SoapSpice](https://soapspice.com/about/): What the site provides and how its educational tools should be used.
+- [Contact SoapSpice](https://soapspice.com/contact/): Public contact information for questions and corrections.
+- [Privacy and shopping links](https://soapspice.com/privacy/): Browser storage, third-party shopping links, and affiliate disclosures.
+
+## Important use notes
+
+- Calculator values are educational estimates. Verify SAP values and supplier instructions before making a batch.
+- SoapSpice's public calculator is for NaOH cold-process bars; it is not a substitute for chemical safety guidance.
+- Formula drafts are stored in the visitor's browser and are not customer accounts.

@@ -38,7 +38,14 @@ test('every route contains real React-rendered HTML, unique metadata, and one ca
     titles.add(seo.title);
     descriptions.add(seo.description);
     for (const match of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
-      assert.equal(JSON.parse(match[1]).url, seo.canonical, route);
+      const graph = JSON.parse(match[1]);
+      assert.ok(graph['@graph'].some(entity => entity.url === seo.canonical), route);
+      assert.ok(graph['@graph'].some(entity =>
+        entity['@type'] === 'Organization'
+        && entity.email === 'contactus@soapspice.com'
+        && entity.contactPoint?.url === 'https://soapspice.com/contact/'
+      ), route);
+      assert.ok(graph['@graph'].some(entity => entity['@type'] === 'WebSite' && entity.about?.['@id'] === 'https://soapspice.com/about/'), route);
     }
   }
 });
@@ -98,15 +105,39 @@ test('generated sitemap includes every indexable canonical page and excludes ses
   assert.equal(sitemap, sitemapXml());
   assert.match(sitemap, /^<\?xml/);
   const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1]);
+  const lastmods = [...sitemap.matchAll(/<lastmod>([^<]+)<\/lastmod>/g)].map(match => match[1]);
   assert.deepEqual(urls, indexablePaths.map(route => pageSeo(route).canonical));
   assert.equal(new Set(urls).size, urls.length);
+  assert.equal(lastmods.length, urls.length);
+  assert.ok(lastmods.every(date => /^\d{4}-\d{2}-\d{2}$/.test(date)));
   for (const route of staticPaths.filter(route => !indexablePaths.includes(route))) {
     assert.ok(!urls.includes(pageSeo(route).canonical), route);
   }
   const robots = await readFile(new URL('robots.txt', output), 'utf8');
   assert.ok(robots.includes('Sitemap: https://soapspice.com/sitemap.xml'));
   assert.ok(robots.includes('Allow: /'));
+  assert.ok(robots.includes('Content-Signal: search=yes'));
   assert.doesNotMatch(robots, /^\s*Disallow:\s*\/\s*$/m);
+});
+
+test('About and Contact pages are linked, crawlable, and represented in llms.txt', async () => {
+  const about = await htmlFor('/about');
+  const contact = await htmlFor('/contact');
+  const aboutText = about.replace(/<[^>]+>/g, ' ');
+  const contactText = contact.replace(/<[^>]+>/g, ' ');
+  assert.match(aboutText, /A clearer way to plan cold-process soap/);
+  assert.match(contactText, /contactus@soapspice\.com/);
+  assert.ok(about.includes('href="/contact"'));
+  assert.ok(about.includes('rel="about"'));
+  assert.ok(about.includes('rel="contact"'));
+  assert.ok(contact.includes('href="mailto:contactus@soapspice.com"'));
+  const aboutSchema = JSON.parse(about.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
+  const contactSchema = JSON.parse(contact.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
+  assert.ok(aboutSchema['@graph'].some(entity => entity['@type'] === 'AboutPage'));
+  assert.ok(contactSchema['@graph'].some(entity => entity['@type'] === 'ContactPage'));
+  const llms = await readFile(new URL('llms.txt', output), 'utf8');
+  assert.ok(llms.includes('https://soapspice.com/about/'));
+  assert.ok(llms.includes('https://soapspice.com/contact/'));
 });
 
 test('the colorful branded SVG favicon is present in the deployment output', async () => {
