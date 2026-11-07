@@ -163,9 +163,9 @@ function Home() {
       <div className="sc-home">
         <section className="sc-hero">
           <div className="sc-hero-copy">
-            <div className="sc-eyebrow"><Sparkles size={15} /> A friendlier way to formulate</div>
-            <h1>Make soap with<br /><em>more yes.</em><br /><span>Less guesswork.</span></h1>
-            <p className="sc-hero-intro">Oils, butters, and good ideas deserve a recipe you can understand. Bring your curiosity; we’ll take care of the careful math.</p>
+            <div className="sc-eyebrow"><Sparkles size={15} /> Cold-process soap formulation</div>
+            <h1>Soap making<br /><em>calculator.</em><br /><span>Less guesswork.</span></h1>
+            <p className="sc-hero-intro">Use our cold-process soap making calculator to calculate sodium hydroxide (NaOH), liquid, and fragrance in grams or ounces. Compare oils and butters with source-linked SAP values.</p>
             <div className="sc-hero-actions">
               <Link href="/calculators/cold-process-soap" className="sc-button-dark" data-testid="link-home-calculator">Open the cold-process calculator <ArrowRight size={17} /></Link>
               <Link href="/ingredients" className="sc-text-link" data-testid="link-home-catalog">Browse ingredients <BookOpen size={16} /></Link>

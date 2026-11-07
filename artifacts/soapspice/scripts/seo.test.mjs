@@ -49,6 +49,19 @@ test('the social sharing image is present and is a usable JPEG', async () => {
   assert.deepEqual([...image.subarray(0, 3)], [0xff, 0xd8, 0xff]);
 });
 
+test('public pages allow search snippets and identify the soap making calculator', async () => {
+  for (const route of indexablePaths) {
+    const seo = pageSeo(route);
+    assert.match(seo.robots, /^index, follow,/);
+    assert.ok(seo.robots.includes('max-snippet:-1'), route);
+    assert.doesNotMatch(seo.robots, /noindex|nosnippet|max-snippet:0/);
+  }
+  const home = (await htmlFor('/')).replace(/<[^>]+>/g, ' ');
+  assert.match(home, /Soap making\s+calculator\./);
+  assert.match(pageSeo('/').title, /^Soap Making Calculator for Cold-Process Soap/);
+  assert.match(pageSeo('/calculators/cold-process-soap').title, /Soap Making Calculator/);
+});
+
 test('all 42 ingredient pages expose names, SAP values, and source citations without JavaScript', async () => {
   const catalog = JSON.parse(await readFile(new URL('../src/data/ingredient-catalog.json', import.meta.url)));
   const notes = JSON.parse(await readFile(new URL('../src/data/ingredient-soapmaking-notes.json', import.meta.url)));
@@ -93,6 +106,7 @@ test('generated sitemap includes every indexable canonical page and excludes ses
   const robots = await readFile(new URL('robots.txt', output), 'utf8');
   assert.ok(robots.includes('Sitemap: https://soapspice.com/sitemap.xml'));
   assert.ok(robots.includes('Allow: /'));
+  assert.doesNotMatch(robots, /^\s*Disallow:\s*\/\s*$/m);
 });
 
 test('the colorful branded SVG favicon is present in the deployment output', async () => {
@@ -110,5 +124,7 @@ test('404 and unknown ingredients are noindex; Apache no longer returns the home
   assert.equal(pageSeo('/ingredients/olive-oil/?tracking=anything').canonical, 'https://soapspice.com/ingredients/olive-oil/');
   const htaccess = await readFile(new URL('.htaccess', output), 'utf8');
   assert.match(htaccess, /ErrorDocument 404 \/404.html/);
+  assert.ok(htaccess.includes('RewriteCond %{HTTP_HOST} ^www\\.soapspice\\.com$ [NC]'));
+  assert.ok(htaccess.includes('RewriteRule ^ https://soapspice.com%{REQUEST_URI} [R=301,L]'));
   assert.ok(!htaccess.includes('RewriteRule ^ index.html'));
 });

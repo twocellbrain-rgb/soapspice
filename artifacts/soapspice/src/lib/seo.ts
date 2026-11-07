@@ -6,12 +6,12 @@ export const SITE_ORIGIN = 'https://soapspice.com';
 
 const pages: Record<string, { title: string; description: string }> = {
   '/': {
-    title: 'SoapSpice | Cold Process Soap Calculator & Ingredients',
-    description: 'Plan your next cold-process soap batch with SoapSpice. Calculate NaOH, compare source-linked oil SAP values, and explore ingredient and formulation guides.',
+    title: 'Soap Making Calculator for Cold-Process Soap | SoapSpice',
+    description: 'Use the SoapSpice soap making calculator to plan cold-process batches. Calculate NaOH, liquid, and fragrance, and compare 42 oils and butters by SAP value.',
   },
   '/calculators/cold-process-soap': {
-    title: 'Cold-Process Soap Calculator | SoapSpice',
-    description: 'Calculate NaOH (sodium hydroxide), liquid, and fragrance for cold-process soap in grams or ounces. Check source-linked oil SAP values before planning a batch.',
+    title: 'Cold-Process Soap Making Calculator & NaOH | SoapSpice',
+    description: 'Calculate sodium hydroxide (NaOH), liquid, and fragrance for cold-process soap in grams or ounces. Plan batches with source-linked oil and butter SAP values.',
   },
   '/ingredients': {
     title: 'Soapmaking Oils, Butters & SAP Values | SoapSpice',
@@ -74,12 +74,13 @@ export function pageSeo(rawPath: string) {
     title: metadata?.title ?? 'Page Not Found | SoapSpice',
     description: metadata?.description ?? 'Find SoapSpice soapmaking guides, ingredients, and the cold-process soap calculator.',
     canonical,
-    robots: indexable ? 'index, follow' : 'noindex, follow',
+    robots: indexable ? 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1' : 'noindex, follow',
     indexable,
     structuredData: indexable ? {
       '@context': 'https://schema.org',
       '@type': path === '/' ? 'WebSite' : path === '/calculators/cold-process-soap' ? 'WebApplication' : 'WebPage',
-      name: metadata!.title,
+      name: path === '/' ? 'SoapSpice' : metadata!.title,
+      ...(path === '/' ? { alternateName: 'SoapSpice Soap Making Calculator' } : {}),
       description: metadata!.description,
       url: canonical,
       ...(path === '/calculators/cold-process-soap' ? {

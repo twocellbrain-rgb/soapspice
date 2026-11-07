@@ -1,3 +1,7 @@
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^www\.soapspice\.com$ [NC]
+RewriteRule ^ https://soapspice.com%{REQUEST_URI} [R=301,L]
+
 DirectoryIndex index.html
 
 # Every supported route is generated as a directory containing index.html.
