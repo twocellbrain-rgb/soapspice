@@ -11,6 +11,7 @@ import {
   ReplaceCalculatorIngredientProductsBody,
   ReplaceCalculatorIngredientProductsParams,
   ReplaceCalculatorIngredientProductsResponse,
+  type CalculatorIngredientProductsInput,
 } from "@workspace/api-zod";
 import { requireIngredientStaff } from "../middlewares/requireIngredientStaff";
 import { isAmazonProductUrl } from "../lib/amazon-creators";
@@ -49,7 +50,7 @@ router.put(
       res.status(400).json({ error: "Enter one to three complete product cards." });
       return;
     }
-    if (body.data.products.some((product) => !isAmazonProductUrl(product.url))) {
+    if (body.data.products.some((product: CalculatorIngredientProductsInput["products"][number]) => !isAmazonProductUrl(product.url))) {
       res.status(400).json({
         error: "Use HTTPS product links from an Amazon marketplace or official Amazon short-link domain.",
       });

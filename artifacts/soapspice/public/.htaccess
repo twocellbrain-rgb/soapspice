@@ -4,6 +4,17 @@ RewriteRule ^ https://soapspice.com%{REQUEST_URI} [R=301,L]
 
 DirectoryIndex index.html
 
+# Defense-in-depth response headers for the static public site.
+# HSTS is emitted only over HTTPS and deliberately does not include subdomains.
+<IfModule mod_headers.c>
+  Header always set Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self'; upgrade-insecure-requests"
+  Header always set Strict-Transport-Security "max-age=31536000" env=HTTPS
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+</IfModule>
+
 # Every supported route is generated as a directory containing index.html.
 # Unknown URLs must return a genuine 404, not an indexable copy of the homepage.
 ErrorDocument 404 /404.html

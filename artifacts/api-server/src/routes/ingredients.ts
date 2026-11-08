@@ -8,6 +8,7 @@ import {
   GetIngredientsResponse,
   GetIngredientStaffResponse, ListAdminIngredientsResponse,
   CreateAdminIngredientBody, CreateAdminIngredientResponse,
+  type IngredientEdit,
   EditAdminIngredientParams, EditAdminIngredientBody, EditAdminIngredientResponse,
   ApproveAdminIngredientParams, ApproveAdminIngredientResponse,
   ApproveAdminIngredientBody,
@@ -37,7 +38,7 @@ function citation(title: string, url: string): boolean {
     return !!title.trim() && ["https:", "http:"].includes(parsed.protocol) && !!parsed.hostname;
   } catch { return false; }
 }
-function editValid(data: typeof CreateAdminIngredientBody._output): boolean {
+function editValid(data: IngredientEdit): boolean {
   const bothOrNeither = Boolean(data.sapSourceTitle.trim()) === Boolean(data.sapSourceUrl.trim());
   return !!data.name.trim() && !!data.description.trim() &&
     data.alternateNames.every(name => !!name.trim()) &&

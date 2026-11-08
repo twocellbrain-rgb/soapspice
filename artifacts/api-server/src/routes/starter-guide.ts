@@ -10,6 +10,7 @@ import {
   ReplaceStarterGuideProductsBody,
   ReplaceStarterGuideProductsParams,
   ReplaceStarterGuideProductsResponse,
+  type StarterGuideProductsInput,
 } from "@workspace/api-zod";
 import { requireIngredientStaff } from "../middlewares/requireIngredientStaff";
 import {
@@ -62,7 +63,7 @@ router.put("/starter-guide-admin/:toolSlug", async (req, res): Promise<void> => 
     res.status(400).json({ error: "Enter two or three complete product recommendations." });
     return;
   }
-  if (body.data.products.some((product) => !isAmazonProductUrl(product.url))) {
+  if (body.data.products.some((product: StarterGuideProductsInput["products"][number]) => !isAmazonProductUrl(product.url))) {
     res.status(400).json({ error: "Use HTTPS product links from an Amazon marketplace or official Amazon short-link domain." });
     return;
   }

@@ -328,3 +328,13 @@ test('404 and unknown ingredients are noindex; Apache no longer returns the home
   assert.ok(htaccess.includes('RewriteRule ^ https://soapspice.com%{REQUEST_URI} [R=301,L]'));
   assert.ok(!htaccess.includes('RewriteRule ^ index.html'));
 });
+
+test('Hostinger static hosting emits baseline browser security headers', async () => {
+  const htaccess = await readFile(new URL('.htaccess', output), 'utf8');
+  assert.match(htaccess, /Content-Security-Policy "default-src 'self'/);
+  assert.match(htaccess, /Strict-Transport-Security "max-age=31536000" env=HTTPS/);
+  assert.match(htaccess, /X-Content-Type-Options "nosniff"/);
+  assert.match(htaccess, /X-Frame-Options "SAMEORIGIN"/);
+  assert.match(htaccess, /Referrer-Policy "strict-origin-when-cross-origin"/);
+  assert.match(htaccess, /Permissions-Policy "camera=\(\), microphone=\(\), geolocation=\(\)"/);
+});

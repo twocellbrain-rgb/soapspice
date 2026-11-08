@@ -6,7 +6,7 @@ import {
   CreateRecipeBody, ImportRecipeBody, UpdateRecipeBody,
   CreateRecipeResponse, ImportRecipeResponse, ListRecipesResponse,
   GetRecipeParams, GetRecipeResponse, UpdateRecipeParams, UpdateRecipeResponse,
-  DeleteRecipeParams,
+  DeleteRecipeParams, type RecipeInput,
 } from "@workspace/api-zod";
 
 const router: IRouter = Router();
@@ -30,7 +30,7 @@ function output(row: Recipe) {
     updatedAt: row.updatedAt.toISOString(),
   };
 }
-type Input = typeof CreateRecipeBody._output;
+type Input = RecipeInput;
 const grams = (data: Input) => data.batchSize * (data.unit === "oz" ? 28.3495 : data.unit === "lb" ? 453.592 : 1);
 
 async function prepare(data: Input, legacy = false): Promise<{ oils: RecipeOil[]; error?: string }> {
