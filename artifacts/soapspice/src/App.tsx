@@ -178,6 +178,7 @@ function Home() {
             <p className="sc-hero-intro">Use our cold-process soap making calculator to calculate sodium hydroxide (NaOH), liquid, and fragrance in grams or ounces. Compare oils and butters with source-linked SAP values.</p>
             <div className="sc-hero-actions">
               <Link href="/calculators/cold-process-soap" className="sc-button-dark" data-testid="link-home-calculator">Open the cold-process calculator <ArrowRight size={17} /></Link>
+              <Link href="/first-batch-shopping-list" className="sc-button-dark sc-button-first-batch" data-testid="link-home-first-batch">First Batch · ingredients &amp; tools <ArrowRight size={17} /></Link>
               <Link href="/ingredients" className="sc-text-link" data-testid="link-home-catalog">Browse ingredients <BookOpen size={16} /></Link>
             </div>
             <div className="sc-proof"><span><ShieldCheck size={17} /></span><span><strong>Clear numbers, cited sources.</strong><br />SAP values shown plainly, ready for your review.</span></div>
@@ -707,7 +708,8 @@ function CalculatorPage({ mode = 'edit' }: { mode?: 'edit' | 'results' }) {
         {mode === 'results' && (<>
         {!visibleResult && <ResultsRecovery hasDraft={oils.length > 0} />}
         {visibleResult && (
-          <>
+          <div className="validated-results-layout" data-testid="validated-results-layout">
+            <div className="min-w-0">
             <FormulaResults
               oils={oils.map((oil) => ({
                 ...oil,
@@ -721,7 +723,10 @@ function CalculatorPage({ mode = 'edit' }: { mode?: 'edit' | 'results' }) {
               liquidName={liquidName}
               superfat={superfat}
             />
+            </div>
+            <aside className="min-w-0 print-hide" aria-label="Amazon shopping links for this formula">
             <CalculatorIngredientProductRecommendations
+              variant="sidebar"
               selections={oils.map((oil) => ({
                 id: oil.id,
                 name: ingredientMap.get(oil.id)?.name ?? oil.name,
@@ -744,7 +749,8 @@ function CalculatorPage({ mode = 'edit' }: { mode?: 'edit' | 'results' }) {
                 },
               ]}
             />
-          </>
+            </aside>
+          </div>
         )}
         {visibleResult && <div className="rounded-3xl border border-amber-300/70 bg-amber-50 p-5 text-sm leading-6 text-amber-950" data-testid="notice-results-safety"><strong>Safety check:</strong> Verify the NaOH purity and every SAP value against your sources and the sodium hydroxide product label. Wear eye protection, gloves, and long sleeves; add NaOH to liquid, never liquid to NaOH. Fragrance doses are capped against conservative supplier IFRA screens; a missing limit holds the dose at zero, and the cap is not a compliance certificate.</div>}
         </>)}

@@ -16,9 +16,11 @@ type AdditionalMaterial = {
 export default function CalculatorIngredientProductRecommendations({
   selections,
   additionalMaterials = [],
+  variant = 'standard',
 }: {
   selections: IngredientSelection[];
   additionalMaterials?: AdditionalMaterial[];
+  variant?: 'standard' | 'sidebar';
 }) {
   if (selections.length === 0 && additionalMaterials.length === 0) return null;
 
@@ -29,7 +31,7 @@ export default function CalculatorIngredientProductRecommendations({
 
   return (
     <section
-      className="print-hide rounded-3xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary)/.45)] p-5 sm:p-7 lg:col-span-2"
+      className={`print-hide rounded-3xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary)/.45)] p-5 sm:p-7 lg:col-span-2${variant === 'sidebar' ? ' batch-amazon-sidebar' : ''}`}
       aria-labelledby="calculator-product-recommendations-heading"
       data-testid="calculator-product-recommendations"
     >
@@ -37,7 +39,7 @@ export default function CalculatorIngredientProductRecommendations({
         <div>
           <p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Shopping links · Amazon.com</p>
           <h2 id="calculator-product-recommendations-heading" className="mt-2 font-display text-2xl font-bold text-[hsl(var(--foreground))]">
-            Check your batch materials on Amazon
+            {variant === 'sidebar' ? 'Shop your batch on Amazon' : 'Check your batch materials on Amazon'}
           </h2>
         </div>
         <p className="max-w-xl text-xs leading-5 text-[hsl(var(--muted-foreground))]">

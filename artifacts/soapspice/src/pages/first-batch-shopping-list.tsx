@@ -4,6 +4,7 @@ import { Link } from 'wouter';
 import AmazonDisclosure from '@/components/AmazonDisclosure';
 import { buildFirstBatchShoppingList, type BatchShoppingItem } from '@/lib/first-batch-shopping';
 import { loadPrintableFormula } from '@/lib/formula-sheet';
+import { createStarterFormula } from '@/lib/starter-batch';
 
 function ShoppingItem({ item }: { item: BatchShoppingItem }) {
   const isZeroFragrance = item.id.startsWith('fragrance-') && item.amount?.startsWith('0.00');
@@ -74,7 +75,11 @@ function ItemSection({
 }
 
 export default function FirstBatchShoppingListPage() {
-  const [formula] = useState(loadPrintableFormula);
+  const [{ formula, isExample }] = useState(() => {
+    const stored = loadPrintableFormula();
+    const hasDraft = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('draft');
+    return { formula: stored ?? (hasDraft ? null : createStarterFormula()), isExample: !stored && !hasDraft };
+  });
 
   if (!formula) {
     return (
@@ -107,7 +112,7 @@ export default function FirstBatchShoppingListPage() {
         <header className="fb-hero">
           <div className="fb-hero-copy">
             <p className="fb-kicker"><span /> SoapSpice · Your first batch, in order</p>
-            <h1>Everything you need.<br /><em>Nothing to guess.</em></h1>
+            <h1>Everything you need.<br /><em>A clear place to start.</em></h1>
             <p className="fb-lede">
               A practical shopping checklist for <strong>{formula.name || 'your soap batch'}</strong>. Keep the calculator weights beside you as you shop and measure.
             </p>
@@ -127,6 +132,12 @@ export default function FirstBatchShoppingListPage() {
         </header>
 
         <div className="fb-main">
+          {isExample && <section className="fb-starter-notice" aria-label="Starter calculation example" data-testid="notice-starter-example">
+            <h2>A starter shopping example, not a tested recipe</h2>
+            <p>500 g of oils: 70% olive oil, 20% coconut oil (76°), and 10% shea butter, with 5% superfat and no fragrance. NaOH and liquid weights below come from the SoapSpice calculator. Liquid is its disclosed cold-process starting estimate, not an optimized recipe.</p>
+            <p>Check exact oil grades, supplier SAP values, and NaOH purity before making soap. To use your own amounts, validate your formula in the calculator and choose “First-batch shopping list” on the results page. That opens your actual batch instead of this example.</p>
+            <Link href="/calculators/cold-process-soap" className="fb-primary-link">Calculate your own batch <ArrowRight size={17} aria-hidden="true" /></Link>
+          </section>}
           <div className="fb-note-row">
             <div className="fb-naoh-note">
               <span className="fb-note-icon"><ShieldCheck size={19} aria-hidden="true" /></span>

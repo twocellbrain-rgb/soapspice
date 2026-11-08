@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { indexablePaths, staticPaths, pageSeo, sitemapXml, soapmakingLibraryResources, buildFirstBatchShoppingList, firstBatchSupplies, loadPrintableFormula, savePrintableFormula } from '../dist/prerender/entry-server.mjs';
+import { indexablePaths, staticPaths, pageSeo, sitemapXml, soapmakingLibraryResources, buildFirstBatchShoppingList, firstBatchSupplies, loadPrintableFormula, savePrintableFormula, createStarterFormula } from '../dist/prerender/entry-server.mjs';
 
 const output = new URL('../dist/public/', import.meta.url);
 const escape = value => value.replace(/[&<>"']/g, char => ({
@@ -212,7 +212,19 @@ test('the first-batch list route is private to the browser session and excluded 
   assert.ok(!sitemapXml().includes(`${pageSeo(route).canonical}`));
   const html = await htmlFor(route);
   assert.ok(html.includes('noindex, follow'));
-  assert.ok(html.includes('We couldn’t find a validated formula snapshot'));
+  assert.ok(html.includes('notice-starter-example'));
+  assert.ok(html.includes('not a tested recipe'));
+});
+
+test('home First Batch button opens a useful calculator-derived starter list', async () => {
+  const home = await htmlFor('/');
+  assert.match(home, /<a(?=[^>]*href="\/first-batch-shopping-list")(?=[^>]*data-testid="link-home-first-batch")[^>]*>/);
+  const formula = createStarterFormula();
+  assert.equal(formula.oils.reduce((sum, oil) => sum + oil.weight, 0), 500);
+  assert.equal(formula.superfat, 5);
+  assert.equal(formula.fragrances.length, 0);
+  assert.ok(Math.abs(formula.result.naoh - (350 * .135 + 100 * .183 + 50 * .128) * .95) < 1e-9);
+  assert.equal(buildFirstBatchShoppingList(formula).materials.length, 5);
 });
 
 test('validated formula snapshot survives navigation into the shopping list', () => {
