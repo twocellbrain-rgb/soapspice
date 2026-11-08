@@ -67,6 +67,10 @@ const privatePages: Record<string, { title: string; description: string }> = {
     title: 'Print Your Soap Formula | SoapSpice',
     description: 'Review and print your browser-session soap formula.',
   },
+  '/first-batch-shopping-list': {
+    title: 'Your First-Batch Shopping List | SoapSpice',
+    description: 'Review calculator-derived soap ingredients and tools saved in this browser session.',
+  },
 };
 
 export const indexablePaths = [

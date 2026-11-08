@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { indexablePaths, staticPaths, pageSeo, sitemapXml, soapmakingLibraryResources } from '../dist/prerender/entry-server.mjs';
+import { indexablePaths, staticPaths, pageSeo, sitemapXml, soapmakingLibraryResources, buildFirstBatchShoppingList, firstBatchSupplies, loadPrintableFormula, savePrintableFormula } from '../dist/prerender/entry-server.mjs';
 
 const output = new URL('../dist/public/', import.meta.url);
 const escape = value => value.replace(/[&<>"']/g, char => ({
@@ -159,6 +159,105 @@ test('the public soapmaking library is crawlable and displays cited resources wi
   assert.equal(page['@type'], 'CollectionPage');
   assert.equal(page.mainEntity['@type'], 'ItemList');
   assert.equal(page.mainEntity.itemListElement.length, soapmakingLibraryResources.length);
+});
+
+test('the first-batch shopping list uses calculator weights and links each item', () => {
+  const formula = {
+    name: 'Starter batch',
+    oils: [
+      { id: 'olive-oil', name: 'Olive Oil', percentage: 70, weight: 350, sap: 0.135 },
+      { id: 'coconut-oil-76', name: 'Coconut Oil (76°)', percentage: 20, weight: 100, sap: 0.183 },
+    ],
+    oilInputUnit: 'g',
+    fragrances: [{ id: 'lavender', name: 'Lavender fragrance oil', amount: 8, unit: 'g' }],
+    result: {
+      naoh: 65,
+      naohBeforeSuperfat: 68.4,
+      liquid: 205,
+      total: 270,
+      fragranceTotalGrams: 8,
+      batchTotal: 663,
+      ingredientLye: [],
+    },
+    liquidName: 'Distilled water',
+    superfat: 5,
+    generatedAt: '2026-11-08T00:00:00.000Z',
+  };
+  const list = buildFirstBatchShoppingList(formula);
+  const amounts = new Map(list.materials.map((item) => [item.id, item.amount]));
+  assert.equal(amounts.get('olive-oil'), '350.00 g');
+  assert.equal(amounts.get('coconut-oil-76'), '100.00 g');
+  assert.equal(amounts.get('sodium-hydroxide'), '65.00 g');
+  assert.equal(amounts.get('mixing-liquid-distilled-water'), '205.00 g');
+  assert.equal(amounts.get('fragrance-lavender'), '8.00 g');
+  assert.equal(list.fragranceSelected, true);
+  assert.equal(list.tools.length + list.safety.length, firstBatchSupplies.length);
+  for (const item of [...list.materials, ...list.tools, ...list.safety]) {
+    const url = new URL(item.href);
+    assert.equal(url.protocol, 'https:');
+    assert.ok(['www.amazon.com', 'amazon.com', 'amzn.to'].includes(url.hostname), item.id);
+  }
+
+  const zeroDose = buildFirstBatchShoppingList({
+    ...formula,
+    fragrances: [{ id: 'unknown-limit', name: 'Unscreened scent', amount: 0, unit: 'g' }],
+  });
+  assert.equal(zeroDose.materials.find((item) => item.id === 'fragrance-unknown-limit')?.level, 'verify');
+});
+
+test('the first-batch list route is private to the browser session and excluded from the sitemap', async () => {
+  const route = '/first-batch-shopping-list';
+  assert.ok(staticPaths.includes(route));
+  assert.equal(pageSeo(route).robots, 'noindex, follow');
+  assert.ok(!sitemapXml().includes(`${pageSeo(route).canonical}`));
+  const html = await htmlFor(route);
+  assert.ok(html.includes('noindex, follow'));
+  assert.ok(html.includes('We couldn’t find a validated formula snapshot'));
+});
+
+test('validated formula snapshot survives navigation into the shopping list', () => {
+  const previousWindow = globalThis.window;
+  const previousSessionStorage = globalThis.sessionStorage;
+  const previousLocalStorage = globalThis.localStorage;
+  const storage = new Map();
+  globalThis.window = { location: { search: '' } };
+  globalThis.sessionStorage = {
+    getItem: (key) => storage.get(key) ?? null,
+    setItem: (key, value) => storage.set(key, String(value)),
+  };
+  globalThis.localStorage = { getItem: () => null };
+  try {
+    const draftId = savePrintableFormula({
+      name: 'Test batch',
+      oils: [{ id: 'olive-oil', name: 'Olive Oil', percentage: 100, weight: 500, sap: 0.135 }],
+      oilInputUnit: 'g',
+      fragrances: [],
+      result: {
+        naoh: 64.125,
+        naohBeforeSuperfat: 67.5,
+        liquid: 203,
+        total: 267.125,
+        fragranceTotalGrams: 0,
+        batchTotal: 767.125,
+        ingredientLye: [{ id: 'olive-oil', theoreticalNaoh: 67.5 }],
+      },
+      liquidName: 'Distilled water',
+      superfat: 5,
+    });
+    assert.ok(draftId);
+    globalThis.window.location.search = `?draft=${draftId}`;
+    const loaded = loadPrintableFormula();
+    assert.equal(loaded?.name, 'Test batch');
+    assert.equal(loaded?.result.naoh, 64.125);
+    assert.equal(loaded?.result.liquid, 203);
+  } finally {
+    if (previousWindow === undefined) delete globalThis.window;
+    else globalThis.window = previousWindow;
+    if (previousSessionStorage === undefined) delete globalThis.sessionStorage;
+    else globalThis.sessionStorage = previousSessionStorage;
+    if (previousLocalStorage === undefined) delete globalThis.localStorage;
+    else globalThis.localStorage = previousLocalStorage;
+  }
 });
 
 test('the colorful branded SVG favicon is present in the deployment output', async () => {

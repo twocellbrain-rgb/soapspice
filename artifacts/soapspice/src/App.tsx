@@ -32,6 +32,8 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import SoapmakingGlossaryPage from '@/pages/soapmaking-glossary';
 import HowToStartSoapmakingPage from '@/pages/how-to-start-soapmaking';
 import FormulaPrintPage from '@/pages/formula-print';
+import FirstBatchShoppingListPage from '@/pages/first-batch-shopping-list';
+import { savePrintableFormula } from '@/lib/formula-sheet';
 import NotFound from '@/pages/not-found';
 import PrivacyPage from '@/pages/privacy';
 import AboutPage from '@/pages/about';
@@ -615,11 +617,9 @@ function CalculatorPage({ mode = 'edit' }: { mode?: 'edit' | 'results' }) {
     link.download = `${recipeName.trim().replace(/[^a-z0-9_-]+/gi, '-').slice(0, 50) || 'formula'}.json`;
     link.click(); window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
-  const openPrintableFormula = () => {
+  const openFormulaSheet = (path: '/batch-sheet' | '/first-batch-shopping-list') => {
     if (!visibleResult) return;
-    const draftId = crypto.randomUUID();
-    const storageKey = `soapspice-print:${draftId}`;
-    const printData = {
+    const draftId = savePrintableFormula({
       name: recipeName.trim() || 'Untitled formula',
       oils: oils.map((oil) => ({
         ...oil,
@@ -631,16 +631,16 @@ function CalculatorPage({ mode = 'edit' }: { mode?: 'edit' | 'results' }) {
       result: visibleResult,
       liquidName,
       superfat,
-      generatedAt: new Date().toISOString(),
-    };
-    try {
-      sessionStorage.setItem(storageKey, JSON.stringify(printData));
-    } catch {
-      setSaveFeedback('Could not prepare the print sheet in this browser. Check that browser storage is available, then try again.');
+    });
+    if (!draftId) {
+      setSaveFeedback('Could not prepare this page in this browser. Allow session storage, then try again.');
       return;
     }
-    setLocation(`/batch-sheet?draft=${encodeURIComponent(draftId)}`);
+    setSaveFeedback('');
+    setLocation(`${path}?draft=${encodeURIComponent(draftId)}`);
   };
+  const openPrintableFormula = () => openFormulaSheet('/batch-sheet');
+  const openFirstBatchShoppingList = () => openFormulaSheet('/first-batch-shopping-list');
   const available = ingredients.filter((ingredient) => !oils.some((oil) => oil.id === ingredient.id));
 
   return (
@@ -650,7 +650,7 @@ function CalculatorPage({ mode = 'edit' }: { mode?: 'edit' | 'results' }) {
         <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end"><div className="max-w-3xl animate-rise"><div className="mb-4 flex items-center gap-3 text-xs font-bold uppercase tracking-[.18em] text-[hsl(var(--primary))]"><span className="h-2 w-2 rounded-full bg-[hsl(var(--accent))]" /> Calculator / NaOH cold process</div><h1 className="font-display text-5xl leading-[.98] tracking-[-.04em] sm:text-6xl">Turn a good idea into a <span className="text-[hsl(var(--primary))]">clear formula.</span></h1><p className="mt-5 max-w-2xl text-lg leading-8 text-[hsl(var(--muted-foreground))]">Build a bar from source-linked SAP values. This first release supports NaOH cold-process bars only.</p></div><div className="flex shrink-0 items-center gap-3 rounded-2xl border border-[hsl(var(--accent)/.35)] bg-[hsl(var(--accent)/.1)] px-4 py-3 text-sm font-bold text-[hsl(var(--accent-foreground))]"><CircleAlert size={18} /> Always wear proper safety gear.</div></div>
         <div role="note" data-testid="notice-sap-review" className="mt-8 flex items-start gap-3 rounded-2xl border border-[hsl(var(--accent)/.35)] bg-[hsl(var(--secondary))] px-5 py-4 text-sm leading-6 text-[hsl(var(--secondary-foreground))]"><CircleAlert className="mt-0.5 shrink-0" size={18} /><span>{ingredients.length === 0 || ingredients.some(item => item.verificationStatus !== 'administrator-verified') ? <><strong>Source-linked, not yet administrator reviewed.</strong> Reference SAP values still need administrator review. </> : <><strong>Catalog SAP values reviewed.</strong> Supplier-specific values may differ. </>}Check the linked sources and independently verify the formula before handling sodium hydroxide (NaOH, commonly called lye).</span></div>
       </section>
-      </>) : <ResultsHeader fresh={!!visibleResult} name={recipeName.trim() || 'Untitled formula'} superfat={superfat} liquidName={liquidName} onExport={exportFormula} onPrint={openPrintableFormula} />}
+      </>) : <ResultsHeader fresh={!!visibleResult} name={recipeName.trim() || 'Untitled formula'} superfat={superfat} liquidName={liquidName} onExport={exportFormula} onPrint={openPrintableFormula} onShoppingList={openFirstBatchShoppingList} />}
       <section className="mx-auto max-w-7xl space-y-6 px-5 pb-24 lg:px-8">
         {mode === 'edit' && (<>
         <div className="space-y-6">
@@ -796,6 +796,7 @@ function Router() {
     <Route path="/calculators/cold-process-soap">{() => <CalculatorPage />}</Route>
     <Route path="/calculators/cold-process-soap/results">{() => <CalculatorPage mode="results" />}</Route>
     <Route path="/batch-sheet" component={FormulaPrintPage} />
+    <Route path="/first-batch-shopping-list" component={FirstBatchShoppingListPage} />
     <Route path="/formula-print" component={FormulaPrintPage} />
     <Route path="/ingredients" component={IngredientsPage} />
     <Route path="/about">{() => <Shell><AboutPage /></Shell>}</Route>

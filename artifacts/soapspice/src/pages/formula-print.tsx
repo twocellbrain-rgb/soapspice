@@ -2,75 +2,9 @@ import { useState } from 'react';
 import { ArrowLeft, Printer } from 'lucide-react';
 import { Link } from 'wouter';
 import { RESULTS_PATH } from '@/lib/calculator-draft';
-import FormulaResults, {
-  type FormulaCalculation,
-  type OilResultRow,
-} from '@/components/FormulaResults';
+import FormulaResults from '@/components/FormulaResults';
 import CalculatorIngredientProductRecommendations from '@/components/CalculatorIngredientProductRecommendations';
-import type { FragranceRow } from '@/lib/formulation';
-
-type PrintableFormula = {
-  name: string;
-  oils: OilResultRow[];
-  oilInputUnit: 'percent' | 'g' | 'oz';
-  fragrances: FragranceRow[];
-  result: FormulaCalculation;
-  liquidName: string;
-  superfat: number;
-  generatedAt: string;
-};
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
-}
-
-function isPrintableFormula(value: unknown): value is PrintableFormula {
-  if (!isRecord(value) || !isRecord(value.result)) return false;
-  const result = value.result;
-  const requiredNumbers = [
-    'naoh',
-    'naohBeforeSuperfat',
-    'liquid',
-    'total',
-    'fragranceTotalGrams',
-    'batchTotal',
-  ];
-  return typeof value.name === 'string' &&
-    Array.isArray(value.oils) &&
-    value.oils.every((oil) =>
-      isRecord(oil) &&
-      typeof oil.id === 'string' &&
-      typeof oil.name === 'string' &&
-      typeof oil.percentage === 'number' &&
-      typeof oil.weight === 'number' &&
-      typeof oil.sap === 'number',
-    ) &&
-    ['percent', 'g', 'oz'].includes(String(value.oilInputUnit)) &&
-    Array.isArray(value.fragrances) &&
-    Array.isArray(result.ingredientLye) &&
-    result.ingredientLye.every((line) =>
-      isRecord(line) && typeof line.id === 'string' && typeof line.theoreticalNaoh === 'number',
-    ) &&
-    requiredNumbers.every((key) => typeof result[key] === 'number') &&
-    typeof value.liquidName === 'string' &&
-    typeof value.superfat === 'number' &&
-    typeof value.generatedAt === 'string';
-}
-
-function loadPrintableFormula(): PrintableFormula | null {
-  try {
-    const draftId = new URLSearchParams(window.location.search).get('draft');
-    if (!draftId || !/^[a-f0-9-]{36}$/i.test(draftId)) return null;
-    const storageKey = `soapspice-print:${draftId}`;
-    // Non-destructive: refreshing or printing this page must keep the sheet.
-    const raw = sessionStorage.getItem(storageKey) ?? localStorage.getItem(storageKey);
-    if (!raw) return null;
-    const parsed: unknown = JSON.parse(raw);
-    return isPrintableFormula(parsed) ? parsed : null;
-  } catch {
-    return null;
-  }
-}
+import { loadPrintableFormula } from '@/lib/formula-sheet';
 
 export default function FormulaPrintPage() {
   const [formula] = useState(loadPrintableFormula);

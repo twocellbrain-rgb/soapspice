@@ -1,4 +1,4 @@
-import { ArrowLeft, Check, CircleAlert, Download, Pencil, Printer } from 'lucide-react';
+import { ArrowLeft, Check, CircleAlert, Download, Pencil, Printer, ShoppingCart } from 'lucide-react';
 import { Link } from 'wouter';
 import { CALCULATOR_PATH } from '@/lib/calculator-draft';
 
@@ -12,9 +12,10 @@ type HeaderProps = {
   liquidName: string;
   onExport: () => void;
   onPrint: () => void;
+  onShoppingList: () => void;
 };
 
-export function ResultsHeader({ fresh, name, superfat, liquidName, onExport, onPrint }: HeaderProps) {
+export function ResultsHeader({ fresh, name, superfat, liquidName, onExport, onPrint, onShoppingList }: HeaderProps) {
   return (
     <section className="sc-calculator-intro mx-auto max-w-7xl px-5 pb-8 pt-10 lg:px-8 lg:pt-14">
       <Link href={CALCULATOR_PATH} className="print-hide mb-6 inline-flex items-center gap-2 text-sm font-bold text-[hsl(var(--primary))]" data-testid="link-back-to-inputs">
@@ -38,6 +39,7 @@ export function ResultsHeader({ fresh, name, superfat, liquidName, onExport, onP
           <div className="print-hide flex flex-wrap gap-2">
             <Link href={CALCULATOR_PATH} className={quiet} data-testid="link-edit-formula"><Pencil size={16} /> Edit formula</Link>
             <button type="button" onClick={onExport} className={quiet} data-testid="button-export-results"><Download size={16} /> Export .json</button>
+            <button type="button" onClick={onShoppingList} className={quiet} data-testid="button-first-batch-shopping-list"><ShoppingCart size={16} /> First-batch shopping list</button>
             <button type="button" onClick={onPrint} className={primary} data-testid="button-print-results"><Printer size={16} /> Print batch sheet</button>
           </div>
         )}
