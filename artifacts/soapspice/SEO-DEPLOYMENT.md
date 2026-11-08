@@ -15,6 +15,19 @@ The build uses Vite to bundle the server-rendering entry, then React's
 The production output directory remains **dist/public** within this app.
 Deploy only this directory, not `dist/prerender` (a build-time helper).
 
+## Hostinger build settings
+
+This is a pnpm monorepo, so use the repository root as the build root but build
+only the SoapSpice website:
+
+- Build command: `pnpm run build:hostinger`
+- Output directory: `artifacts/soapspice/dist/public`
+- Node.js: 22.12 or newer
+
+Do not use the workspace-wide `pnpm run build` for this static site. It builds
+other workspace applications too, and their Vite configuration requires service
+environment variables that Hostinger does not provide by default.
+
 The build generates `/sitemap.xml` automatically. It is not a manually maintained
 public source file. Vite also serves that same generated XML during development.
 `robots.txt` references `https://soapspice.com/sitemap.xml`.
