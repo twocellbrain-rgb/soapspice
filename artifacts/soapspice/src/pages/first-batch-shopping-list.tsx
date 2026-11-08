@@ -9,13 +9,12 @@ import { createStarterFormula } from '@/lib/starter-batch';
 function ShoppingItem({ item }: { item: BatchShoppingItem }) {
   const isZeroFragrance = item.id.startsWith('fragrance-') && item.amount?.startsWith('0.00');
   return (
-    <li className={`fb-item${isZeroFragrance ? ' fb-item-warning' : ''}`} data-testid={`shopping-item-${item.id}`}>
+    <li className={`fb-item${!item.amount ? ' fb-item-supply' : ''}${isZeroFragrance ? ' fb-item-warning' : ''}`} data-testid={`shopping-item-${item.id}`}>
       <div className="fb-item-copy">
         <div className="fb-item-heading">
           <h3>{item.name}</h3>
           <span className={`fb-level ${item.level}`}>{item.level === 'verify' ? 'verify first' : item.level}</span>
         </div>
-        {item.amount && <p className="fb-amount" data-testid={`text-amount-${item.id}`}>{item.amount}</p>}
         <p className="fb-detail">{item.detail}</p>
         {isZeroFragrance && (
           <p className="fb-zero-warning" role="note">
@@ -23,6 +22,7 @@ function ShoppingItem({ item }: { item: BatchShoppingItem }) {
           </p>
         )}
       </div>
+      {item.amount && <p className="fb-amount" data-testid={`text-amount-${item.id}`}><span className="fb-amount-label">Measure</span>{item.amount}</p>}
       <a
         className="fb-amazon-link print-hide"
         href={item.href}
@@ -33,7 +33,7 @@ function ShoppingItem({ item }: { item: BatchShoppingItem }) {
         data-testid={`link-amazon-${item.id}`}
       >
         Check Amazon for price{item.isAffiliate && <span className="fb-paid">Paid link</span>}
-        <ExternalLink size={15} aria-hidden="true" />
+        <ExternalLink size={16} aria-hidden="true" />
       </a>
     </li>
   );
@@ -45,7 +45,9 @@ function ItemSection({
   intro,
   items,
   icon,
+  step,
 }: {
+  step: string;
   id: string;
   title: string;
   intro: string;
@@ -58,7 +60,7 @@ function ItemSection({
       <header className="fb-section-head">
         <span className={`fb-section-icon ${icon}`}><Icon size={20} aria-hidden="true" /></span>
         <div>
-          <p className="fb-kicker">Your checklist</p>
+          <p className="fb-kicker">Step {step} of 3</p>
           <h2 id={id}>{title}</h2>
           <p className="fb-section-intro">{intro}</p>
         </div>
@@ -132,10 +134,11 @@ export default function FirstBatchShoppingListPage() {
         </header>
 
         <div className="fb-main">
-          {isExample && <section className="fb-starter-notice" aria-label="Starter calculation example" data-testid="notice-starter-example">
-            <h2>A starter shopping example, not a tested recipe</h2>
-            <p>500 g of oils: 70% olive oil, 20% coconut oil (76°), and 10% shea butter, with 5% superfat and no fragrance. NaOH and liquid weights below come from the SoapSpice calculator. Liquid is its disclosed cold-process starting estimate, not an optimized recipe.</p>
-            <p>Check exact oil grades, supplier SAP values, and NaOH purity before making soap. To use your own amounts, validate your formula in the calculator and choose “First-batch shopping list” on the results page. That opens your actual batch instead of this example.</p>
+          {isExample && <section className="fb-starter-notice" aria-labelledby="fb-starter-title" data-testid="notice-starter-example">
+            <p className="fb-kicker"><span /> Calculator-generated example</p>
+            <h2 id="fb-starter-title">Your first-batch planning guide</h2>
+            <p>This list is built from a SoapSpice calculator example so you can see what a first batch involves: <strong>500 g of oils</strong> (70% olive oil, 20% coconut oil 76°, 10% shea butter), <strong>5% superfat</strong>, and <strong>unscented</strong>. The NaOH and liquid weights below come straight from the calculator. Use the liquid amount as a cold-process starting estimate and review it against your chosen soapmaking method.</p>
+            <p>Before you make soap, check your exact oil grades, your supplier’s SAP values, and the NaOH purity on the label. Want your own amounts? Validate your formula in the calculator and choose “First-batch shopping list” on the results page to open your actual batch here.</p>
             <Link href="/calculators/cold-process-soap" className="fb-primary-link">Calculate your own batch <ArrowRight size={17} aria-hidden="true" /></Link>
           </section>}
           <div className="fb-note-row">
@@ -171,13 +174,9 @@ export default function FirstBatchShoppingListPage() {
           <div className="fb-disclosure-wrap"><AmazonDisclosure /></div>
 
           <div className="fb-content-grid">
-            <div className="fb-primary-column">
-              <ItemSection id="fb-materials-title" title="Batch materials" intro="The oils and measured ingredients your formula calls for." items={list.materials} icon="basket" />
-            </div>
-            <aside className="fb-side-column">
-              <ItemSection id="fb-tools-title" title="Tools" intro="Set up a dedicated workspace before you begin." items={list.tools} icon="tools" />
-              <ItemSection id="fb-safety-title" title="Safety equipment" intro="Protect your eyes and skin while handling NaOH." items={list.safety} icon="safety" />
-            </aside>
+            <ItemSection id="fb-materials-title" step="1" title="Batch materials" intro="The oils and measured ingredients your formula calls for, with the weight to measure." items={list.materials} icon="basket" />
+            <ItemSection id="fb-tools-title" step="2" title="Tools" intro="Set up a dedicated workspace before you begin." items={list.tools} icon="tools" />
+            <ItemSection id="fb-safety-title" step="3" title="Safety equipment" intro="Protect your eyes and skin while handling NaOH." items={list.safety} icon="safety" />
           </div>
 
           <footer className="fb-footer-note">
@@ -194,7 +193,14 @@ export default function FirstBatchShoppingListPage() {
               <li>Never use aluminum for NaOH or soapmaking tools.</li>
             </ul>
           </footer>
-          <p className="fb-formula-caveat"><strong>Important:</strong> The calculator assumes 100% NaOH purity and is not a substitute for a tested recipe. Formula amounts are weights, not volume measurements; use a scale and do not convert them to cups.</p>
+          <div className="fb-formula-caveat">
+            <h2>Get ready with confidence</h2>
+            <ul>
+              <li>Read your method start to finish with a reliable cold-process soapmaking guide before you begin.</li>
+              <li>Confirm your NaOH purity on the label; the calculator assumes 100% NaOH.</li>
+              <li>Weigh everything on a digital scale. These amounts are weights, so do not convert them to cups or volume.</li>
+            </ul>
+          </div>
         </div>
       </div>
     </main>

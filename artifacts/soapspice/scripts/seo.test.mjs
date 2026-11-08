@@ -213,7 +213,11 @@ test('the first-batch list route is private to the browser session and excluded 
   const html = await htmlFor(route);
   assert.ok(html.includes('noindex, follow'));
   assert.ok(html.includes('notice-starter-example'));
-  assert.ok(html.includes('not a tested recipe'));
+  assert.ok(html.includes('Your first-batch planning guide'));
+  assert.ok(html.includes('Calculator-generated example'));
+  assert.ok(html.includes('cold-process starting estimate'));
+  assert.ok(html.includes('calculator assumes 100% NaOH'));
+  assert.ok(!/\buntested\b|not a tested recipe/i.test(html));
 });
 
 test('home First Batch button opens a useful calculator-derived starter list', async () => {

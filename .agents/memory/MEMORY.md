@@ -8,3 +8,4 @@
 - [NaOH naming in SoapSpice](soap-naoh-terminology.md) — Use sodium hydroxide (NaOH) for calculator labels; define “lye” as the common name.
 - [Soapmaking library sourcing](soapmaking-library-sources.md) — Use brief original summaries, publisher links, and SoapSpice-owned illustrative images for external sources.
 - [Hostinger security headers](soapspice-hostinger-security.md) — Verify headers on the live Hostinger response after rebuilding; keep HSTS scoped to the verified HTTPS host.
+- [First-batch wording](first-batch-wording.md) — Use encouraging planning language instead of “untested,” without implying the example is verified.
