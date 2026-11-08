@@ -17,16 +17,16 @@ Deploy only this directory, not `dist/prerender` (a build-time helper).
 
 ## Hostinger build settings
 
-This is a pnpm monorepo, so use the repository root as the build root but build
-only the SoapSpice website:
+This is a pnpm monorepo. Keep the repository root as the build root; its default
+`build` script now targets the SoapSpice website so Hostinger can keep its
+existing build command:
 
-- Build command: `pnpm run build:hostinger`
+- Build command: `pnpm run build`
 - Output directory: `artifacts/soapspice/dist/public`
 - Node.js: 22.12 or newer
 
-Do not use the workspace-wide `pnpm run build` for this static site. It builds
-other workspace applications too, and their Vite configuration requires service
-environment variables that Hostinger does not provide by default.
+The old workspace-wide build remains available as `pnpm run build:workspace`.
+SoapSpice's explicit build alias is `pnpm run build:hostinger`.
 
 The build generates `/sitemap.xml` automatically. It is not a manually maintained
 public source file. Vite also serves that same generated XML during development.
