@@ -1,5 +1,6 @@
 - [Soap ingredient SAP scope](soap-ingredient-sap-scope.md) — Calculator entries need an identifiable oil or butter and a published SAP; ambiguous blends need supplier data.
 - [Soap liquid guidance](soap-liquid-guidance.md) — Automatic liquid is a disclosed cold-process baseline, not an optimum inferred from SAP or fragrance weights.
+- [Calculator result display](calculator-result-display.md) — Keep validated results minimal and in the user's chosen weight unit; omit pre-superfat NaOH and duplicate conversions.
 - [Legacy formula migration](legacy-formula-migration.md) — imported browser formulas remain drafts; originals stay intact because old saves lack historical SAP snapshots.
 - [SoapSpice hosting and routing](soapspice-preview-api-routing.md) — Public Hostinger site must work without Clerk or a required API; preserve static deep-link support.
 - [Soap fragrance guidance](soap-fragrance-guidance.md) — Keep IFRA screening distinct; fragrance weights follow oil units, with grams used for percentage-based oils.

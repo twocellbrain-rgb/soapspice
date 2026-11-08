@@ -717,7 +717,6 @@ function CalculatorPage({ mode = 'edit' }: { mode?: 'edit' | 'results' }) {
                 sap: ingredientMap.get(oil.id)!.naohSap,
               }))}
               oilInputUnit={oilInputUnit}
-              fragranceUnit={fragranceUnitForOilUnit(oilInputUnit)}
               fragrances={calculatedFragrances}
               result={visibleResult}
               liquidName={liquidName}

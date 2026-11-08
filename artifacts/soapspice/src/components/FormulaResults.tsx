@@ -1,6 +1,5 @@
-import { Check, FileSpreadsheet } from 'lucide-react';
-import { fragranceIfraScreen, GRAMS_PER_OUNCE, type FragranceRow, type FragranceWeightUnit } from '@/lib/formulation';
-import FragranceGuide from './FragranceGuide';
+import { Check } from 'lucide-react';
+import { fragranceIfraScreen, fragranceWeightGrams, GRAMS_PER_OUNCE, type FragranceRow } from '@/lib/formulation';
 
 export type OilResultRow = {
   id: string;
@@ -16,7 +15,6 @@ export type FormulaCalculation = ReturnType<typeof import('@/lib/formulation').c
 type FormulaResultsProps = {
   oils: OilResultRow[];
   oilInputUnit: OilInputUnit;
-  fragranceUnit: FragranceWeightUnit;
   fragrances: FragranceRow[];
   result: FormulaCalculation;
   liquidName: string;
@@ -24,202 +22,108 @@ type FormulaResultsProps = {
 };
 
 const cell = 'px-4 py-3 text-sm';
-const header = 'px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[.13em] text-[hsl(var(--muted-foreground))]';
-
-function mass(grams: number, unit: 'g' | 'oz' | 'lb'): string {
-  if (unit === 'g') return grams.toFixed(2);
-  if (unit === 'oz') return (grams / GRAMS_PER_OUNCE).toFixed(2);
-  return (grams / (GRAMS_PER_OUNCE * 16)).toFixed(3);
-}
-
-function unitLabel(unit: OilInputUnit | FragranceRow['unit']): string {
-  return unit === 'percent' ? '%' : unit;
-}
+const heading = 'px-4 py-3 text-left text-xs font-bold text-[hsl(var(--muted-foreground))]';
 
 export default function FormulaResults({
-  oils,
-  oilInputUnit,
-  fragranceUnit,
-  fragrances,
-  result,
-  liquidName,
-  superfat,
+  oils, oilInputUnit, fragrances, result, liquidName, superfat,
 }: FormulaResultsProps) {
-  const lyeByOil = new Map(result.ingredientLye.map((line) => [line.id, line]));
+  const unit = oilInputUnit === 'oz' ? 'oz' : 'g';
   const totalOilGrams = oils.reduce((sum, oil) => sum + oil.weight, 0);
+  const amount = (grams: number) => `${(unit === 'oz' ? grams / GRAMS_PER_OUNCE : grams).toFixed(2)} ${unit}`;
+  const requiredAmounts = [
+    { id: 'result-oils-total', name: 'Total oils', grams: totalOilGrams },
+    { id: 'result-naoh', name: `NaOH required · ${superfat}% superfat`, grams: result.naoh },
+    { id: 'result-liquid', name: `${liquidName} for NaOH solution`, grams: result.liquid },
+    { id: 'result-fragrance-total', name: fragrances.length ? 'Total fragrance' : 'Fragrance · unscented', grams: result.fragranceTotalGrams },
+  ];
 
   return (
     <section
       aria-labelledby="formula-results-heading"
-      className="print-card rounded-3xl border border-[hsl(var(--primary)/.25)] bg-white p-5 shadow-card sm:p-7 lg:col-span-2"
+      className="print-card rounded-3xl border border-[hsl(var(--primary)/.25)] bg-white p-5 shadow-card sm:p-7"
       data-testid="result-validated-formula"
+      data-weight-unit={unit}
     >
-      <header className="flex flex-col justify-between gap-4 border-b border-[hsl(var(--border))] pb-5 sm:flex-row sm:items-center">
-        <div>
-          <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">
-            <Check size={15} aria-hidden="true" /> NaOH calculation checked
-          </p>
-          <h2 id="formula-results-heading" className="mt-2 font-display text-3xl">Your batch at a glance</h2>
-          <p className="mt-1 text-sm text-[hsl(var(--muted-foreground))]">
-            Amounts are weights. Physical volume varies by ingredient density.
-          </p>
-        </div>
-        <FileSpreadsheet className="hidden text-[hsl(var(--primary))] sm:block" size={24} aria-hidden="true" />
+      <header className="border-b border-[hsl(var(--border))] pb-5">
+        <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">
+          <Check size={15} aria-hidden="true" /> NaOH calculation checked
+        </p>
+        <h2 id="formula-results-heading" className="mt-2 font-display text-3xl">Your batch at a glance</h2>
+        <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))]">
+          All amounts are weights in {unit === 'oz' ? 'ounces (oz)' : 'grams (g)'}, not volume.
+          {oilInputUnit === 'percent' && ' Percentage-based oil inputs are shown in grams for weighing.'}
+          {' '}Sodium hydroxide (NaOH) is commonly called lye.
+        </p>
       </header>
 
-      <div className="mt-6 grid gap-6 2xl:grid-cols-2">
-        <section aria-labelledby="results-required-heading" className="min-w-0">
-          <h3 id="results-required-heading" className="mb-3 font-bold text-[hsl(var(--foreground))]">Required amounts</h3>
-          <div className="overflow-x-auto rounded-2xl border border-[hsl(var(--border))]">
-            <table className="w-full min-w-[540px] border-collapse text-left" data-testid="table-required-amounts">
-              <caption className="sr-only">Required sodium hydroxide and liquid amounts and total batch weight</caption>
-              <thead className="bg-[hsl(var(--background))]">
-                <tr>
-                  <th scope="col" className={header}>Material</th>
-                  <th scope="col" className={`${header} text-right`}>Grams</th>
-                  <th scope="col" className={`${header} text-right`}>Ounces</th>
-                  <th scope="col" className={`${header} text-right`}>Pounds</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="border-t border-[hsl(var(--border))]">
-                  <th scope="row" className={`${cell} font-medium`}>Total oils</th>
-                  <td className={`${cell} text-right font-data`}>{mass(totalOilGrams, 'g')}</td>
-                  <td className={`${cell} text-right font-data`}>{mass(totalOilGrams, 'oz')}</td>
-                  <td className={`${cell} text-right font-data`}>{mass(totalOilGrams, 'lb')}</td>
-                </tr>
-                <tr className="border-t border-[hsl(var(--border))]">
-                  <th scope="row" className={`${cell} font-medium`}>NaOH (sodium hydroxide) before superfat</th>
-                  <td className={`${cell} text-right font-data`}>{mass(result.naohBeforeSuperfat, 'g')}</td>
-                  <td className={`${cell} text-right font-data`}>{mass(result.naohBeforeSuperfat, 'oz')}</td>
-                  <td className={`${cell} text-right font-data`}>{mass(result.naohBeforeSuperfat, 'lb')}</td>
-                </tr>
-                <tr className="border-t border-[hsl(var(--border))] bg-[hsl(var(--primary)/.04)]">
-                  <th scope="row" className={`${cell} font-bold text-[hsl(var(--primary))]`}>NaOH required · {superfat}% superfat</th>
-                  <td className={`${cell} text-right font-data font-bold text-[hsl(var(--primary))]`} data-testid="result-naoh">{mass(result.naoh, 'g')}</td>
-                  <td className={`${cell} text-right font-data font-bold text-[hsl(var(--primary))]`}>{mass(result.naoh, 'oz')}</td>
-                  <td className={`${cell} text-right font-data font-bold text-[hsl(var(--primary))]`}>{mass(result.naoh, 'lb')}</td>
-                </tr>
-                <tr className="border-t border-[hsl(var(--border))]">
-                  <th scope="row" className={cell} data-testid="text-liquid-type">{liquidName} for NaOH solution</th>
-                  <td className={`${cell} text-right font-data`} data-testid="result-liquid">{mass(result.liquid, 'g')}</td>
-                  <td className={`${cell} text-right font-data`}>{mass(result.liquid, 'oz')}</td>
-                  <td className={`${cell} text-right font-data`}>{mass(result.liquid, 'lb')}</td>
-                </tr>
-                <tr className="border-t border-[hsl(var(--border))]">
-                  <th scope="row" className={cell}>Combined NaOH + liquid</th>
-                  <td className={`${cell} text-right font-data`}>{mass(result.total, 'g')}</td>
-                  <td className={`${cell} text-right font-data`}>{mass(result.total, 'oz')}</td>
-                  <td className={`${cell} text-right font-data`}>{mass(result.total, 'lb')}</td>
-                </tr>
-                <tr className="border-t border-[hsl(var(--border))]">
-                  <th scope="row" className={cell}>Total fragrance · {fragranceUnit}</th>
-                  <td colSpan={3} className={`${cell} text-right font-data`} data-testid="result-fragrance-total">
-                    {mass(result.fragranceTotalGrams, fragranceUnit)} {fragranceUnit}
-                  </td>
-                </tr>
-                <tr className="border-t border-[hsl(var(--border))] bg-[hsl(var(--secondary))]">
-                  <th scope="row" className={`${cell} font-bold text-[hsl(var(--secondary-foreground))]`}>Total batch weight</th>
-                  <td className={`${cell} text-right font-data font-bold`} data-testid="result-batch-total">{mass(result.batchTotal, 'g')}</td>
-                  <td className={`${cell} text-right font-data font-bold`}>{mass(result.batchTotal, 'oz')}</td>
-                  <td className={`${cell} text-right font-data font-bold`}>{mass(result.batchTotal, 'lb')}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <p className="mt-3 text-xs leading-5 text-[hsl(var(--muted-foreground))]">
-            Liquid is a starting estimate at about 22% of the complete pre-saponification batch. NaOH calculations assume 100% sodium hydroxide purity. Verify the supplier’s NaOH purity and SAP values; check fragrance limits with the supplier.
-          </p>
-        </section>
+      <section className="mt-6" aria-labelledby="results-required-heading">
+        <h3 id="results-required-heading" className="mb-3 font-bold">Required amounts</h3>
+        <table className="w-full border-collapse text-left" data-testid="table-required-amounts">
+          <caption className="sr-only">Required amounts in {unit}</caption>
+          <thead className="bg-[hsl(var(--background))]">
+            <tr><th scope="col" className={heading}>Material</th><th scope="col" className={`${heading} text-right`}>Weight ({unit})</th></tr>
+          </thead>
+          <tbody>
+            {requiredAmounts.map((row) => (
+              <tr key={row.id} className={`border-t border-[hsl(var(--border))]${row.id === 'result-naoh' ? ' bg-[hsl(var(--primary)/.06)] font-bold text-[hsl(var(--primary))]' : ''}`}>
+                <th scope="row" className={`${cell} font-medium`} data-testid={row.id === 'result-liquid' ? 'text-liquid-type' : undefined}>{row.name}</th>
+                <td className={`${cell} whitespace-nowrap text-right font-data`} data-testid={row.id}>{amount(row.grams)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p className="mt-3 text-xs leading-5 text-[hsl(var(--muted-foreground))]">
+          Liquid is a starting estimate at about 22% of the complete pre-saponification batch, not an optimized water amount. NaOH assumes 100% purity. Verify your supplier’s NaOH purity and oil SAP values before making soap.
+        </p>
+      </section>
 
-        <section aria-labelledby="results-oils-heading" className="min-w-0">
-          <h3 id="results-oils-heading" className="mb-3 font-bold text-[hsl(var(--foreground))]">Oil inputs</h3>
-          <div className="overflow-x-auto rounded-2xl border border-[hsl(var(--border))]">
-            <table className="w-full min-w-[660px] border-collapse text-left" data-testid="table-oil-inputs">
-              <caption className="sr-only">Entered oil amounts with percentages and converted weights</caption>
-              <thead className="bg-[hsl(var(--background))]">
-                <tr>
-                  <th scope="col" className={header}>Ingredient · SAP</th>
-                  <th scope="col" className={`${header} text-right`}>Entered</th>
-                  <th scope="col" className={`${header} text-right`}>% oils</th>
-                  <th scope="col" className={`${header} text-right`}>Grams</th>
-                  <th scope="col" className={`${header} text-right`}>Ounces</th>
-                  <th scope="col" className={`${header} text-right`}>NaOH · 0% SF</th>
-                </tr>
-              </thead>
-              <tbody>
-                {oils.map((oil) => {
-                  const inputAmount = oilInputUnit === 'percent'
-                    ? oil.percentage
-                    : oilInputUnit === 'oz'
-                      ? oil.weight / GRAMS_PER_OUNCE
-                      : oil.weight;
-                  const lye = lyeByOil.get(oil.id);
-                  return (
-                    <tr key={oil.id} className="border-t border-[hsl(var(--border))]" data-testid={`result-oil-${oil.id}`}>
-                      <th scope="row" className={`${cell} font-medium`}>
-                        {oil.name}
-                        <span className="mt-1 block text-[10px] text-[hsl(var(--muted-foreground))]">SAP {oil.sap.toFixed(3)}</span>
-                      </th>
-                      <td className={`${cell} whitespace-nowrap text-right font-data`}>{inputAmount.toFixed(2)} {unitLabel(oilInputUnit)}</td>
-                      <td className={`${cell} text-right font-data`}>{oil.percentage.toFixed(2)}%</td>
-                      <td className={`${cell} text-right font-data`}>{mass(oil.weight, 'g')}</td>
-                      <td className={`${cell} text-right font-data`}>{mass(oil.weight, 'oz')}</td>
-                      <td className={`${cell} text-right font-data`}>{mass(lye?.theoreticalNaoh ?? 0, 'g')}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </section>
+      <section className="mt-6" aria-labelledby="results-oils-heading">
+        <h3 id="results-oils-heading" className="mb-3 font-bold">Oils to weigh</h3>
+        <table className="w-full border-collapse text-left" data-testid="table-oil-inputs">
+          <caption className="sr-only">Each selected oil in {unit}</caption>
+          <thead className="bg-[hsl(var(--background))]">
+            <tr><th scope="col" className={heading}>Ingredient</th><th scope="col" className={`${heading} text-right`}>Weight ({unit})</th></tr>
+          </thead>
+          <tbody>
+            {oils.map((oil) => (
+              <tr key={oil.id} className="border-t border-[hsl(var(--border))]" data-testid={`result-oil-${oil.id}`}>
+                <th scope="row" className={`${cell} font-medium`}>{oil.name}</th>
+                <td className={`${cell} whitespace-nowrap text-right font-data`}>{amount(oil.weight)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
 
-        <section aria-labelledby="results-fragrance-heading" className="min-w-0 2xl:col-span-2">
-          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-            <h3 id="results-fragrance-heading" className="font-bold text-[hsl(var(--foreground))]">Fragrance inputs</h3>
-            <span className="text-xs text-[hsl(var(--muted-foreground))]">Each automatic dose is capped by its supplier IFRA screen; missing limits hold the dose at zero.</span>
-          </div>
-          <div className="overflow-x-auto rounded-2xl border border-[hsl(var(--border))]">
-            <table className="w-full min-w-[720px] border-collapse text-left" data-testid="table-fragrance-inputs">
-              <caption className="sr-only">Fragrance amounts in the selected oil weight unit</caption>
-              <thead className="bg-[hsl(var(--background))]">
-                <tr>
-                  <th scope="col" className={header}>Fragrance</th>
-                  <th scope="col" className={`${header} text-right`}>Amount · {fragranceUnit}</th>
-                  <th scope="col" className={`${header} text-right`}>% of oils</th>
-                  <th scope="col" className={header}>IFRA screen</th>
+      {fragrances.length > 0 && <section className="mt-6" aria-labelledby="results-fragrance-heading">
+        <h3 id="results-fragrance-heading" className="mb-3 font-bold">Fragrance to weigh</h3>
+        <table className="w-full border-collapse text-left" data-testid="table-fragrance-inputs">
+          <caption className="sr-only">Each selected fragrance in {unit}</caption>
+          <thead className="bg-[hsl(var(--background))]">
+            <tr><th scope="col" className={heading}>Fragrance</th><th scope="col" className={`${heading} text-right`}>Weight ({unit})</th></tr>
+          </thead>
+          <tbody>
+            {fragrances.map((fragrance) => {
+              const screen = fragranceIfraScreen(fragrance, totalOilGrams);
+              const warning = screen.maximumGrams === null || screen.exceeds;
+              return (
+                <tr key={fragrance.id} className="border-t border-[hsl(var(--border))]" data-testid={`result-fragrance-${fragrance.id}`}>
+                  <th scope="row" className={`${cell} font-medium`}>
+                    {fragrance.name}
+                    <span className={`mt-1 block text-xs ${warning ? 'font-bold text-[hsl(var(--destructive))]' : 'text-[hsl(var(--muted-foreground))]'}`} data-testid={`result-ifra-${fragrance.id}`}>
+                      {screen.maximumGrams === null ? 'Supplier limit missing — verify before use' : screen.exceeds ? 'Above supplier screen — do not use this dose' : 'Within supplier screen; verify before use'}
+                    </span>
+                  </th>
+                  <td className={`${cell} whitespace-nowrap text-right font-data`}>{amount(fragranceWeightGrams(fragrance, totalOilGrams))}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {fragrances.length === 0 ? (
-                  <tr className="border-t border-[hsl(var(--border))]">
-                    <td colSpan={4} className={`${cell} text-[hsl(var(--muted-foreground))]`}>No fragrance added · unscented batch</td>
-                  </tr>
-                ) : fragrances.map((fragrance) => {
-                  const grams = fragrance.unit === 'g'
-                    ? fragrance.amount
-                    : fragrance.unit === 'oz'
-                      ? fragrance.amount * GRAMS_PER_OUNCE
-                      : totalOilGrams * fragrance.amount / 100;
-                  const percent = totalOilGrams > 0 ? grams / totalOilGrams * 100 : 0;
-                  const screen = fragranceIfraScreen(fragrance, totalOilGrams);
-                  return (
-                    <tr key={fragrance.id} className="border-t border-[hsl(var(--border))]" data-testid={`result-fragrance-${fragrance.id}`}>
-                      <th scope="row" className={`${cell} font-medium`}>{fragrance.name}</th>
-                      <td className={`${cell} whitespace-nowrap text-right font-data`}>{mass(grams, fragranceUnit)} {fragranceUnit}</td>
-                      <td className={`${cell} text-right font-data`}>{percent.toFixed(2)}%</td>
-                      <td className={`${cell} whitespace-nowrap ${screen.exceeds ? 'font-bold text-[hsl(var(--destructive))]' : ''}`} data-testid={`result-ifra-${fragrance.id}`}>
-                        {screen.maximumGrams === null ? 'Not checked' : screen.exceeds ? 'Above limit' : 'Within screen'}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </section>
-        <FragranceGuide fragrances={fragrances} totalOilGrams={totalOilGrams} naohGrams={result.naoh} unit={fragranceUnit} />
-      </div>
+              );
+            })}
+          </tbody>
+        </table>
+        <p className="mt-3 text-xs leading-5 text-[hsl(var(--muted-foreground))]">
+          IFRA screening is not a compliance certificate and cannot assess shared restricted ingredients in a fragrance blend. Confirm the exact supplier’s current soap-specific limit before use.
+        </p>
+      </section>}
     </section>
   );
 }

@@ -64,7 +64,6 @@ export default function FormulaPrintPage() {
         <FormulaResults
           oils={formula.oils}
           oilInputUnit={formula.oilInputUnit}
-          fragranceUnit={formula.oilInputUnit === 'oz' ? 'oz' : 'g'}
           fragrances={formula.fragrances}
           result={formula.result}
           liquidName={formula.liquidName}

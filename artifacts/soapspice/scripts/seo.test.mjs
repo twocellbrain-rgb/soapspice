@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { indexablePaths, staticPaths, pageSeo, sitemapXml, soapmakingLibraryResources, buildFirstBatchShoppingList, firstBatchSupplies, loadPrintableFormula, savePrintableFormula, createStarterFormula } from '../dist/prerender/entry-server.mjs';
+import { indexablePaths, staticPaths, pageSeo, sitemapXml, soapmakingLibraryResources, buildFirstBatchShoppingList, firstBatchSupplies, loadPrintableFormula, savePrintableFormula, createStarterFormula, renderFormulaResults } from '../dist/prerender/entry-server.mjs';
 
 const output = new URL('../dist/public/', import.meta.url);
 const escape = value => value.replace(/[&<>"']/g, char => ({
@@ -225,6 +225,43 @@ test('home First Batch button opens a useful calculator-derived starter list', a
   assert.equal(formula.fragrances.length, 0);
   assert.ok(Math.abs(formula.result.naoh - (350 * .135 + 100 * .183 + 50 * .128) * .95) < 1e-9);
   assert.equal(buildFirstBatchShoppingList(formula).materials.length, 5);
+});
+
+test('validated results show only the selected unit and the essential batch amounts', () => {
+  const starter = createStarterFormula();
+  for (const oilInputUnit of ['g', 'oz', 'percent']) {
+    const unit = oilInputUnit === 'oz' ? 'oz' : 'g';
+    const formula = {
+      ...starter,
+      oilInputUnit,
+      fragrances: [{ id: 'test-scent', name: 'Test fragrance', amount: 5, unit: 'g', ifraMaxPercent: 2 }],
+      result: { ...starter.result, fragranceTotalGrams: 5 },
+    };
+    const html = renderFormulaResults(formula);
+    const display = (grams) => `${(unit === 'oz' ? grams / 28.349523125 : grams).toFixed(2)} ${unit}`;
+    for (const [id, grams] of [
+      ['result-oils-total', 500],
+      ['result-naoh', formula.result.naoh],
+      ['result-liquid', formula.result.liquid],
+      ['result-fragrance-total', 5],
+    ]) {
+      assert.ok(html.includes(`data-testid="${id}">${display(grams)}</td>`), `${id}: ${unit}`);
+    }
+    assert.ok(html.includes('5% superfat'));
+    assert.ok(html.includes(display(350)));
+    assert.ok(html.includes(display(5)));
+    assert.ok(!html.includes(unit === 'g' ? ' oz' : ' g<'));
+    assert.ok(!html.includes('before superfat'));
+    assert.ok(!html.includes('0% SF'));
+    assert.ok(!html.includes('Combined NaOH'));
+    assert.ok(!html.includes('Pounds'));
+    assert.ok(!html.includes('oz/lb'));
+    assert.ok(!html.includes('min-w-['));
+    assert.ok(html.includes('result-ifra-test-scent'));
+  }
+  const unscented = renderFormulaResults(starter);
+  assert.ok(unscented.includes('Fragrance · unscented'));
+  assert.ok(!unscented.includes('table-fragrance-inputs'));
 });
 
 test('validated formula snapshot survives navigation into the shopping list', () => {
