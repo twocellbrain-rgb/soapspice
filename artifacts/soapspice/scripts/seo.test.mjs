@@ -220,6 +220,52 @@ test('the first-batch list route is private to the browser session and excluded 
   assert.ok(!/\buntested\b|not a tested recipe/i.test(html));
 });
 
+test('first-batch display units convert every weight without changing the formula', () => {
+  const starter = createStarterFormula();
+  for (const oilInputUnit of ['g', 'oz', 'percent']) {
+    const formula = {
+      ...starter,
+      oilInputUnit,
+      fragrances: [
+        { id: 'grams', name: 'Grams scent', amount: 5, unit: 'g' },
+        { id: 'ounces', name: 'Ounces scent', amount: 0.1, unit: 'oz' },
+        { id: 'percent', name: 'Percentage scent', amount: 1, unit: 'percent' },
+        { id: 'zero', name: 'Zero scent', amount: 0, unit: 'g' },
+      ],
+    };
+    const original = JSON.stringify(formula);
+    assert.equal(buildFirstBatchShoppingList(formula).unit, oilInputUnit === 'oz' ? 'oz' : 'g');
+    for (const unit of ['g', 'oz', 'g']) {
+      const list = buildFirstBatchShoppingList(formula, unit);
+      assert.equal(list.unit, unit);
+      for (const item of list.materials) {
+        const expected = unit === 'oz' ? item.weightGrams / 28.349523125 : item.weightGrams;
+        assert.equal(item.amount, `${expected.toFixed(2)} ${unit}`, item.id);
+      }
+      const byId = new Map(list.materials.map((item) => [item.id, item]));
+      assert.equal(byId.get('fragrance-grams').weightGrams, 5);
+      assert.equal(byId.get('fragrance-percent').weightGrams, 5);
+      assert.equal(byId.get('fragrance-ounces').weightGrams, 0.1 * 28.349523125);
+      assert.equal(byId.get('fragrance-zero').level, 'verify');
+      assert.equal(JSON.stringify(formula), original);
+    }
+  }
+});
+
+test('first-batch page has an accessible ingredient table, unit choice, and a complete starter method', async () => {
+  const html = (await htmlFor('/first-batch-shopping-list')).replaceAll('<!-- -->', '');
+  assert.match(html, /<table[^>]*data-testid="table-materials"/);
+  assert.match(html, /<caption>/);
+  assert.match(html, /<th scope="col">Weight \(g\)/);
+  assert.match(html, /<th scope="row"/);
+  assert.match(html, /type="radio"[^>]*data-testid="radio-unit-g"[^>]*checked/);
+  assert.match(html, /type="radio"[^>]*data-testid="radio-unit-oz"/);
+  for (let index = 1; index <= 10; index++) assert.ok(html.includes(`data-testid="first-batch-step-${index}"`));
+  assert.ok(html.includes('Always add NaOH to water'));
+  assert.ok(html.includes('Cure the bars for 4–6 weeks'));
+  assert.ok(html.includes('does not correct a weighing mistake'));
+});
+
 test('home First Batch button opens a useful calculator-derived starter list', async () => {
   const home = await htmlFor('/');
   assert.match(home, /<a(?=[^>]*href="\/first-batch-shopping-list")(?=[^>]*data-testid="link-home-first-batch")[^>]*>/);

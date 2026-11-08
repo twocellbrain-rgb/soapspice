@@ -724,3 +724,72 @@
   .fb-page *, .fb-page *::before, .fb-page *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
   .fb-amazon-link:hover, .fb-primary-link:hover { transform: none; }
 }
+
+/* First batch: materials table, unit selector, method */
+.fb-materials-head { display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: start; gap: 16px; }
+.fb-unit-toggle { margin: 0; padding: 0; border: 0; min-width: 0; }
+.fb-unit-toggle legend { margin-bottom: 8px; padding: 0; color: #4d6a65; font-size: 13px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+.fb-unit-toggle > div { display: inline-flex; padding: 4px; gap: 4px; border: 2px solid #c6dfd0; border-radius: 999px; background: #f3f7eb; }
+.fb-unit-toggle label { position: relative; display: inline-flex; min-height: 44px; padding: 0 16px; align-items: center; border-radius: 999px; color: #2f5550; cursor: pointer; font-size: 16px; font-weight: 800; white-space: nowrap; transition: background .18s, color .18s; }
+.fb-unit-toggle input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.fb-unit-toggle label:hover { background: #e2efe3; color: #087d7d; }
+.fb-unit-toggle label.is-active { background: #087d7d; color: #fffdf7; box-shadow: 0 3px 0 #0a5b58; }
+.fb-unit-toggle label:has(input:focus-visible) { outline: 3px solid #f26b24; outline-offset: 2px; }
+.fb-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; clip-path: inset(50%); }
+.fb-table-wrap { margin-top: 20px; overflow-x: auto; }
+.fb-table { width: 100%; border-collapse: collapse; font-size: 16px; }
+.fb-table caption { padding: 0 0 12px; color: #4d6a65; font-size: 15px; line-height: 1.5; text-align: left; caption-side: top; }
+.fb-table thead th { padding: 12px 14px; border-bottom: 2px solid #143c3b; color: #143c3b; font-size: 13px; font-weight: 800; letter-spacing: .08em; text-align: left; text-transform: uppercase; }
+.fb-table tbody tr { border-bottom: 1px solid #e4e6d7; transition: background .18s; }
+.fb-table tbody tr:hover, .fb-table tbody tr:focus-within { background: #f4f7ee; }
+.fb-table tbody th, .fb-table td { padding: 18px 14px; text-align: left; vertical-align: top; }
+.fb-table tbody th { font-weight: 400; }
+.fb-row-name { display: block; margin-bottom: 8px; font-family: 'Fraunces', Georgia, serif; font-size: 20px; font-weight: 700; letter-spacing: -.02em; line-height: 1.25; }
+.fb-table .fb-amount { display: inline; min-width: 0; font-size: 21px; text-align: left; white-space: nowrap; }
+.fb-cell-note { max-width: 360px; }
+.fb-table .fb-detail { margin: 0; color: #4d6a65; font-size: 16px; line-height: 1.55; }
+.fb-cell-link { text-align: right !important; }
+.fb-row-warning, .fb-row-warning:hover { background: #fff2e9 !important; box-shadow: inset 4px 0 0 #d85e2b; }
+
+.fb-method { margin-top: 28px; padding: 32px; border: 1px solid #e2e6d9; border-top: 5px solid #f26b24; border-radius: 6px; background: #fffefa; }
+.fb-method-head h2 { margin: 8px 0 12px; font-family: 'Fraunces', Georgia, serif; font-size: clamp(28px, 3.4vw, 38px); letter-spacing: -.035em; line-height: 1.1; }
+.fb-method-head > p:last-child { max-width: 760px; margin: 0; color: #3f5f5a; font-size: 17px; line-height: 1.65; }
+.fb-method-steps { display: grid; margin: 26px 0 0; padding: 0; gap: 0; list-style: none; counter-reset: none; }
+.fb-method-steps li { display: grid; padding: 22px 0; grid-template-columns: 64px minmax(0,1fr); gap: 18px; border-top: 1px solid #ecece3; }
+.fb-method-number { display: grid; width: 52px; height: 52px; place-items: center; border-radius: 50%; background: #ffc83d; color: #143c3b; font-family: 'Space Mono', monospace; font-size: 17px; font-weight: 700; }
+.fb-method-steps li:nth-child(3) .fb-method-number, .fb-method-steps li:nth-child(6) .fb-method-number { background: #f5a29b; }
+.fb-method-steps h3 { margin: 4px 0 8px; font-family: 'Fraunces', Georgia, serif; font-size: 22px; letter-spacing: -.02em; line-height: 1.25; }
+.fb-method-steps p { max-width: 780px; margin: 0; color: #2f4f4b; font-size: 17px; line-height: 1.7; }
+.fb-method-custom { display: grid; margin: 24px 0 0; padding-left: 28px; gap: 12px; }
+.fb-method-custom li { padding-left: 6px; color: #2f4f4b; font-size: 17px; line-height: 1.65; }
+.fb-method-custom li::marker { color: #087d7d; font-family: 'Space Mono', monospace; font-weight: 700; }
+.fb-method-source { margin: 24px 0 0; padding-top: 18px; border-top: 1px solid #ecece3; color: #4d6a65; font-size: 15px; line-height: 1.6; }
+.fb-method-source a { color: #087d7d; font-weight: 800; text-underline-offset: 3px; }
+.fb-method-source a:hover { color: #c75627; }
+.fb-page a:focus-visible { outline: 3px solid #f26b24; outline-offset: 3px; }
+
+@media (max-width: 760px) {
+  .fb-materials-head { grid-template-columns: auto minmax(0,1fr); }
+  .fb-unit-toggle { grid-column: 1 / -1; }
+  .fb-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); clip-path: inset(50%); }
+  .fb-table, .fb-table tbody, .fb-table tr, .fb-table tbody th, .fb-table td { display: block; width: 100%; }
+  .fb-table caption { display: block; width: 100%; }
+  .fb-table tbody tr { padding: 16px 0; }
+  .fb-table tbody th, .fb-table td { padding: 6px 0; }
+  .fb-row-warning { padding: 16px 12px !important; }
+  .fb-cell-amount::before { display: block; content: 'Weight'; color: #6c7d75; font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+  .fb-cell-note { max-width: none; }
+  .fb-cell-link { text-align: left !important; }
+  .fb-cell-link .fb-amazon-link { width: 100%; }
+  .fb-method { padding: 22px 18px; }
+  .fb-method-steps li { grid-template-columns: 1fr; gap: 10px; }
+  .fb-method-number { width: 44px; height: 44px; font-size: 15px; }
+}
+@media print {
+  .fb-method { border: 0; padding: 0; }
+  .fb-table tbody tr:hover { background: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fb-page *, .fb-page *::before, .fb-page *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  .fb-amazon-link:hover { transform: none; }
+}

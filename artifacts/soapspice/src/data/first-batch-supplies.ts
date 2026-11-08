@@ -10,9 +10,9 @@ export type FirstBatchSupply = {
 export const firstBatchSupplies: FirstBatchSupply[] = [
   {
     id: 'first-batch-scale',
-    name: 'Digital scale with 1 g resolution',
-    detail: 'Weigh every ingredient; do not measure soap ingredients by cups.',
-    searchQuery: 'digital kitchen scale 1 gram resolution',
+    name: 'Digital scale with 0.1 g resolution',
+    detail: 'Use a reliable scale with enough capacity for your container. Weigh every ingredient, especially NaOH; do not measure by cups.',
+    searchQuery: 'digital scale 0.1 gram resolution soap making',
     group: 'tools',
     level: 'required',
   },
