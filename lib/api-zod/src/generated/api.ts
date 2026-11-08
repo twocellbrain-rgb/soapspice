@@ -27,7 +27,7 @@ export const ListStarterGuideProductsResponseItem = zod.object({
   "products": zod.array(zod.object({
   "title": zod.string().min(1).max(listStarterGuideProductsResponseProductsItemTitleMax),
   "note": zod.string().min(1).max(listStarterGuideProductsResponseProductsItemNoteMax),
-  "url": zod.string().url().min(1).max(listStarterGuideProductsResponseProductsItemUrlMax)
+  "url": zod.url().min(1).max(listStarterGuideProductsResponseProductsItemUrlMax)
 })).min(listStarterGuideProductsResponseProductsMin).max(listStarterGuideProductsResponseProductsMax),
   "updatedAt": zod.coerce.date()
 })
@@ -54,7 +54,7 @@ export const ListCalculatorIngredientProductsResponseItem = zod.object({
   "products": zod.array(zod.object({
   "title": zod.string().min(1).max(listCalculatorIngredientProductsResponseProductsItemTitleMax),
   "note": zod.string().min(1).max(listCalculatorIngredientProductsResponseProductsItemNoteMax),
-  "url": zod.string().url().min(1).max(listCalculatorIngredientProductsResponseProductsItemUrlMax)
+  "url": zod.url().min(1).max(listCalculatorIngredientProductsResponseProductsItemUrlMax)
 })).min(1).max(listCalculatorIngredientProductsResponseProductsMax),
   "updatedAt": zod.coerce.date()
 })
@@ -79,7 +79,7 @@ export const searchStarterGuideAmazonProductsQueryKeywordsMax = 120;
 
 
 export const SearchStarterGuideAmazonProductsQueryParams = zod.object({
-  "keywords": zod.coerce.string().min(searchStarterGuideAmazonProductsQueryKeywordsMin).max(searchStarterGuideAmazonProductsQueryKeywordsMax)
+  "keywords": zod.string().min(searchStarterGuideAmazonProductsQueryKeywordsMin).max(searchStarterGuideAmazonProductsQueryKeywordsMax)
 })
 
 export const searchStarterGuideAmazonProductsResponseAsinMax = 32;
@@ -93,7 +93,7 @@ export const searchStarterGuideAmazonProductsResponseUrlMax = 2000;
 export const SearchStarterGuideAmazonProductsResponseItem = zod.object({
   "asin": zod.string().min(1).max(searchStarterGuideAmazonProductsResponseAsinMax),
   "title": zod.string().min(1).max(searchStarterGuideAmazonProductsResponseTitleMax),
-  "url": zod.string().url().min(1).max(searchStarterGuideAmazonProductsResponseUrlMax)
+  "url": zod.url().min(1).max(searchStarterGuideAmazonProductsResponseUrlMax)
 })
 export const SearchStarterGuideAmazonProductsResponse = zod.array(SearchStarterGuideAmazonProductsResponseItem)
 
@@ -120,7 +120,7 @@ export const ReplaceStarterGuideProductsBody = zod.object({
   "products": zod.array(zod.object({
   "title": zod.string().min(1).max(replaceStarterGuideProductsBodyProductsItemTitleMax),
   "note": zod.string().min(1).max(replaceStarterGuideProductsBodyProductsItemNoteMax),
-  "url": zod.string().url().min(1).max(replaceStarterGuideProductsBodyProductsItemUrlMax)
+  "url": zod.url().min(1).max(replaceStarterGuideProductsBodyProductsItemUrlMax)
 })).min(replaceStarterGuideProductsBodyProductsMin).max(replaceStarterGuideProductsBodyProductsMax)
 })
 
@@ -140,7 +140,7 @@ export const ReplaceStarterGuideProductsResponse = zod.object({
   "products": zod.array(zod.object({
   "title": zod.string().min(1).max(replaceStarterGuideProductsResponseProductsItemTitleMax),
   "note": zod.string().min(1).max(replaceStarterGuideProductsResponseProductsItemNoteMax),
-  "url": zod.string().url().min(1).max(replaceStarterGuideProductsResponseProductsItemUrlMax)
+  "url": zod.url().min(1).max(replaceStarterGuideProductsResponseProductsItemUrlMax)
 })).min(replaceStarterGuideProductsResponseProductsMin).max(replaceStarterGuideProductsResponseProductsMax),
   "updatedAt": zod.coerce.date()
 })
@@ -164,7 +164,7 @@ export const replaceCalculatorIngredientProductsPathIngredientIdMax = 100;
 
 
 export const ReplaceCalculatorIngredientProductsParams = zod.object({
-  "ingredientId": zod.coerce.string().min(1).max(replaceCalculatorIngredientProductsPathIngredientIdMax)
+  "ingredientId": zod.string().min(1).max(replaceCalculatorIngredientProductsPathIngredientIdMax)
 })
 
 export const replaceCalculatorIngredientProductsBodyProductsItemTitleMax = 160;
@@ -181,7 +181,7 @@ export const ReplaceCalculatorIngredientProductsBody = zod.object({
   "products": zod.array(zod.object({
   "title": zod.string().min(1).max(replaceCalculatorIngredientProductsBodyProductsItemTitleMax),
   "note": zod.string().min(1).max(replaceCalculatorIngredientProductsBodyProductsItemNoteMax),
-  "url": zod.string().url().min(1).max(replaceCalculatorIngredientProductsBodyProductsItemUrlMax)
+  "url": zod.url().min(1).max(replaceCalculatorIngredientProductsBodyProductsItemUrlMax)
 })).min(1).max(replaceCalculatorIngredientProductsBodyProductsMax)
 })
 
@@ -202,7 +202,7 @@ export const ReplaceCalculatorIngredientProductsResponse = zod.object({
   "products": zod.array(zod.object({
   "title": zod.string().min(1).max(replaceCalculatorIngredientProductsResponseProductsItemTitleMax),
   "note": zod.string().min(1).max(replaceCalculatorIngredientProductsResponseProductsItemNoteMax),
-  "url": zod.string().url().min(1).max(replaceCalculatorIngredientProductsResponseProductsItemUrlMax)
+  "url": zod.url().min(1).max(replaceCalculatorIngredientProductsResponseProductsItemUrlMax)
 })).min(1).max(replaceCalculatorIngredientProductsResponseProductsMax),
   "updatedAt": zod.coerce.date()
 })
@@ -216,7 +216,7 @@ export const deleteCalculatorIngredientProductsPathIngredientIdMax = 100;
 
 
 export const DeleteCalculatorIngredientProductsParams = zod.object({
-  "ingredientId": zod.coerce.string().min(1).max(deleteCalculatorIngredientProductsPathIngredientIdMax)
+  "ingredientId": zod.string().min(1).max(deleteCalculatorIngredientProductsPathIngredientIdMax)
 })
 
 export const DeleteCalculatorIngredientProductsResponse = zod.void()
@@ -251,7 +251,7 @@ export const ListRecipesResponseItem = zod.object({
   "amount": zod.number().gt(listRecipesResponseFragrancesItemAmountExclusiveMin),
   "unit": zod.enum(['g', 'oz', 'percent']),
   "ifraMaxPercent": zod.number().min(listRecipesResponseFragrancesItemIfraMaxPercentMin).max(listRecipesResponseFragrancesItemIfraMaxPercentMax).optional().describe('Supplier IFRA maximum for this exact fragrance and bar-soap application, as a percentage of finished product.'),
-  "ifraSourceUrl": zod.string().url().max(listRecipesResponseFragrancesItemIfraSourceUrlMax).optional()
+  "ifraSourceUrl": zod.url().max(listRecipesResponseFragrancesItemIfraSourceUrlMax).optional()
 })).optional(),
   "liquidType": zod.enum(['distilled-water', 'goat-milk', 'cow-milk', 'other']).optional(),
   "customLiquid": zod.string().optional(),
@@ -324,7 +324,7 @@ export const CreateRecipeBody = zod.object({
   "amount": zod.number().gt(createRecipeBodyFragrancesItemAmountExclusiveMin),
   "unit": zod.enum(['g', 'oz', 'percent']),
   "ifraMaxPercent": zod.number().min(createRecipeBodyFragrancesItemIfraMaxPercentMin).max(createRecipeBodyFragrancesItemIfraMaxPercentMax).optional().describe('Supplier IFRA maximum for this exact fragrance and bar-soap application, as a percentage of finished product.'),
-  "ifraSourceUrl": zod.string().url().max(createRecipeBodyFragrancesItemIfraSourceUrlMax).optional()
+  "ifraSourceUrl": zod.url().max(createRecipeBodyFragrancesItemIfraSourceUrlMax).optional()
 })).max(createRecipeBodyFragrancesMax).optional(),
   "liquidType": zod.enum(['distilled-water', 'goat-milk', 'cow-milk', 'other']).optional(),
   "customLiquid": zod.string().max(createRecipeBodyCustomLiquidMax).optional(),
@@ -364,7 +364,7 @@ export const CreateRecipeResponse = zod.object({
   "amount": zod.number().gt(createRecipeResponseFragrancesItemAmountExclusiveMin),
   "unit": zod.enum(['g', 'oz', 'percent']),
   "ifraMaxPercent": zod.number().min(createRecipeResponseFragrancesItemIfraMaxPercentMin).max(createRecipeResponseFragrancesItemIfraMaxPercentMax).optional().describe('Supplier IFRA maximum for this exact fragrance and bar-soap application, as a percentage of finished product.'),
-  "ifraSourceUrl": zod.string().url().max(createRecipeResponseFragrancesItemIfraSourceUrlMax).optional()
+  "ifraSourceUrl": zod.url().max(createRecipeResponseFragrancesItemIfraSourceUrlMax).optional()
 })).optional(),
   "liquidType": zod.enum(['distilled-water', 'goat-milk', 'cow-milk', 'other']).optional(),
   "customLiquid": zod.string().optional(),
@@ -405,9 +405,9 @@ export const listSoapmakingLibraryResponseTagsMax = 12;
 
 
 export const ListSoapmakingLibraryResponseItem = zod.object({
-  "id": zod.string().uuid(),
+  "id": zod.uuid(),
   "title": zod.string().min(1).max(listSoapmakingLibraryResponseTitleMax),
-  "sourceUrl": zod.string().url().min(1).max(listSoapmakingLibraryResponseSourceUrlMax),
+  "sourceUrl": zod.url().min(1).max(listSoapmakingLibraryResponseSourceUrlMax),
   "sourceName": zod.string().min(1).max(listSoapmakingLibraryResponseSourceNameMax),
   "kind": zod.enum(['article', 'recipe', 'tutorial', 'safety', 'other']),
   "author": zod.string().max(listSoapmakingLibraryResponseAuthorMax).nullish(),
@@ -442,7 +442,7 @@ export const saveSoapmakingLibraryItemBodyTagsMax = 12;
 
 export const SaveSoapmakingLibraryItemBody = zod.object({
   "title": zod.string().min(1).max(saveSoapmakingLibraryItemBodyTitleMax),
-  "sourceUrl": zod.string().url().min(1).max(saveSoapmakingLibraryItemBodySourceUrlMax),
+  "sourceUrl": zod.url().min(1).max(saveSoapmakingLibraryItemBodySourceUrlMax),
   "sourceName": zod.string().min(1).max(saveSoapmakingLibraryItemBodySourceNameMax),
   "kind": zod.enum(['article', 'recipe', 'tutorial', 'safety', 'other']),
   "author": zod.string().max(saveSoapmakingLibraryItemBodyAuthorMax).optional(),
@@ -470,9 +470,9 @@ export const saveSoapmakingLibraryItemResponseTagsMax = 12;
 
 
 export const SaveSoapmakingLibraryItemResponse = zod.object({
-  "id": zod.string().uuid(),
+  "id": zod.uuid(),
   "title": zod.string().min(1).max(saveSoapmakingLibraryItemResponseTitleMax),
-  "sourceUrl": zod.string().url().min(1).max(saveSoapmakingLibraryItemResponseSourceUrlMax),
+  "sourceUrl": zod.url().min(1).max(saveSoapmakingLibraryItemResponseSourceUrlMax),
   "sourceName": zod.string().min(1).max(saveSoapmakingLibraryItemResponseSourceNameMax),
   "kind": zod.enum(['article', 'recipe', 'tutorial', 'safety', 'other']),
   "author": zod.string().max(saveSoapmakingLibraryItemResponseAuthorMax).nullish(),
@@ -487,7 +487,7 @@ export const SaveSoapmakingLibraryItemResponse = zod.object({
  * @summary Remove a saved source
  */
 export const DeleteSoapmakingLibraryItemParams = zod.object({
-  "articleId": zod.coerce.string().uuid()
+  "articleId": zod.uuid()
 })
 
 export const DeleteSoapmakingLibraryItemResponse = zod.void()
@@ -549,7 +549,7 @@ export const ImportRecipeBody = zod.object({
   "amount": zod.number().gt(importRecipeBodyFragrancesItemAmountExclusiveMin),
   "unit": zod.enum(['g', 'oz', 'percent']),
   "ifraMaxPercent": zod.number().min(importRecipeBodyFragrancesItemIfraMaxPercentMin).max(importRecipeBodyFragrancesItemIfraMaxPercentMax).optional().describe('Supplier IFRA maximum for this exact fragrance and bar-soap application, as a percentage of finished product.'),
-  "ifraSourceUrl": zod.string().url().max(importRecipeBodyFragrancesItemIfraSourceUrlMax).optional()
+  "ifraSourceUrl": zod.url().max(importRecipeBodyFragrancesItemIfraSourceUrlMax).optional()
 })).max(importRecipeBodyFragrancesMax).optional(),
   "liquidType": zod.enum(['distilled-water', 'goat-milk', 'cow-milk', 'other']).optional(),
   "customLiquid": zod.string().max(importRecipeBodyCustomLiquidMax).optional(),
@@ -589,7 +589,7 @@ export const ImportRecipeResponse = zod.object({
   "amount": zod.number().gt(importRecipeResponseFragrancesItemAmountExclusiveMin),
   "unit": zod.enum(['g', 'oz', 'percent']),
   "ifraMaxPercent": zod.number().min(importRecipeResponseFragrancesItemIfraMaxPercentMin).max(importRecipeResponseFragrancesItemIfraMaxPercentMax).optional().describe('Supplier IFRA maximum for this exact fragrance and bar-soap application, as a percentage of finished product.'),
-  "ifraSourceUrl": zod.string().url().max(importRecipeResponseFragrancesItemIfraSourceUrlMax).optional()
+  "ifraSourceUrl": zod.url().max(importRecipeResponseFragrancesItemIfraSourceUrlMax).optional()
 })).optional(),
   "liquidType": zod.enum(['distilled-water', 'goat-milk', 'cow-milk', 'other']).optional(),
   "customLiquid": zod.string().optional(),
@@ -612,7 +612,7 @@ export const ImportRecipeResponse = zod.object({
  * @summary Open my formula
  */
 export const GetRecipeParams = zod.object({
-  "recipeId": zod.coerce.string().uuid()
+  "recipeId": zod.uuid()
 })
 
 export const getRecipeResponseFragrancesItemIdMax = 120;
@@ -641,7 +641,7 @@ export const GetRecipeResponse = zod.object({
   "amount": zod.number().gt(getRecipeResponseFragrancesItemAmountExclusiveMin),
   "unit": zod.enum(['g', 'oz', 'percent']),
   "ifraMaxPercent": zod.number().min(getRecipeResponseFragrancesItemIfraMaxPercentMin).max(getRecipeResponseFragrancesItemIfraMaxPercentMax).optional().describe('Supplier IFRA maximum for this exact fragrance and bar-soap application, as a percentage of finished product.'),
-  "ifraSourceUrl": zod.string().url().max(getRecipeResponseFragrancesItemIfraSourceUrlMax).optional()
+  "ifraSourceUrl": zod.url().max(getRecipeResponseFragrancesItemIfraSourceUrlMax).optional()
 })).optional(),
   "liquidType": zod.enum(['distilled-water', 'goat-milk', 'cow-milk', 'other']).optional(),
   "customLiquid": zod.string().optional(),
@@ -664,7 +664,7 @@ export const GetRecipeResponse = zod.object({
  * @summary Replace my formula after validation
  */
 export const UpdateRecipeParams = zod.object({
-  "recipeId": zod.coerce.string().uuid()
+  "recipeId": zod.uuid()
 })
 
 export const updateRecipeBodyNameMax = 120;
@@ -717,7 +717,7 @@ export const UpdateRecipeBody = zod.object({
   "amount": zod.number().gt(updateRecipeBodyFragrancesItemAmountExclusiveMin),
   "unit": zod.enum(['g', 'oz', 'percent']),
   "ifraMaxPercent": zod.number().min(updateRecipeBodyFragrancesItemIfraMaxPercentMin).max(updateRecipeBodyFragrancesItemIfraMaxPercentMax).optional().describe('Supplier IFRA maximum for this exact fragrance and bar-soap application, as a percentage of finished product.'),
-  "ifraSourceUrl": zod.string().url().max(updateRecipeBodyFragrancesItemIfraSourceUrlMax).optional()
+  "ifraSourceUrl": zod.url().max(updateRecipeBodyFragrancesItemIfraSourceUrlMax).optional()
 })).max(updateRecipeBodyFragrancesMax).optional(),
   "liquidType": zod.enum(['distilled-water', 'goat-milk', 'cow-milk', 'other']).optional(),
   "customLiquid": zod.string().max(updateRecipeBodyCustomLiquidMax).optional(),
@@ -757,7 +757,7 @@ export const UpdateRecipeResponse = zod.object({
   "amount": zod.number().gt(updateRecipeResponseFragrancesItemAmountExclusiveMin),
   "unit": zod.enum(['g', 'oz', 'percent']),
   "ifraMaxPercent": zod.number().min(updateRecipeResponseFragrancesItemIfraMaxPercentMin).max(updateRecipeResponseFragrancesItemIfraMaxPercentMax).optional().describe('Supplier IFRA maximum for this exact fragrance and bar-soap application, as a percentage of finished product.'),
-  "ifraSourceUrl": zod.string().url().max(updateRecipeResponseFragrancesItemIfraSourceUrlMax).optional()
+  "ifraSourceUrl": zod.url().max(updateRecipeResponseFragrancesItemIfraSourceUrlMax).optional()
 })).optional(),
   "liquidType": zod.enum(['distilled-water', 'goat-milk', 'cow-milk', 'other']).optional(),
   "customLiquid": zod.string().optional(),
@@ -780,7 +780,7 @@ export const UpdateRecipeResponse = zod.object({
  * @summary Delete my formula
  */
 export const DeleteRecipeParams = zod.object({
-  "recipeId": zod.coerce.string().uuid()
+  "recipeId": zod.uuid()
 })
 
 export const DeleteRecipeResponse = zod.void()
@@ -803,7 +803,7 @@ export const getIngredientsQuerySearchMax = 100;
 
 
 export const GetIngredientsQueryParams = zod.object({
-  "search": zod.coerce.string().max(getIngredientsQuerySearchMax).optional(),
+  "search": zod.string().max(getIngredientsQuerySearchMax).optional(),
   "category": zod.enum(['oil', 'butter']).optional()
 })
 
@@ -831,7 +831,7 @@ export const getIngredientPathIngredientIdMax = 100;
 
 
 export const GetIngredientParams = zod.object({
-  "ingredientId": zod.coerce.string().min(1).max(getIngredientPathIngredientIdMax)
+  "ingredientId": zod.string().min(1).max(getIngredientPathIngredientIdMax)
 })
 
 export const GetIngredientResponse = zod.object({
@@ -881,7 +881,7 @@ export const ListAdminIngredientsResponseItem = zod.object({
   "reviewedBy": zod.string().nullable(),
   "reviewedAt": zod.coerce.date().nullable(),
   "lastEditedBy": zod.string().nullable(),
-  "revision": zod.number().int().min(listAdminIngredientsResponseTwoRevisionMin)
+  "revision": zod.int().min(listAdminIngredientsResponseTwoRevisionMin)
 }))
 export const ListAdminIngredientsResponse = zod.array(ListAdminIngredientsResponseItem)
 
@@ -948,7 +948,7 @@ export const CreateAdminIngredientResponse = zod.object({
   "reviewedBy": zod.string().nullable(),
   "reviewedAt": zod.coerce.date().nullable(),
   "lastEditedBy": zod.string().nullable(),
-  "revision": zod.number().int().min(createAdminIngredientResponseTwoRevisionMin)
+  "revision": zod.int().min(createAdminIngredientResponseTwoRevisionMin)
 }))
 
 
@@ -960,7 +960,7 @@ export const editAdminIngredientPathIngredientIdMax = 100;
 
 
 export const EditAdminIngredientParams = zod.object({
-  "ingredientId": zod.coerce.string().min(1).max(editAdminIngredientPathIngredientIdMax)
+  "ingredientId": zod.string().min(1).max(editAdminIngredientPathIngredientIdMax)
 })
 
 export const editAdminIngredientBodyIdMax = 100;
@@ -1022,7 +1022,7 @@ export const EditAdminIngredientResponse = zod.object({
   "reviewedBy": zod.string().nullable(),
   "reviewedAt": zod.coerce.date().nullable(),
   "lastEditedBy": zod.string().nullable(),
-  "revision": zod.number().int().min(editAdminIngredientResponseTwoRevisionMin)
+  "revision": zod.int().min(editAdminIngredientResponseTwoRevisionMin)
 }))
 
 
@@ -1034,7 +1034,7 @@ export const approveAdminIngredientPathIngredientIdMax = 100;
 
 
 export const ApproveAdminIngredientParams = zod.object({
-  "ingredientId": zod.coerce.string().min(1).max(approveAdminIngredientPathIngredientIdMax)
+  "ingredientId": zod.string().min(1).max(approveAdminIngredientPathIngredientIdMax)
 })
 
 export const approveAdminIngredientBodyExpectedRevisionMin = 0;
@@ -1042,7 +1042,7 @@ export const approveAdminIngredientBodyExpectedRevisionMin = 0;
 
 
 export const ApproveAdminIngredientBody = zod.object({
-  "expectedRevision": zod.number().int().min(approveAdminIngredientBodyExpectedRevisionMin)
+  "expectedRevision": zod.int().min(approveAdminIngredientBodyExpectedRevisionMin)
 })
 
 export const approveAdminIngredientResponseTwoRevisionMin = 0;
@@ -1066,7 +1066,7 @@ export const ApproveAdminIngredientResponse = zod.object({
   "reviewedBy": zod.string().nullable(),
   "reviewedAt": zod.coerce.date().nullable(),
   "lastEditedBy": zod.string().nullable(),
-  "revision": zod.number().int().min(approveAdminIngredientResponseTwoRevisionMin)
+  "revision": zod.int().min(approveAdminIngredientResponseTwoRevisionMin)
 }))
 
 
