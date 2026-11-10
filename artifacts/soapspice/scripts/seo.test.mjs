@@ -213,7 +213,9 @@ test('Amazon shopping pages disclose paid links and do not mislabel them as untr
     const html = (await htmlFor(route)).replaceAll('<!-- -->', '');
     assert.ok(html.includes('As an Amazon Associate I earn from qualifying purchases.'), route);
     assert.ok(html.includes('amazon-price-button'), route);
-    assert.ok(html.includes('paid link'), route);
+    assert.ok(html.includes('class="amazon-ad-label">#ad</span>'), route);
+    assert.ok(html.includes('Affiliate links are marked “#ad.”'), route);
+    assert.doesNotMatch(html, /paid link/i, route);
     assert.ok(html.includes('sponsored nofollow noopener'), route);
     assert.doesNotMatch(html, /untracked search|do not earn SoapSpice a commission/);
     assert.ok(html.includes('tag=soapspice1-20'), route);

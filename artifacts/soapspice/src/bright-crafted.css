@@ -42,7 +42,15 @@
   font-size: 12px;
   font-weight: 600;
 }
-.amazon-price-button .fb-paid { background: #fff5d9; color: #51390d; }
+.amazon-price-button .amazon-ad-label {
+  padding-left: 8px;
+  border-left: 1px solid #af7e2b;
+  color: #51390d;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+}
 @media print {
   .amazon-price-button { display: none !important; }
 }
@@ -425,7 +433,6 @@
 .fb-amazon-link { display: inline-flex; min-height: 36px; flex: none; padding: 7px 0 7px 8px; align-items: center; gap: 6px; color: #087d7d; font-size: 9px; font-weight: 800; text-align: right; text-decoration: none; }
 .fb-amazon-link:hover { color: #145d58; text-decoration: underline; text-underline-offset: 3px; }
 .fb-amazon-link svg { flex: none; }
-.fb-paid { padding: 3px 5px; border-radius: 4px; background: #fff0d1; color: #87511e; font-size: 7px; text-transform: uppercase; }
 .fb-empty-note { margin: 17px 0 0; color: #718078; font-size: 11px; }
 .fb-footer-note { display: grid; margin-top: 21px; padding: 21px; grid-template-columns: .7fr 1.3fr; align-items: start; gap: 15px 28px; border-left: 4px solid #ef702d; background: #f5f4e9; }
 .fb-safety-heading h2 { margin: 5px 0 0; font-family: 'Fraunces', Georgia, serif; font-size: 25px; letter-spacing: -.035em; line-height: 1.1; }
@@ -731,9 +738,7 @@
 .fb-amount-label { color: #6c7d75; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
 .fb-amazon-link { min-height: 48px; padding: 0 18px; justify-content: center; gap: 8px; border: 2px solid #087d7d; border-radius: 999px; background: #fffefa; color: #087d7d; font-size: 15px; white-space: nowrap; transition: background .18s, color .18s, transform .18s, box-shadow .18s; }
 .fb-amazon-link:hover { background: #087d7d; color: #fffdf7; text-decoration: none; transform: translateY(-2px); box-shadow: 0 4px 0 #0a5b58; }
-.fb-amazon-link:hover .fb-paid { background: #fff0d1; }
 .fb-amazon-link:active { transform: translateY(0); box-shadow: none; }
-.fb-paid { font-size: 10px; padding: 3px 6px; }
 .fb-empty-note { font-size: 16px; }
 .fb-footer-note { margin-top: 32px; padding: 30px 32px; grid-template-columns: .8fr 1.2fr; gap: 18px 36px; border-radius: 4px; }
 .fb-footer-mark { font-size: 11px; }

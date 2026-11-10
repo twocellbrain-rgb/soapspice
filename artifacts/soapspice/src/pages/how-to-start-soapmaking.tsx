@@ -60,8 +60,8 @@ export default function HowToStartSoapmakingPage() {
                 <h4 className="text-xs font-black uppercase tracking-[0.15em] text-[hsl(var(--foreground))]">Product suggestions</h4>
                 <div className="mt-3 rounded-2xl border border-dashed border-[hsl(var(--border))] px-4 py-3 text-sm leading-5 text-[hsl(var(--muted-foreground))]">
                   <p>Search Amazon for this tool. Product prices and availability may change.</p>
-                  <a className="amazon-price-button print-hide mt-2" href={link.href} target="_blank" rel={link.isAffiliate ? "sponsored nofollow noopener" : "nofollow noopener"} referrerPolicy="strict-origin-when-cross-origin" aria-label={`Check Amazon for price: ${tool.title}${link.isAffiliate ? ', paid link' : ''} (opens in a new tab)`}>
-                    Check Amazon for price {link.isAffiliate && <span>(paid link)</span>} <ExternalLink size={14} aria-hidden="true" />
+                  <a className="amazon-price-button print-hide mt-2" href={link.href} target="_blank" rel={link.isAffiliate ? "sponsored nofollow noopener" : "nofollow noopener"} referrerPolicy="strict-origin-when-cross-origin" aria-label={`Check Amazon for price: ${tool.title}${link.isAffiliate ? ', affiliate ad' : ''} (opens in a new tab)`}>
+                    Check Amazon for price {link.isAffiliate && <span className="amazon-ad-label">#ad</span>} <ExternalLink size={14} aria-hidden="true" />
                   </a>
                 </div>
               </div>

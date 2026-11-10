@@ -17,7 +17,7 @@ manually verified product-specific Special Links.
    Never invent a tag, infer fragrance identity from a similar name, or use someone
    else's tag. Amazon URLs/tags are public; API secrets are not.
 3. Once links are configured, verify the exact Associate statement appears
-   prominently and “paid link” is beside every affiliate button. Untracked searches
+   prominently and “#ad” is clearly visible on every affiliate button. Untracked searches
    must remain distinguished from paid links.
 4. Review `/privacy` against the actual hosting, cookies, analytics, and data
    processing in use. Keep disclosures accurate as integrations change.

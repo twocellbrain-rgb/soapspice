@@ -39,10 +39,10 @@ function AmazonLink({ item }: { item: BatchShoppingItem }) {
       target="_blank"
       rel={item.isAffiliate ? 'sponsored nofollow noopener' : 'nofollow noopener'}
       referrerPolicy="strict-origin-when-cross-origin"
-      aria-label={`Check Amazon for price: ${item.name}${item.isAffiliate ? ', paid link' : ''} (opens in a new tab)`}
+      aria-label={`Check Amazon for price: ${item.name}${item.isAffiliate ? ', affiliate ad' : ''} (opens in a new tab)`}
       data-testid={`link-amazon-${item.id}`}
     >
-      Check Amazon for price{item.isAffiliate && <span className="fb-paid">Paid link</span>}
+      Check Amazon for price{item.isAffiliate && <span className="amazon-ad-label">#ad</span>}
       <ExternalLink size={16} aria-hidden="true" />
     </a>
   );

@@ -63,9 +63,9 @@ export default function CalculatorIngredientProductRecommendations({
                 rel={item.link.isAffiliate ? 'sponsored nofollow noopener' : 'nofollow noopener'}
                 referrerPolicy="strict-origin-when-cross-origin"
                 className="amazon-price-button mt-3"
-                aria-label={`Check Amazon for price: ${item.name}${item.link.isAffiliate ? ', paid link' : ''} (opens in a new tab)`}
+                aria-label={`Check Amazon for price: ${item.name}${item.link.isAffiliate ? ', affiliate ad' : ''} (opens in a new tab)`}
               >
-                Check Amazon for price {item.link.isAffiliate && <span>(paid link)</span>} <ExternalLink size={14} aria-hidden="true" />
+                Check Amazon for price {item.link.isAffiliate && <span className="amazon-ad-label">#ad</span>} <ExternalLink size={14} aria-hidden="true" />
               </a>
             </section>
           ))}
@@ -85,9 +85,9 @@ export default function CalculatorIngredientProductRecommendations({
                 rel={link.isAffiliate ? 'sponsored nofollow noopener' : 'nofollow noopener'}
                 referrerPolicy="strict-origin-when-cross-origin"
                 className="amazon-price-button mt-3"
-                aria-label={`Check Amazon for price: ${material.name}${link.isAffiliate ? ', paid link' : ''} (opens in a new tab)`}
+                aria-label={`Check Amazon for price: ${material.name}${link.isAffiliate ? ', affiliate ad' : ''} (opens in a new tab)`}
               >
-                Check Amazon for price {link.isAffiliate && <span>(paid link)</span>} <ExternalLink size={14} aria-hidden="true" />
+                Check Amazon for price {link.isAffiliate && <span className="amazon-ad-label">#ad</span>} <ExternalLink size={14} aria-hidden="true" />
               </a>
             </section>
           ); })}
