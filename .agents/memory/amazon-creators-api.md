@@ -21,9 +21,9 @@ Creators API catalog responses are temporary: ItemInfo and DetailPageURL content
 
 Calculator product cards are matched by stable catalog ingredient ID, not display names or aliases. Do not infer a match from free-text fragrance names without a curated identity.
 
-The owner supplied an Amazon-issued homepage affiliate link and asked to apply it across calculator shopping outputs. Use the owner-supplied Associates tag on relevant Amazon.com searches for selected oils, fragrances, sodium hydroxide, liquids, tools, and safety equipment. Keep “Check Amazon for price” labels and the required Associate disclosure. The user agreed to use “#ad” instead of “paid link” and asked that it look professional and not obstructive.
+The owner supplied an Amazon-issued homepage affiliate link and asked to apply it across calculator shopping outputs. Use the owner-supplied Associates tag on relevant Amazon.com searches for selected oils, fragrances, sodium hydroxide, liquids, tools, and safety equipment. Keep “Check Amazon for price” labels and the required Associate disclosure. The user wants “Affiliate link” rather than “#ad” or “paid link,” with button colors matching the site and a professional, non-obstructive presentation.
 
-**Why:** The user explicitly approved the alternative disclosure wording. Keep it conspicuous and readable while avoiding large badges or overlays.
+**Why:** The user explicitly requested this wording and rejected the gold buttons because they did not match the site. Keep labels conspicuous and readable while avoiding large badges or overlays. Pair “Affiliate link” with a nearby plain-language commission explanation rather than relying on that label alone.
 
 These searches are affiliate discovery links, not verified product matches or live prices; later curated product URLs must map to the matching ingredient ID.
 
