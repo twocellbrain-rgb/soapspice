@@ -1,3 +1,51 @@
+.amazon-price-button,
+.batch-amazon-sidebar a.amazon-price-button,
+.fb-amazon-link.amazon-price-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 48px;
+  max-width: 100%;
+  padding: 12px 17px;
+  border: 1px solid #af6c16;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #ffe4a2 0%, #f8c85d 100%);
+  box-shadow: 0 3px 0 #d9a044, 0 5px 12px rgb(105 67 19 / 10%);
+  color: #352408;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.4;
+  text-align: center;
+  text-decoration: none;
+  white-space: normal;
+  transition: background .15s, box-shadow .15s;
+}
+.amazon-price-button:hover,
+.batch-amazon-sidebar a.amazon-price-button:hover,
+.fb-amazon-link.amazon-price-button:hover {
+  background: #ffdc85;
+  color: #352408;
+  box-shadow: 0 3px 0 #bd842b, 0 7px 16px rgb(105 67 19 / 16%);
+  text-decoration: none;
+  transform: none;
+}
+.amazon-price-button:focus-visible {
+  outline: 3px solid #087d7d;
+  outline-offset: 4px;
+}
+.amazon-price-button:active { box-shadow: 0 1px 0 #bd842b; }
+.amazon-price-button svg { flex-shrink: 0; }
+.amazon-price-button > span {
+  color: #51390d;
+  font-size: 12px;
+  font-weight: 600;
+}
+.amazon-price-button .fb-paid { background: #fff5d9; color: #51390d; }
+@media print {
+  .amazon-price-button { display: none !important; }
+}
 .soap-shell {
   --sc-ink: #143c3b;
   --sc-teal: #087d7d;

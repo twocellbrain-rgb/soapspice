@@ -196,6 +196,9 @@ test('the first-batch shopping list uses calculator weights and links each item'
     const url = new URL(item.href);
     assert.equal(url.protocol, 'https:');
     assert.ok(['www.amazon.com', 'amazon.com', 'amzn.to'].includes(url.hostname), item.id);
+    assert.equal(item.isAffiliate, true, item.id);
+    assert.equal(url.searchParams.get('tag'), 'soapspice1-20', item.id);
+    assert.ok(url.searchParams.get('k'), `Product-specific search missing: ${item.id}`);
   }
 
   const zeroDose = buildFirstBatchShoppingList({
@@ -203,6 +206,18 @@ test('the first-batch shopping list uses calculator weights and links each item'
     fragrances: [{ id: 'unknown-limit', name: 'Unscreened scent', amount: 0, unit: 'g' }],
   });
   assert.equal(zeroDose.materials.find((item) => item.id === 'fragrance-unknown-limit')?.level, 'verify');
+});
+
+test('Amazon shopping pages disclose paid links and do not mislabel them as untracked', async () => {
+  for (const route of ['/first-batch-shopping-list', '/how-to-start-soapmaking']) {
+    const html = (await htmlFor(route)).replaceAll('<!-- -->', '');
+    assert.ok(html.includes('As an Amazon Associate I earn from qualifying purchases.'), route);
+    assert.ok(html.includes('amazon-price-button'), route);
+    assert.ok(html.includes('paid link'), route);
+    assert.ok(html.includes('sponsored nofollow noopener'), route);
+    assert.doesNotMatch(html, /untracked search|do not earn SoapSpice a commission/);
+    assert.ok(html.includes('tag=soapspice1-20'), route);
+  }
 });
 
 test('the first-batch list route is private to the browser session and excluded from the sitemap', async () => {

@@ -1,10 +1,13 @@
 # Amazon link readiness
 
-SoapSpice is intended for Amazon affiliate marketing. It currently has no supplied
-approved Associates links. The empty `src/data/amazon-affiliate-links.json` therefore
-produces untracked searches, not commission-generating links or a claim of membership.
+SoapSpice is intended for Amazon affiliate marketing. The owner supplied an
+Amazon-issued homepage Special Link. Its public Associates tag is configured in
+`src/lib/amazon-links.ts` and applied to relevant item searches. This preserves
+each ingredient/tool destination rather than sending every button to the homepage.
+The optional `src/data/amazon-affiliate-links.json` map remains available for
+manually verified product-specific Special Links.
 
-## Before activating affiliate links
+## Owner account checks
 
 1. Enroll in Amazon Associates, satisfy its account requirements, and list every
    public site/domain used for promotion in the Associates account.
@@ -33,11 +36,14 @@ produces untracked searches, not commission-generating links or a claim of membe
   requires a server and compliance with Amazon's then-current licensing/cache rules.
 - Do not offer incentives for clicks, purchases, or using these links.
 
-## Sources reviewed November 2, 2026
+## Sources
 
 - [Operating Agreement, especially section 5](https://affiliate-program.amazon.com/help/operating/agreement)
 - [Program Policies, participation requirements and license](https://affiliate-program.amazon.com/help/operating/policies)
 - [Amazon disclosure guidance](https://affiliate-program.amazon.com/help/node/topic/GHQNZAU6669EZS98)
+- [Linking Requirements](https://affiliate-program.amazon.com/help/operating/linking/)
+
+Linking and disclosure requirements were checked again on November 9, 2026.
 
 These safeguards are not Amazon approval or a legal compliance certification.
 Amazon's current agreement, account eligibility, approved sites, marketing practices,

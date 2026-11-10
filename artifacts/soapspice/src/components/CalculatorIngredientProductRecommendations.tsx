@@ -62,7 +62,8 @@ export default function CalculatorIngredientProductRecommendations({
                 target="_blank"
                 rel={item.link.isAffiliate ? 'sponsored nofollow noopener' : 'nofollow noopener'}
                 referrerPolicy="strict-origin-when-cross-origin"
-                className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-[hsl(var(--primary))] underline underline-offset-2"
+                className="amazon-price-button mt-3"
+                aria-label={`Check Amazon for price: ${item.name}${item.link.isAffiliate ? ', paid link' : ''} (opens in a new tab)`}
               >
                 Check Amazon for price {item.link.isAffiliate && <span>(paid link)</span>} <ExternalLink size={14} aria-hidden="true" />
               </a>
@@ -83,7 +84,8 @@ export default function CalculatorIngredientProductRecommendations({
                 target="_blank"
                 rel={link.isAffiliate ? 'sponsored nofollow noopener' : 'nofollow noopener'}
                 referrerPolicy="strict-origin-when-cross-origin"
-                className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-[hsl(var(--primary))] underline underline-offset-2"
+                className="amazon-price-button mt-3"
+                aria-label={`Check Amazon for price: ${material.name}${link.isAffiliate ? ', paid link' : ''} (opens in a new tab)`}
               >
                 Check Amazon for price {link.isAffiliate && <span>(paid link)</span>} <ExternalLink size={14} aria-hidden="true" />
               </a>

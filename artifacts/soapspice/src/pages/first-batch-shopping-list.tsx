@@ -34,7 +34,7 @@ type DisplayUnit = 'g' | 'oz';
 function AmazonLink({ item }: { item: BatchShoppingItem }) {
   return (
     <a
-      className="fb-amazon-link print-hide"
+      className="fb-amazon-link amazon-price-button print-hide"
       href={item.href}
       target="_blank"
       rel={item.isAffiliate ? 'sponsored nofollow noopener' : 'nofollow noopener'}
