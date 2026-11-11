@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, ArrowRight, ExternalLink, ShieldCheck, ShoppingBasket, Wrench } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ShieldCheck, ShoppingBasket, Wrench } from 'lucide-react';
 import { Link } from 'wouter';
 import AmazonDisclosure from '@/components/AmazonDisclosure';
 import FirstBatchMethod from '@/components/FirstBatchMethod';
@@ -44,7 +44,6 @@ function AmazonLink({ item }: { item: BatchShoppingItem }) {
         data-testid={`link-amazon-${item.id}`}
       >
         Check Amazon for price
-        <ExternalLink size={16} aria-hidden="true" />
       </a>
       {item.isAffiliate && <span className="amazon-affiliate-note">Affiliate link</span>}
     </div>

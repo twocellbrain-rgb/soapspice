@@ -1,4 +1,4 @@
-import { ArrowRight, ExternalLink, ShieldCheck } from "lucide-react";
+import { ArrowRight, ShieldCheck } from "lucide-react";
 import { Link } from "wouter";
 import { starterGuideTools } from "@/lib/starter-guide";
 import AmazonDisclosure from "@/components/AmazonDisclosure";
@@ -62,7 +62,7 @@ export default function HowToStartSoapmakingPage() {
                   <p>Search Amazon for this tool. Product prices and availability may change.</p>
                   <div className="amazon-action-wrap print-hide mt-2">
                     <a className="amazon-price-button" href={link.href} target="_blank" rel={link.isAffiliate ? "sponsored nofollow noopener" : "nofollow noopener"} referrerPolicy="strict-origin-when-cross-origin" aria-label={`Check Amazon for price: ${tool.title}${link.isAffiliate ? ', affiliate link, we may earn a commission' : ''} (opens in a new tab)`}>
-                      Check Amazon for price <ExternalLink size={14} aria-hidden="true" />
+                      Check Amazon for price
                     </a>
                     {link.isAffiliate && <span className="amazon-affiliate-note">Affiliate link</span>}
                   </div>

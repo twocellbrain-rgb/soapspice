@@ -1,4 +1,3 @@
-import { ExternalLink } from 'lucide-react';
 import AmazonDisclosure from '@/components/AmazonDisclosure';
 import { getAmazonLink } from '@/lib/amazon-links';
 
@@ -66,7 +65,7 @@ export default function CalculatorIngredientProductRecommendations({
                   className="amazon-price-button"
                   aria-label={`Check Amazon for price: ${item.name}${item.link.isAffiliate ? ', affiliate link, we may earn a commission' : ''} (opens in a new tab)`}
                 >
-                  Check Amazon for price <ExternalLink size={14} aria-hidden="true" />
+                  Check Amazon for price
                 </a>
                 {item.link.isAffiliate && <span className="amazon-affiliate-note">Affiliate link</span>}
               </div>
@@ -91,7 +90,7 @@ export default function CalculatorIngredientProductRecommendations({
                   className="amazon-price-button"
                   aria-label={`Check Amazon for price: ${material.name}${link.isAffiliate ? ', affiliate link, we may earn a commission' : ''} (opens in a new tab)`}
                 >
-                  Check Amazon for price <ExternalLink size={14} aria-hidden="true" />
+                  Check Amazon for price
                 </a>
                 {link.isAffiliate && <span className="amazon-affiliate-note">Affiliate link</span>}
               </div>
