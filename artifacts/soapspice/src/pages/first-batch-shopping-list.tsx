@@ -33,18 +33,21 @@ type DisplayUnit = 'g' | 'oz';
 
 function AmazonLink({ item }: { item: BatchShoppingItem }) {
   return (
-    <a
-      className="fb-amazon-link amazon-price-button print-hide"
-      href={item.href}
-      target="_blank"
-      rel={item.isAffiliate ? 'sponsored nofollow noopener' : 'nofollow noopener'}
-      referrerPolicy="strict-origin-when-cross-origin"
-      aria-label={`Check Amazon for price: ${item.name}${item.isAffiliate ? ', affiliate link, we may earn a commission' : ''} (opens in a new tab)`}
-      data-testid={`link-amazon-${item.id}`}
-    >
-      Check Amazon for price{item.isAffiliate && <span className="amazon-ad-label">Affiliate link</span>}
-      <ExternalLink size={16} aria-hidden="true" />
-    </a>
+    <div className="amazon-action-wrap print-hide">
+      <a
+        className="fb-amazon-link amazon-price-button"
+        href={item.href}
+        target="_blank"
+        rel={item.isAffiliate ? 'sponsored nofollow noopener' : 'nofollow noopener'}
+        referrerPolicy="strict-origin-when-cross-origin"
+        aria-label={`Check Amazon for price: ${item.name}${item.isAffiliate ? ', affiliate link, we may earn a commission' : ''} (opens in a new tab)`}
+        data-testid={`link-amazon-${item.id}`}
+      >
+        Check Amazon for price
+        <ExternalLink size={16} aria-hidden="true" />
+      </a>
+      {item.isAffiliate && <span className="amazon-affiliate-note">Affiliate link</span>}
+    </div>
   );
 }
 

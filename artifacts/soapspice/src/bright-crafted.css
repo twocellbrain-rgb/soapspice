@@ -37,20 +37,8 @@
 }
 .amazon-price-button:active { box-shadow: none; }
 .amazon-price-button svg { flex-shrink: 0; }
-.amazon-price-button > span {
-  color: #e5f4ee;
-  font-size: 12px;
-  font-weight: 600;
-}
-.amazon-price-button .amazon-ad-label {
-  padding-left: 8px;
-  border-left: 1px solid #a5ccc4;
-  color: #e5f4ee;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.4;
-  white-space: nowrap;
-}
+.amazon-action-wrap { display: inline-flex; max-width: 100%; flex-direction: column; align-items: flex-start; gap: 4px; }
+.amazon-affiliate-note { color: hsl(var(--muted-foreground)); font-size: 11px; font-weight: 600; line-height: 1.35; }
 @media print {
   .amazon-price-button { display: none !important; }
 }
@@ -726,7 +714,7 @@
 .fb-item { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 24px; margin: 0 -14px; padding: 20px 14px; border-radius: 6px; transition: background .18s; }
 .fb-item:last-child { padding-bottom: 20px; }
 .fb-item-supply { grid-template-columns: minmax(0, 1fr) auto; }
-.fb-item > .fb-amazon-link { grid-column: -2 / -1; }
+.fb-item > .amazon-action-wrap { grid-column: -2 / -1; }
 .fb-item:hover, .fb-item:focus-within { background: #f4f7ee; }
 .fb-item-warning, .fb-item-warning:hover { margin: 6px -14px; padding: 20px 14px; border: 2px solid #e9a16f; background: #fff2e9; }
 .fb-item-heading { gap: 10px; }

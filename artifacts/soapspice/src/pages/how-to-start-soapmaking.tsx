@@ -60,9 +60,12 @@ export default function HowToStartSoapmakingPage() {
                 <h4 className="text-xs font-black uppercase tracking-[0.15em] text-[hsl(var(--foreground))]">Product suggestions</h4>
                 <div className="mt-3 rounded-2xl border border-dashed border-[hsl(var(--border))] px-4 py-3 text-sm leading-5 text-[hsl(var(--muted-foreground))]">
                   <p>Search Amazon for this tool. Product prices and availability may change.</p>
-                  <a className="amazon-price-button print-hide mt-2" href={link.href} target="_blank" rel={link.isAffiliate ? "sponsored nofollow noopener" : "nofollow noopener"} referrerPolicy="strict-origin-when-cross-origin" aria-label={`Check Amazon for price: ${tool.title}${link.isAffiliate ? ', affiliate link, we may earn a commission' : ''} (opens in a new tab)`}>
-                    Check Amazon for price {link.isAffiliate && <span className="amazon-ad-label">Affiliate link</span>} <ExternalLink size={14} aria-hidden="true" />
-                  </a>
+                  <div className="amazon-action-wrap print-hide mt-2">
+                    <a className="amazon-price-button" href={link.href} target="_blank" rel={link.isAffiliate ? "sponsored nofollow noopener" : "nofollow noopener"} referrerPolicy="strict-origin-when-cross-origin" aria-label={`Check Amazon for price: ${tool.title}${link.isAffiliate ? ', affiliate link, we may earn a commission' : ''} (opens in a new tab)`}>
+                      Check Amazon for price <ExternalLink size={14} aria-hidden="true" />
+                    </a>
+                    {link.isAffiliate && <span className="amazon-affiliate-note">Affiliate link</span>}
+                  </div>
                 </div>
               </div>
             </article>

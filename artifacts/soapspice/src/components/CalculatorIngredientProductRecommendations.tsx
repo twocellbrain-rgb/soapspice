@@ -57,16 +57,19 @@ export default function CalculatorIngredientProductRecommendations({
               data-testid={`product-picks-${item.id}`}
             >
               <h3 className="font-bold text-[hsl(var(--foreground))]">{item.name}</h3>
-              <a
-                href={item.link.href}
-                target="_blank"
-                rel={item.link.isAffiliate ? 'sponsored nofollow noopener' : 'nofollow noopener'}
-                referrerPolicy="strict-origin-when-cross-origin"
-                className="amazon-price-button mt-3"
-                aria-label={`Check Amazon for price: ${item.name}${item.link.isAffiliate ? ', affiliate link, we may earn a commission' : ''} (opens in a new tab)`}
-              >
-                Check Amazon for price {item.link.isAffiliate && <span className="amazon-ad-label">Affiliate link</span>} <ExternalLink size={14} aria-hidden="true" />
-              </a>
+              <div className="amazon-action-wrap mt-3">
+                <a
+                  href={item.link.href}
+                  target="_blank"
+                  rel={item.link.isAffiliate ? 'sponsored nofollow noopener' : 'nofollow noopener'}
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  className="amazon-price-button"
+                  aria-label={`Check Amazon for price: ${item.name}${item.link.isAffiliate ? ', affiliate link, we may earn a commission' : ''} (opens in a new tab)`}
+                >
+                  Check Amazon for price <ExternalLink size={14} aria-hidden="true" />
+                </a>
+                {item.link.isAffiliate && <span className="amazon-affiliate-note">Affiliate link</span>}
+              </div>
             </section>
           ))}
           {additionalMaterials.map((material) => {
@@ -79,16 +82,19 @@ export default function CalculatorIngredientProductRecommendations({
               data-testid={`product-pick-${material.id}`}
             >
               <h3 className="font-bold text-[hsl(var(--foreground))]">{material.name}</h3>
-              <a
-                href={link.href}
-                target="_blank"
-                rel={link.isAffiliate ? 'sponsored nofollow noopener' : 'nofollow noopener'}
-                referrerPolicy="strict-origin-when-cross-origin"
-                className="amazon-price-button mt-3"
-                aria-label={`Check Amazon for price: ${material.name}${link.isAffiliate ? ', affiliate link, we may earn a commission' : ''} (opens in a new tab)`}
-              >
-                Check Amazon for price {link.isAffiliate && <span className="amazon-ad-label">Affiliate link</span>} <ExternalLink size={14} aria-hidden="true" />
-              </a>
+              <div className="amazon-action-wrap mt-3">
+                <a
+                  href={link.href}
+                  target="_blank"
+                  rel={link.isAffiliate ? 'sponsored nofollow noopener' : 'nofollow noopener'}
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  className="amazon-price-button"
+                  aria-label={`Check Amazon for price: ${material.name}${link.isAffiliate ? ', affiliate link, we may earn a commission' : ''} (opens in a new tab)`}
+                >
+                  Check Amazon for price <ExternalLink size={14} aria-hidden="true" />
+                </a>
+                {link.isAffiliate && <span className="amazon-affiliate-note">Affiliate link</span>}
+              </div>
             </section>
           ); })}
       </div>
