@@ -83,6 +83,16 @@ test('calculator offers a four-step guide with working jump links', async () => 
   assert.ok(html.includes('Check the amounts and safety notes.'));
 });
 
+test('calculator omits the removed review and fragrance callouts', async () => {
+  const formHtml = await htmlFor('/calculators/cold-process-soap');
+  assert.doesNotMatch(formHtml, /notice-sap-review|Source-linked, not yet administrator reviewed|Reference SAP values still need administrator review/);
+  assert.doesNotMatch(formHtml, /Check before making\./);
+
+  const resultHtml = await htmlFor('/calculators/cold-process-soap/results');
+  assert.doesNotMatch(resultHtml, /still need administrator review/);
+  assert.match(resultHtml, /Supplier specifications can vary/);
+});
+
 test('all 42 ingredient pages expose names, SAP values, and source citations without JavaScript', async () => {
   const catalog = JSON.parse(await readFile(new URL('../src/data/ingredient-catalog.json', import.meta.url)));
   const notes = JSON.parse(await readFile(new URL('../src/data/ingredient-soapmaking-notes.json', import.meta.url)));

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CircleAlert, Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import type { FragranceRow, FragranceWeightUnit, ScentStrength } from '@/lib/formulation';
 import { fragranceIfraScreen, fragranceWeightGrams, fragrancesAtDoseTarget, GRAMS_PER_OUNCE, scentStrengthAmounts } from '@/lib/formulation';
 import { BRAMBLE_BERRY_FRAGRANCES, chooseSupplierFragrance, renameFragrance, selectedSupplierFragrance } from '@/lib/supplier-fragrances';
@@ -323,10 +323,6 @@ export default function FragranceSection({
         <strong className="font-data text-lg" data-testid="text-fragrance-total">{displayWeight(totalGrams, unit)} {unit}</strong>
       </div>
 
-      <div role="note" className="mt-4 flex items-start gap-3 rounded-2xl border border-[hsl(var(--accent)/.35)] bg-[hsl(var(--accent)/.1)] px-4 py-3 text-xs leading-5 text-[hsl(var(--accent-foreground))]">
-        <CircleAlert size={18} className="mt-0.5 shrink-0" aria-hidden="true" />
-        <p><strong>Check before making.</strong> The six documented entries use product-linked IFRA 51 statements assessed in September 2026; verify the supplier’s current statement for your exact product and batch. For other products, enter the matching soap-specific maximum yourself; without it, the automatic dose stays at zero. Our conservative screen uses oil weight because cured soap weight is not known. Blends need separate supplier review. Fragrance changes liquid, never NaOH.</p>
-      </div>
     </section>
   );
 }
