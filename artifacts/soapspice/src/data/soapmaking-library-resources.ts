@@ -11,6 +11,8 @@ export type SoapmakingLibraryResource = {
   format: string;
   image: string;
   imageAlt: string;
+  imageWidth: number;
+  imageHeight: number;
   tags: string[];
   contentMode: SoapmakingLibraryContentMode;
 };
@@ -28,6 +30,8 @@ export const soapmakingLibraryResources: SoapmakingLibraryResource[] = [
     format: 'SoapSpice guide',
     image: 'images/crafted-soap-hero.webp',
     imageAlt: 'SoapSpice illustrative photo of handmade soap bars and botanicals.',
+    imageWidth: 1024,
+    imageHeight: 1024,
     tags: ['beginner', 'safety', 'cold process'],
     contentMode: 'soapspice-guide',
   },
@@ -41,6 +45,8 @@ export const soapmakingLibraryResources: SoapmakingLibraryResource[] = [
     format: 'SoapSpice guide',
     image: 'images/soap-ingredient-flatlay.webp',
     imageAlt: 'SoapSpice illustrative flatlay of soap ingredients.',
+    imageWidth: 1600,
+    imageHeight: 1067,
     tags: ['ingredients', 'SAP', 'cold process'],
     contentMode: 'soapspice-guide',
   },
@@ -54,6 +60,8 @@ export const soapmakingLibraryResources: SoapmakingLibraryResource[] = [
     format: 'SoapSpice guide',
     image: 'images/soap-inspiration-earthy.webp',
     imageAlt: 'SoapSpice illustrative photo of earthy-colored handmade soap.',
+    imageWidth: 1600,
+    imageHeight: 938,
     tags: ['glossary', 'beginner', 'reference'],
     contentMode: 'soapspice-guide',
   },
@@ -67,6 +75,8 @@ export const soapmakingLibraryResources: SoapmakingLibraryResource[] = [
     format: 'SoapSpice tool',
     image: 'images/crafted-soap-detail.webp',
     imageAlt: 'SoapSpice illustrative close-up of handmade cold-process soap.',
+    imageWidth: 1024,
+    imageHeight: 1024,
     tags: ['calculator', 'NaOH', 'cold process'],
     contentMode: 'soapspice-guide',
   },
@@ -80,6 +90,8 @@ export const soapmakingLibraryResources: SoapmakingLibraryResource[] = [
     format: 'Cold process · external recipe',
     image: 'images/soap-inspiration-botanical.webp',
     imageAlt: 'SoapSpice illustrative botanical soap photo; not an image from Lovely Greens.',
+    imageWidth: 1600,
+    imageHeight: 987,
     tags: ['beginner', 'small batch', 'cold process'],
     contentMode: 'source-link',
   },
@@ -93,6 +105,8 @@ export const soapmakingLibraryResources: SoapmakingLibraryResource[] = [
     format: 'Melt & pour · external source',
     image: 'images/soap-inspiration-color.webp',
     imageAlt: 'SoapSpice illustrative colorful soap photo; not an image from The Handmade Home.',
+    imageWidth: 1600,
+    imageHeight: 1067,
     tags: ['melt and pour', 'beginner', 'external source'],
     contentMode: 'source-link',
   },

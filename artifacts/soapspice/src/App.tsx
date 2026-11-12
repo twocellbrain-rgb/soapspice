@@ -238,7 +238,7 @@ function Home() {
               <figcaption>Earthy colors, natural details</figcaption>
             </figure>
             <figure className="sc-inspiration-card">
-              <img src={`${publicImages}soap-inspiration-botanical.webp`} alt="Finished handmade bars arranged with leaves and pink blossoms" width="1600" height="925" loading="lazy" />
+              <img src={`${publicImages}soap-inspiration-botanical.webp`} alt="Finished handmade bars arranged with leaves and pink blossoms" width="1600" height="987" loading="lazy" />
               <figcaption>Botanical finishing touches</figcaption>
             </figure>
           </div>

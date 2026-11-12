@@ -30,6 +30,11 @@ test('every route contains real React-rendered HTML, unique metadata, and one ca
     assert.equal((html.match(/rel="canonical"/g) ?? []).length, 1, route);
     assert.equal((html.match(/<title>/g) ?? []).length, 1, route);
     assert.ok(!html.includes('janeway.replit.dev'), route);
+    for (const image of html.matchAll(/<img\b[^>]*>/gi)) {
+      assert.match(image[0], /\balt=/, `Image alt text missing: ${route}`);
+      assert.match(image[0], /\bwidth=["']\d+["']/, `Image width missing: ${route}`);
+      assert.match(image[0], /\bheight=["']\d+["']/, `Image height missing: ${route}`);
+    }
     assert.ok(!titles.has(seo.title), `Duplicate title: ${route}`);
     assert.ok(!descriptions.has(seo.description), `Duplicate description: ${route}`);
     if (seo.indexable) {
@@ -134,6 +139,7 @@ test('generated sitemap includes every indexable canonical page and excludes ses
   assert.equal(new Set(urls).size, urls.length);
   assert.equal(lastmods.length, urls.length);
   assert.ok(lastmods.every(date => /^\d{4}-\d{2}-\d{2}$/.test(date)));
+  assert.deepEqual([...new Set(lastmods)], ['2026-11-11'], 'keep sitemap dates aligned with the latest meaningful public content update');
   for (const route of staticPaths.filter(route => !indexablePaths.includes(route))) {
     assert.ok(!urls.includes(pageSeo(route).canonical), route);
   }

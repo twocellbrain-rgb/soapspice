@@ -216,7 +216,7 @@ export default function SoapmakingLibraryPage() {
                 const card = (
                   <article className={`sl-resource-card${external ? ' is-external' : ''}`} key={resource.id} style={{ animationDelay: `${Math.min(index * 55, 275)}ms` }}>
                     <div className="sl-resource-image">
-                      <img src={imagePath} alt={resource.imageAlt} loading="eager" decoding="async" />
+                      <img src={imagePath} alt={resource.imageAlt} width={resource.imageWidth} height={resource.imageHeight} loading="eager" decoding="async" />
                       {external && <span className="sl-image-note">SoapSpice image · illustrative</span>}
                       <span className={`sl-kind sl-kind-${resource.kind}`}>{kindLabel(resource.kind)}</span>
                     </div>
