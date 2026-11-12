@@ -654,8 +654,47 @@ function CalculatorPage({ mode = 'edit' }: { mode?: 'edit' | 'results' }) {
       </>) : <ResultsHeader fresh={!!visibleResult} name={recipeName.trim() || 'Untitled formula'} superfat={superfat} liquidName={liquidName} onExport={exportFormula} onPrint={openPrintableFormula} onShoppingList={openFirstBatchShoppingList} />}
       <section className="mx-auto max-w-7xl space-y-6 px-5 pb-24 lg:px-8">
         {mode === 'edit' && (<>
+        <nav aria-label="Calculator steps" data-testid="calculator-step-guide" className="rounded-3xl border border-[hsl(var(--primary)/.2)] bg-[hsl(var(--secondary)/.38)] p-5 sm:p-6">
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Quick start</p>
+              <h2 className="mt-1 font-display text-2xl">Build your formula in four steps</h2>
+            </div>
+            <p className="text-xs text-[hsl(var(--muted-foreground))]">Select a step to jump to it.</p>
+          </div>
+          <ol className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <li>
+              <a href="#calculator-step-oils" className="group flex h-full min-h-24 items-center gap-3 rounded-2xl border border-[hsl(var(--border))] bg-white px-4 py-3 transition hover:border-[hsl(var(--primary)/.5)] hover:shadow-card focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[hsl(var(--primary))]">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[hsl(var(--primary))] text-sm font-extrabold text-white">1</span>
+                <span className="min-w-0 flex-1"><strong className="block text-sm">Choose oils</strong><span className="mt-1 block text-xs leading-5 text-[hsl(var(--muted-foreground))]">Add each oil and enter its weight.</span></span>
+                <ArrowRight size={16} className="shrink-0 text-[hsl(var(--primary))] transition-transform group-hover:translate-x-1" aria-hidden="true" />
+              </a>
+            </li>
+            <li>
+              <a href="#calculator-step-liquid" className="group flex h-full min-h-24 items-center gap-3 rounded-2xl border border-[hsl(var(--border))] bg-white px-4 py-3 transition hover:border-[hsl(var(--primary)/.5)] hover:shadow-card focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[hsl(var(--primary))]">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[hsl(var(--primary))] text-sm font-extrabold text-white">2</span>
+                <span className="min-w-0 flex-1"><strong className="block text-sm">Set batch options</strong><span className="mt-1 block text-xs leading-5 text-[hsl(var(--muted-foreground))]">Choose superfat and mixing liquid.</span></span>
+                <ArrowRight size={16} className="shrink-0 text-[hsl(var(--primary))] transition-transform group-hover:translate-x-1" aria-hidden="true" />
+              </a>
+            </li>
+            <li>
+              <a href="#calculator-step-fragrance" className="group flex h-full min-h-24 items-center gap-3 rounded-2xl border border-[hsl(var(--border))] bg-white px-4 py-3 transition hover:border-[hsl(var(--primary)/.5)] hover:shadow-card focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[hsl(var(--primary))]">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[hsl(var(--primary))] text-sm font-extrabold text-white">3</span>
+                <span className="min-w-0 flex-1"><strong className="block text-sm">Add fragrance (optional)</strong><span className="mt-1 block text-xs leading-5 text-[hsl(var(--muted-foreground))]">Check the exact supplier’s soap limit.</span></span>
+                <ArrowRight size={16} className="shrink-0 text-[hsl(var(--primary))] transition-transform group-hover:translate-x-1" aria-hidden="true" />
+              </a>
+            </li>
+            <li>
+              <a href="#calculator-step-validate" className="group flex h-full min-h-24 items-center gap-3 rounded-2xl border border-[hsl(var(--border))] bg-white px-4 py-3 transition hover:border-[hsl(var(--primary)/.5)] hover:shadow-card focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[hsl(var(--primary))]">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[hsl(var(--accent))] text-sm font-extrabold text-[hsl(var(--accent-foreground))]">4</span>
+                <span className="min-w-0 flex-1"><strong className="block text-sm">Validate and review</strong><span className="mt-1 block text-xs leading-5 text-[hsl(var(--muted-foreground))]">Check the amounts and safety notes.</span></span>
+                <ArrowRight size={16} className="shrink-0 text-[hsl(var(--primary))] transition-transform group-hover:translate-x-1" aria-hidden="true" />
+              </a>
+            </li>
+          </ol>
+        </nav>
         <div className="space-y-6">
-          <div className="print-card rounded-3xl border border-[hsl(var(--border))] bg-white p-5 shadow-card sm:p-7">
+          <div id="calculator-step-oils" className="print-card scroll-mt-32 rounded-3xl border border-[hsl(var(--border))] bg-white p-5 shadow-card sm:p-7">
             <div className="flex flex-col justify-between gap-4 border-b border-[hsl(var(--border))] pb-6 sm:flex-row sm:items-start"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Step 01</p><h2 className="mt-2 font-display text-3xl">Choose your ingredients</h2><p className="mt-1 text-sm text-[hsl(var(--muted-foreground))]">Enter the weight of each oil in grams or ounces. Their sum determines the formula size, NaOH, and liquid.</p></div><div className="flex items-center gap-2"><select aria-label="Add an ingredient" value={selectedId} onChange={(event) => setSelectedId(event.target.value)} className="h-11 max-w-[190px] rounded-full border border-[hsl(var(--input))] bg-[hsl(var(--background))] px-4 text-sm outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]" data-testid="select-add-ingredient"><option value="">Add an ingredient</option>{available.map((ingredient) => <option key={ingredient.id} value={ingredient.id}>{ingredient.name}</option>)}</select><button type="button" onClick={addOil} disabled={!selectedId} className={`${buttonPrimary} h-11 px-4`} data-testid="button-add-ingredient"><Plus size={17} /> Add</button></div></div>
             {ingredients.length > 0 && <div className="pt-6">
               <div className="mb-5 flex flex-wrap items-center gap-3">
@@ -679,7 +718,7 @@ function CalculatorPage({ mode = 'edit' }: { mode?: 'edit' | 'results' }) {
               <div className={`mt-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl px-4 py-3 text-sm font-bold ${totalOilGrams > 0 && Math.abs(totalPercent - 100) <= .01 ? 'bg-[hsl(184_75%_35%/.1)] text-[hsl(var(--primary))]' : 'bg-[hsl(var(--destructive)/.08)] text-[hsl(var(--destructive))]'}`} data-testid="result-oil-total"><span>Total oils · {totalPercent.toFixed(1)}%</span><span className="font-data">{totalOilGrams.toFixed(1)} g · {(totalOilGrams / GRAMS_PER_OUNCE).toFixed(2)} oz</span></div>
             </div>}
           </div>
-          <div className="print-card rounded-3xl border border-[hsl(var(--border))] bg-white p-5 shadow-card sm:p-7">
+          <div id="calculator-step-liquid" className="print-card scroll-mt-32 rounded-3xl border border-[hsl(var(--border))] bg-white p-5 shadow-card sm:p-7">
             <p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Step 02</p>
             <h2 className="mt-2 font-display text-3xl">Choose your mixing liquid</h2>
             <div className="mt-6 grid gap-5 sm:grid-cols-2">
@@ -693,6 +732,7 @@ function CalculatorPage({ mode = 'edit' }: { mode?: 'edit' | 'results' }) {
             {superfat > 10 && <div role="status" data-testid="status-high-superfat" className="mt-5 flex gap-3 rounded-2xl border border-[hsl(var(--accent)/.4)] bg-[hsl(var(--accent)/.1)] p-4 text-sm leading-6 text-[hsl(var(--secondary-foreground))]"><CircleAlert size={19} className="mt-0.5 shrink-0" /><span><strong>High-superfat advisory.</strong> Above 10% superfat can leave a softer bar and more unsaponified oils. Consider testing a small batch and checking shelf life.</span></div>}
             <div className="mt-6 rounded-2xl border border-[hsl(var(--accent)/.3)] bg-[hsl(var(--accent)/.08)] p-4 text-sm leading-6 text-[hsl(var(--accent-foreground))]"><strong>Safety first.</strong> Slowly add NaOH to the measured liquid, never liquid to NaOH. Wear eye protection, gloves, and long sleeves, and work with ventilation. Milk mixtures need careful temperature control.</div>
           </div>
+          <div id="calculator-step-fragrance" className="scroll-mt-32">
           <FragranceSection
             fragrances={calculatedFragrances}
             unit={fragranceUnitForOilUnit(oilInputUnit)}
@@ -702,7 +742,8 @@ function CalculatorPage({ mode = 'edit' }: { mode?: 'edit' | 'results' }) {
             onScentStrengthChange={updateScentStrength}
             strengthAmounts={strengthAmounts}
           />
-            <div className="print-card rounded-3xl border border-[hsl(var(--primary)/.3)] bg-[hsl(var(--primary)/.06)] p-5 sm:p-7"><div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Step 04</p><h2 className="mt-2 font-display text-3xl">Check your formula</h2><p className="mt-2 max-w-lg text-sm text-[hsl(var(--muted-foreground))]">Validate oil percentages, NaOH calculations, and fragrance amounts before printing or saving. Supplier IFRA rates are screened only when you select a documented product or enter a matching rate; missing limits hold automatic fragrance amounts at zero.</p></div><button type="button" onClick={validate} className={`${buttonPrimary} shrink-0`} data-testid="button-validate-formula"><Check size={17} /> Validate formula</button></div>{validated && <div className={`mt-5 rounded-2xl p-4 text-sm ${validationErrors.length ? 'bg-[hsl(var(--destructive)/.1)] text-[hsl(var(--destructive))]' : freshValidation ? 'bg-[hsl(184_75%_35%/.12)] text-[hsl(var(--primary))]' : 'bg-[hsl(var(--accent)/.12)] text-[hsl(var(--secondary-foreground))]'}`} data-testid="status-validation">{validationErrors.length ? <ul className="list-disc space-y-1 pl-5">{validationErrors.map((error) => <li key={error}>{error}</li>)}</ul> : freshValidation ? <div className="flex items-center gap-2 font-bold"><Check size={17} /> NaOH calculation checked. Review the liquid estimate and fragrance IFRA flags below.</div> : <div className="flex items-center gap-2 font-bold"><CircleAlert size={17} /> Formula or ingredient data changed. Validate again before saving or printing.</div>}</div>}</div>
+          </div>
+            <div id="calculator-step-validate" className="print-card scroll-mt-32 rounded-3xl border border-[hsl(var(--primary)/.3)] bg-[hsl(var(--primary)/.06)] p-5 sm:p-7"><div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-[hsl(var(--primary))]">Step 04</p><h2 className="mt-2 font-display text-3xl">Check your formula</h2><p className="mt-2 max-w-lg text-sm text-[hsl(var(--muted-foreground))]">Validate oil percentages, NaOH calculations, and fragrance amounts before printing or saving. Supplier IFRA rates are screened only when you select a documented product or enter a matching rate; missing limits hold automatic fragrance amounts at zero.</p></div><button type="button" onClick={validate} className={`${buttonPrimary} shrink-0`} data-testid="button-validate-formula"><Check size={17} /> Validate formula</button></div>{validated && <div className={`mt-5 rounded-2xl p-4 text-sm ${validationErrors.length ? 'bg-[hsl(var(--destructive)/.1)] text-[hsl(var(--destructive))]' : freshValidation ? 'bg-[hsl(184_75%_35%/.12)] text-[hsl(var(--primary))]' : 'bg-[hsl(var(--accent)/.12)] text-[hsl(var(--secondary-foreground))]'}`} data-testid="status-validation">{validationErrors.length ? <ul className="list-disc space-y-1 pl-5">{validationErrors.map((error) => <li key={error}>{error}</li>)}</ul> : freshValidation ? <div className="flex items-center gap-2 font-bold"><Check size={17} /> NaOH calculation checked. Review the liquid estimate and fragrance IFRA flags below.</div> : <div className="flex items-center gap-2 font-bold"><CircleAlert size={17} /> Formula or ingredient data changed. Validate again before saving or printing.</div>}</div>}</div>
         </div>
         </>)}
         {mode === 'results' && (<>

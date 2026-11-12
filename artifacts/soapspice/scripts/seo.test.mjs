@@ -69,6 +69,20 @@ test('public pages allow search snippets and identify the soap making calculator
   assert.match(pageSeo('/calculators/cold-process-soap').title, /Soap Making Calculator/);
 });
 
+test('calculator offers a four-step guide with working jump links', async () => {
+  const html = await htmlFor('/calculators/cold-process-soap');
+  assert.ok(html.includes('aria-label="Calculator steps"'));
+  assert.ok(html.includes('Build your formula in four steps'));
+  for (const step of ['oils', 'liquid', 'fragrance', 'validate']) {
+    assert.ok(html.includes(`href="#calculator-step-${step}"`), step);
+    assert.ok(html.includes(`id="calculator-step-${step}"`), step);
+  }
+  assert.ok(html.includes('Add each oil and enter its weight.'));
+  assert.ok(html.includes('Choose superfat and mixing liquid.'));
+  assert.ok(html.includes('Check the exact supplier’s soap limit.'));
+  assert.ok(html.includes('Check the amounts and safety notes.'));
+});
+
 test('all 42 ingredient pages expose names, SAP values, and source citations without JavaScript', async () => {
   const catalog = JSON.parse(await readFile(new URL('../src/data/ingredient-catalog.json', import.meta.url)));
   const notes = JSON.parse(await readFile(new URL('../src/data/ingredient-soapmaking-notes.json', import.meta.url)));
