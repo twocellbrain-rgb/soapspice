@@ -1,0 +1,16 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "Tcatp0syQLrwzZ18DyuRa"
+uri = "file://generated-artifacts/soapspice-hostinger-upload.zip"
+type = "unspecified"
+title = "SoapSpice Hostinger Upload ZIP"
+description = "Verified production website files only (74 files, 1.8 MB compressed), including the Pinterest verification tag. Extract into the correct Hostinger web root; back up existing files first."
+logical_id = "85ff0a08-ce1e-459c-a0e4-898eda0463cb"
+content_hash = "sha256:e498c9888cac249aadd9f79c8976aa9b7fdbe30500b3541b28c221b528a2af1f"
+size = 1804224
+mtime_ms = 1794669675424
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:c166ec32-3ea1-4b4c-a92a-a8b850957c77/85ff0a08-ce1e-459c-a0e4-898eda0463cb/0160ec98-d3a0-4911-a07c-d1f6da570d34"
+storage_version_token = "1794669689470667"
+content_type = "application/octet-stream"
