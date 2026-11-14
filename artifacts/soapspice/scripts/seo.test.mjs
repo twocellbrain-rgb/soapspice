@@ -20,6 +20,7 @@ test('every route contains real React-rendered HTML, unique metadata, and one ca
     assert.ok(html.includes(`<title>${escape(seo.title)}</title>`), route);
     assert.ok(html.includes(`name="description" content="${escape(seo.description)}"`), route);
     assert.ok(html.includes(`name="robots" content="${seo.robots}"`), route);
+    assert.ok(html.includes('name="p:domain_verify" content="898863bfb0800c87b2c353e7d46ed960"'), route);
     assert.ok(html.includes(`rel="canonical" href="${escape(seo.canonical)}"`), route);
     assert.ok(html.includes(`property="og:url" content="${escape(seo.canonical)}"`), route);
     assert.ok(html.includes('property="og:site_name" content="SoapSpice"'), route);
