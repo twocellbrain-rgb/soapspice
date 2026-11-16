@@ -26,3 +26,9 @@ For any remaining backend-specific preview tests, use Replit's artifact proxy ra
 **Why:** The proxy routes API requests to the backend; the direct frontend port can return HTML instead of API JSON.
 
 **How to apply:** Keep API-specific checks separate from the public static-site checks.
+
+A push to GitHub `main` does not by itself confirm that Hostinger has rebuilt the public site.
+
+**Why:** After a successful source push, the new recipe route still returned 404 and Hostinger served an older build.
+
+**How to apply:** After source changes, check Hostinger's deployment status and verify the public route and sitemap before saying a page is live.
