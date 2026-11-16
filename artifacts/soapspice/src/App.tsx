@@ -39,6 +39,8 @@ import PrivacyPage from '@/pages/privacy';
 import AboutPage from '@/pages/about';
 import ContactPage from '@/pages/contact';
 import SoapmakingLibraryPage from '@/pages/soapmaking-library';
+import PublishedRecipesIndexPage from '@/pages/published-recipes-index';
+import PublishedSoapmakingPostPage from '@/pages/published-soapmaking-post';
 import AmazonDisclosure from '@/components/AmazonDisclosure';
 import { updatePageSeo } from '@/lib/seo';
 import './bright-crafted.css';
@@ -128,6 +130,7 @@ function Shell({ children }: { children: ReactNode }) {
             <Link href="/calculators/cold-process-soap" onClick={closeMenu} aria-current={location.startsWith('/calculators/cold-process-soap') || location === '/my-formulas' ? 'page' : undefined} data-testid="link-calculator">Calculator</Link>
             <Link href="/ingredients" onClick={closeMenu} aria-current={location === '/ingredients' || location.startsWith('/ingredients/') ? 'page' : undefined} data-testid="link-ingredients">Ingredient catalog</Link>
             <Link href="/how-to-start-soapmaking" onClick={closeMenu} aria-current={location === '/how-to-start-soapmaking' ? 'page' : undefined} data-testid="link-how-to-start">How to start</Link>
+            <Link href="/recipes" onClick={closeMenu} aria-current={location === '/recipes' || location.startsWith('/recipes/') ? 'page' : undefined} data-testid="link-recipes">Recipes</Link>
             <Link href="/soapmaking-library" onClick={closeMenu} aria-current={location === '/soapmaking-library' ? 'page' : undefined} data-testid="link-soapmaking-library">Library</Link>
             <Link href="/soapmaking-glossary" onClick={closeMenu} aria-current={location === '/soapmaking-glossary' ? 'page' : undefined} data-testid="link-glossary">Glossary</Link>
             <Link href="/calculators/cold-process-soap" onClick={closeMenu} data-testid="link-start-formula" className="sc-nav-cta">Start a formula <ArrowRight size={16} /></Link>
@@ -846,6 +849,8 @@ function Router() {
     <Route path="/ingredients" component={IngredientsPage} />
     <Route path="/about">{() => <Shell><AboutPage /></Shell>}</Route>
     <Route path="/contact">{() => <Shell><ContactPage /></Shell>}</Route>
+    <Route path="/recipes">{() => <Shell><PublishedRecipesIndexPage /></Shell>}</Route>
+    <Route path="/recipes/:slug">{() => <Shell><PublishedSoapmakingPostPage /></Shell>}</Route>
     <Route path="/soapmaking-library">{() => <Shell><SoapmakingLibraryPage /></Shell>}</Route>
     <Route path="/privacy">{() => <Shell><PrivacyPage /></Shell>}</Route>
     <Route path="/soapmaking-glossary" component={() => <Shell><SoapmakingGlossaryPage /></Shell>} />

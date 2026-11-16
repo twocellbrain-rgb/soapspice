@@ -1,6 +1,7 @@
 import catalog from '../data/ingredient-catalog.json';
 import soapmakingNotes from '../data/ingredient-soapmaking-notes.json';
 import { soapmakingLibraryResources } from '../data/soapmaking-library-resources';
+import { publishedSoapmakingPosts } from '../data/published-soapmaking-posts';
 
 // The public Hostinger domain supplied by the site owner, not the Replit preview.
 export const SITE_ORIGIN = 'https://soapspice.com';
@@ -9,7 +10,7 @@ export const WEBSITE_ID = `${SITE_ORIGIN}/#website`;
 export const PUBLIC_CONTACT_EMAIL = 'contactus@soapspice.com';
 // This reflects the latest meaningful public-page metadata/content update.
 // Update it when indexable page content changes; don't stamp build time here.
-const SITEMAP_LAST_MODIFIED = '2026-11-11';
+const SITEMAP_LAST_MODIFIED = '2026-11-15';
 
 const pages: Record<string, { title: string; description: string }> = {
   '/': {
@@ -48,6 +49,10 @@ const pages: Record<string, { title: string; description: string }> = {
     title: 'Soapmaking Articles & Recipes | SoapSpice Library',
     description: 'Browse soapmaking articles, cold-process and melt-and-pour recipes, and SoapSpice guides. Search sources and save citations with images and notes.',
   },
+  '/recipes': {
+    title: 'Soapmaking Recipes & Articles | SoapSpice',
+    description: 'Browse SoapSpice soapmaking articles and recipes, with clear ingredient and equipment notes, cited sources, and relevant Amazon affiliate searches.',
+  },
 };
 
 const privatePages: Record<string, { title: string; description: string }> = {
@@ -76,20 +81,38 @@ const privatePages: Record<string, { title: string; description: string }> = {
 export const indexablePaths = [
   ...Object.keys(pages),
   ...catalog.map(({ id }) => `/ingredients/${id}`),
+  ...publishedSoapmakingPosts.map(({ slug }) => `/recipes/${slug}`),
 ];
 export const staticPaths = [...indexablePaths, ...Object.keys(privatePages)];
 
 export function pageSeo(rawPath: string) {
   const path = rawPath.split(/[?#]/)[0].replace(/\/+$/, '') || '/';
+  const post = path.startsWith('/recipes/')
+    ? publishedSoapmakingPosts.find(({ slug }) => path === `/recipes/${slug}`)
+    : undefined;
   const ingredient = path.startsWith('/ingredients/')
     ? catalog.find(({ id }) => path === `/ingredients/${id}`)
     : undefined;
   const note = ingredient ? soapmakingNotes[ingredient.id as keyof typeof soapmakingNotes] : undefined;
-  const metadata = pages[path] ?? (ingredient && note ? {
+  const postTitle = post
+    ? `${post.title} | SoapSpice`.length <= 60
+      ? `${post.title} | SoapSpice`
+      : `${post.title.slice(0, 44).trimEnd()}… | SoapSpice`
+    : undefined;
+  const postDescription = post
+    ? `${post.title}. ${post.excerpt} Explore the ingredient list, equipment notes, and safety context for this SoapSpice ${post.kind}.`
+      .replace(/\s+/g, ' ')
+      .slice(0, 157)
+      .trimEnd()
+    : undefined;
+  const metadata = pages[path] ?? (post && postTitle && postDescription ? {
+    title: postTitle,
+    description: postDescription,
+  } : ingredient && note ? {
     title: `${ingredient.name} for Soapmaking | SoapSpice`,
     description: `Learn how ${ingredient.name} affects cold-process soap: ${note.seoSummary}. See its SAP reference and workability notes.`,
   } : privatePages[path]);
-  const indexable = Boolean(pages[path] || ingredient);
+  const indexable = Boolean(pages[path] || ingredient || post);
   // Static directory indexes are served with a trailing slash by Apache.
   // The canonical target must not itself redirect to another URL.
   const canonical = `${SITE_ORIGIN}${path === '/' ? '/' : `${path}/`}`;
@@ -129,6 +152,8 @@ export function pageSeo(rawPath: string) {
           '@type': path === '/about' ? 'AboutPage'
             : path === '/contact' ? 'ContactPage'
               : path === '/soapmaking-library' ? 'CollectionPage'
+              : path === '/recipes' ? 'CollectionPage'
+                : post ? 'Article'
               : path === '/calculators/cold-process-soap' ? 'WebApplication' : 'WebPage',
           '@id': canonical,
           name: metadata!.title,
@@ -156,6 +181,32 @@ export function pageSeo(rawPath: string) {
                 },
               })),
             },
+          } : {}),
+          ...(path === '/recipes' ? {
+            mainEntity: {
+              '@type': 'ItemList',
+              name: 'Soapmaking Recipes and Articles',
+              numberOfItems: publishedSoapmakingPosts.length,
+              itemListElement: publishedSoapmakingPosts.map((entry, index) => ({
+                '@type': 'ListItem',
+                position: index + 1,
+                item: {
+                  '@type': 'Article',
+                  headline: entry.title,
+                  url: `${SITE_ORIGIN}/recipes/${entry.slug}/`,
+                  description: entry.excerpt,
+                  datePublished: entry.publishedAt,
+                },
+              })),
+            },
+          } : {}),
+          ...(post ? {
+            headline: post.title,
+            articleSection: post.kind,
+            datePublished: post.publishedAt,
+            author: { '@type': post.author ? 'Person' : 'Organization', name: post.author ?? 'SoapSpice' },
+            ...(post.image ? { image: new URL(post.image.src, SITE_ORIGIN).toString() } : {}),
+            ...(post.citations?.length ? { citation: post.citations.map((citation) => citation.url) } : {}),
           } : {}),
           ...(path === '/calculators/cold-process-soap' ? {
             applicationCategory: 'EducationalApplication',

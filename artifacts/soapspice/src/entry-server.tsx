@@ -4,6 +4,7 @@ import FormulaResults from './components/FormulaResults';
 import type { PrintableFormula } from './lib/formula-sheet';
 
 export { pageSeo, indexablePaths, staticPaths, sitemapXml } from './lib/seo';
+export { publishedSoapmakingPosts } from './data/published-soapmaking-posts';
 export { soapmakingLibraryResources } from './data/soapmaking-library-resources';
 export { firstBatchSupplies } from './data/first-batch-supplies';
 export { buildFirstBatchShoppingList } from './lib/first-batch-shopping';

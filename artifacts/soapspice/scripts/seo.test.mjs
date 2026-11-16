@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { indexablePaths, staticPaths, pageSeo, sitemapXml, soapmakingLibraryResources, buildFirstBatchShoppingList, firstBatchSupplies, loadPrintableFormula, savePrintableFormula, createStarterFormula, renderFormulaResults } from '../dist/prerender/entry-server.mjs';
+import { indexablePaths, staticPaths, pageSeo, sitemapXml, soapmakingLibraryResources, publishedSoapmakingPosts, render, buildFirstBatchShoppingList, firstBatchSupplies, loadPrintableFormula, savePrintableFormula, createStarterFormula, renderFormulaResults } from '../dist/prerender/entry-server.mjs';
 
 const output = new URL('../dist/public/', import.meta.url);
 const escape = value => value.replace(/[&<>"']/g, char => ({
@@ -140,7 +140,7 @@ test('generated sitemap includes every indexable canonical page and excludes ses
   assert.equal(new Set(urls).size, urls.length);
   assert.equal(lastmods.length, urls.length);
   assert.ok(lastmods.every(date => /^\d{4}-\d{2}-\d{2}$/.test(date)));
-  assert.deepEqual([...new Set(lastmods)], ['2026-11-11'], 'keep sitemap dates aligned with the latest meaningful public content update');
+  assert.deepEqual([...new Set(lastmods)], ['2026-11-15'], 'keep sitemap dates aligned with the latest meaningful public content update');
   for (const route of staticPaths.filter(route => !indexablePaths.includes(route))) {
     assert.ok(!urls.includes(pageSeo(route).canonical), route);
   }
@@ -190,6 +190,55 @@ test('the public soapmaking library is crawlable and displays cited resources wi
   assert.equal(page['@type'], 'CollectionPage');
   assert.equal(page.mainEntity['@type'], 'ItemList');
   assert.equal(page.mainEntity.itemListElement.length, soapmakingLibraryResources.length);
+});
+
+test('recipes index is crawlable and article shopping links follow the article body', async () => {
+  const index = await htmlFor('/recipes');
+  assert.ok(indexablePaths.includes('/recipes'));
+  assert.ok(staticPaths.includes('/recipes'));
+  assert.match(index, /Recipes &amp; articles/);
+  assert.ok(index.includes('data-testid="empty-published-posts"'));
+  assert.ok(index.includes('href="/soapmaking-library"'));
+  assert.ok(index.includes('href="/how-to-start-soapmaking"'));
+  assert.equal((index.match(/<main(?:\s|>)/g) ?? []).length, 1);
+
+  const testPost = {
+    slug: 'test-olive-oil-soap-recipe',
+    title: 'A practical olive oil soap recipe',
+    kind: 'recipe',
+    excerpt: 'Plan a small cold-process soap recipe with helpful ingredient notes, clear equipment guidance, careful preparation steps, and practical safety context for home soap makers.',
+    publishedAt: '2026-11-15',
+    author: 'SoapSpice',
+    body: [{
+      heading: 'Plan the batch',
+      paragraphs: ['Use a tested formula and check the materials with your suppliers.'],
+      steps: ['Review the formula.', 'Prepare protective equipment.'],
+    }],
+    ingredients: [{ id: 'olive-oil', name: 'Olive oil', searchTerm: 'olive oil cold process soapmaking' }],
+    equipment: [{ id: 'scale', name: 'Digital scale', searchTerm: 'digital scale soap making' }],
+    citations: [{ title: 'A source for soapmaking safety', url: 'https://example.org/soap-safety' }],
+  };
+  publishedSoapmakingPosts.push(testPost);
+  try {
+    const seo = pageSeo(`/recipes/${testPost.slug}`);
+    assert.ok(seo.indexable);
+    assert.ok(seo.title.includes('SoapSpice'));
+    assert.ok(seo.description.length >= 130 && seo.description.length <= 160);
+    assert.ok(seo.structuredData['@graph'].some(entity => entity['@type'] === 'Article' && entity.headline === testPost.title));
+
+    const detail = render(`/recipes/${testPost.slug}`);
+    assert.ok(detail.includes(testPost.title));
+    assert.ok(detail.includes('Plan the batch'));
+    assert.ok(detail.includes('Check Amazon for price'));
+    assert.ok(detail.includes('Affiliate link'));
+    assert.ok(detail.includes('As an Amazon Associate I earn from qualifying purchases.'));
+    assert.ok(detail.includes('tag=soapspice1-20'));
+    assert.ok(detail.includes('sponsored nofollow noopener'));
+    assert.ok(detail.indexOf('id="post-shopping"') > detail.indexOf('</article>'));
+    assert.equal((detail.match(/<main(?:\s|>)/g) ?? []).length, 1);
+  } finally {
+    publishedSoapmakingPosts.pop();
+  }
 });
 
 test('the first-batch shopping list uses calculator weights and links each item', () => {
