@@ -176,4 +176,112 @@ export const publishedSoapmakingPosts: PublishedSoapmakingPost[] = [
       { id: 'long-sleeves', name: 'Long sleeves', searchTerm: 'protective long sleeve work shirt' },
     ],
   },
+  {
+    slug: 'one-oil-olive-oil-castile-soap',
+    title: 'One-Oil Olive Oil Soap Recipe (Castile Soap)',
+    seoTitle: 'Olive Oil Castile Soap Recipe (500 g) | SoapSpice',
+    seoDescription: 'Make unscented cold-process Castile soap with one oil. This 500 g olive oil recipe includes calculator-checked NaOH and water weights, six steps, and lye safety.',
+    kind: 'recipe',
+    excerpt: 'A simple unscented cold-process bar made with 500 g of plain olive oil, sodium hydroxide, and distilled water, with clear safety notes and six steps.',
+    publishedAt: '2026-11-16',
+    author: 'SoapSpice',
+    image: {
+      src: '/images/olive-oil-castile-soap-curing-ai.jpeg',
+      alt: 'AI-generated illustration of pale olive-oil soap bars spaced on a curing rack',
+      width: 505,
+      height: 508,
+      caption: 'AI-generated illustration of cut bars curing on a rack; actual soap color, texture, and cure vary.',
+    },
+    recipeDetails: {
+      yield: 'One 500 g oil batch',
+      oilWeight: '500 g',
+      superfat: '5%',
+      cure: 'About 6 months',
+      scent: 'Unscented',
+      validationNote: 'The NaOH amount matches 500 g of regular olive oil at SoapSpice’s current 0.135 SAP reference and 5% superfat, assuming 100% NaOH purity. Calculator-checked, not physically batch-tested; verify the oil grade, supplier SAP, NaOH purity, and weights before making.',
+      formula: [
+        { name: 'Plain olive oil', amount: '500 g', oilShare: '100%' },
+        { name: 'Sodium hydroxide (NaOH)', amount: '64.13 g', note: 'Assumes 100% NaOH purity.' },
+        { name: 'Distilled water', amount: '159.11 g', note: 'SoapSpice’s 22% complete-batch estimate.' },
+      ],
+      notes: [
+        'Use plain regular olive oil. Pomace and other grades may use different SAP references, so select the matching calculator entry.',
+        'The water amount is SoapSpice’s disclosed starting baseline, not an ideal amount for every formula or process.',
+      ],
+    },
+    body: [
+      {
+        heading: 'A simple Castile bar with one oil',
+        paragraphs: [
+          'This SoapSpice recipe keeps the oil blend simple: olive oil is the only base oil. It makes an unscented, uncolored cold-process bar, so you can focus on the basic process without fragrance or optional additives.',
+          'Olive-oil batter can take longer to reach trace than some blends. Give it time, keep the stick blender submerged, and use short pulses with hand stirring between them.',
+        ],
+      },
+      {
+        heading: 'Check the formula in the calculator',
+        paragraphs: [
+          'The listed NaOH amount uses the calculator’s regular olive-oil SAP reference, a 5% superfat, and the assumption that the NaOH is 100% pure. The distilled-water amount follows SoapSpice’s disclosed estimate of about 22% of the complete pre-saponification batch.',
+        ],
+        bullets: [
+          'Choose grams (g) and add 500 g of plain regular olive oil.',
+          'Set superfat to 5%, choose distilled water, and leave fragrance off.',
+          'Validate the formula. If you change the oil grade, batch size, or settings, use the newly calculated weights instead.',
+        ],
+      },
+      {
+        heading: 'Gather equipment and prepare safely',
+        paragraphs: [
+          'Set out a digital scale readable to 0.01 g, a thermometer, a stainless-steel mixing bowl, a lye-rated heat-resistant plastic pitcher, an immersion blender, a spatula, and a silicone loaf mold.',
+          'Wear splash goggles, chemical-resistant gloves, and long sleeves. Work with good ventilation, away from children and pets. Use stainless steel or lye-rated plastic for NaOH contact; do not use glass or aluminum. Long sleeves can be clothing you already own.',
+        ],
+        bullets: [
+          'Keep the NaOH dry until you are ready to weigh and mix it.',
+          'Always add NaOH slowly to the distilled water while stirring—never pour water onto dry NaOH. Keep your face back from the solution and let it cool in a secure, ventilated place.',
+          'Follow the NaOH supplier’s handling instructions and keep the solution and raw batter away from skin and eyes.',
+        ],
+      },
+      {
+        heading: 'Make olive oil soap in six steps',
+        paragraphs: ['Gather everything first and work through these stages in order. Do not leave NaOH or raw soap batter unattended.'],
+        steps: [
+          'Weigh the olive oil, distilled water, and NaOH separately. Tare the scale with each empty container. Put on splash goggles, gloves, and long sleeves before opening the NaOH.',
+          'Set the lye-safe pitcher on a stable surface. Slowly add the NaOH to the distilled water while stirring. Keep your face back, then leave the solution to cool in a secure, ventilated spot.',
+          'Once the solution is about 100–110°F (38–43°C), gently warm the olive oil to a similar temperature if needed. Carefully pour the solution into the oil. Keep the blender head submerged and alternate short pulses with hand stirring until a drizzle briefly leaves a faint line.',
+          'Pour the batter into a silicone loaf mold on a flat, level surface. Leave it undisturbed in a secure place while it firms.',
+          'Check the loaf after about 48 hours. Wearing gloves, gently peel back the mold. If the loaf dents or sticks, wait another day; slice once it releases cleanly and holds its shape.',
+          'Place the bars apart on a rack in a dry, airy place away from direct sunlight. Allow about six months of cure for a firmer, longer-lasting Castile bar; humid conditions need plenty of airflow.',
+        ],
+      },
+      {
+        heading: 'Give Castile soap a long cure',
+        paragraphs: [
+          'Olive-oil-only bars can feel soft when first unmolded. Space them apart on a rack and keep air moving around each bar while they cure for about six months. A dry location out of direct sunlight helps the bars cure evenly.',
+          'The illustrations in the supplied guide are AI-generated. They show example stages only; they are not photographs of a batch made from this formula.',
+        ],
+      },
+      {
+        heading: 'Common questions',
+        paragraphs: [
+          'Is this recipe scented or colored? No. It intentionally uses no fragrance or colorant, so neither needs to be purchased for this batch.',
+          'Can I substitute olive pomace oil? Do not assume the same lye amount. Pomace and other grades can use different SAP references; choose the matching oil in SoapSpice and validate the formula again.',
+        ],
+      },
+    ],
+    ingredients: [
+      { id: 'olive-oil', name: 'Plain olive oil · 500 g', searchTerm: 'plain regular olive oil for cold process soap making', note: 'Use plain regular olive oil and weigh 500 g.' },
+      { id: 'sodium-hydroxide', name: 'Sodium hydroxide (NaOH) · 64.13 g', searchTerm: 'sodium hydroxide lye beads soap making', note: 'The calculation assumes 100% NaOH purity; follow supplier safety instructions.' },
+      { id: 'distilled-water', name: 'Distilled water · 159.11 g', searchTerm: 'distilled water for soap making' },
+    ],
+    equipment: [
+      { id: 'digital-scale', name: 'Digital scale · 0.01 g readability', searchTerm: 'digital scale 0.01 g soap making NaOH' },
+      { id: 'thermometer', name: 'Thermometer', searchTerm: 'thermometer cold process soap making' },
+      { id: 'mixing-bowl', name: 'Stainless-steel mixing bowl', searchTerm: 'stainless steel mixing bowl soap making' },
+      { id: 'lye-pitcher', name: 'Lye-rated heat-resistant pitcher', searchTerm: 'lye safe heat resistant plastic pitcher soap making' },
+      { id: 'stick-blender', name: 'Immersion blender', searchTerm: 'immersion stick blender soap making' },
+      { id: 'spatula', name: 'Spatula', searchTerm: 'silicone spatula soap making' },
+      { id: 'loaf-mold', name: 'Silicone loaf mold', searchTerm: 'silicone loaf mold cold process soap making' },
+      { id: 'splash-goggles', name: 'Splash goggles', searchTerm: 'chemical splash goggles' },
+      { id: 'chemical-gloves', name: 'Chemical-resistant gloves', searchTerm: 'chemical resistant gloves sodium hydroxide' },
+    ],
+  },
 ];
