@@ -25,9 +25,9 @@ test('every route contains real React-rendered HTML, unique metadata, and one ca
     assert.ok(html.includes(`property="og:url" content="${escape(seo.canonical)}"`), route);
     assert.ok(html.includes('property="og:site_name" content="SoapSpice"'), route);
     assert.ok(html.includes('property="og:locale" content="en_US"'), route);
-    assert.ok(html.includes('property="og:image" content="https://soapspice.com/images/soapspice-social-card.jpg"'), route);
+    assert.ok(html.includes(`property="og:image" content="${seo.image}"`), route);
     assert.ok(html.includes('name="twitter:card" content="summary_large_image"'), route);
-    assert.ok(html.includes('name="twitter:image" content="https://soapspice.com/images/soapspice-social-card.jpg"'), route);
+    assert.ok(html.includes(`name="twitter:image" content="${seo.image}"`), route);
     assert.equal((html.match(/rel="canonical"/g) ?? []).length, 1, route);
     assert.equal((html.match(/<title>/g) ?? []).length, 1, route);
     assert.ok(!html.includes('janeway.replit.dev'), route);
@@ -140,7 +140,7 @@ test('generated sitemap includes every indexable canonical page and excludes ses
   assert.equal(new Set(urls).size, urls.length);
   assert.equal(lastmods.length, urls.length);
   assert.ok(lastmods.every(date => /^\d{4}-\d{2}-\d{2}$/.test(date)));
-  assert.deepEqual([...new Set(lastmods)], ['2026-11-15'], 'keep sitemap dates aligned with the latest meaningful public content update');
+  assert.deepEqual([...new Set(lastmods)], ['2026-11-16'], 'keep sitemap dates aligned with the latest meaningful public content update');
   for (const route of staticPaths.filter(route => !indexablePaths.includes(route))) {
     assert.ok(!urls.includes(pageSeo(route).canonical), route);
   }
@@ -194,13 +194,71 @@ test('the public soapmaking library is crawlable and displays cited resources wi
 
 test('recipes index is crawlable and article shopping links follow the article body', async () => {
   const index = await htmlFor('/recipes');
+  const post = publishedSoapmakingPosts[0];
+  const articleRoute = `/recipes/${post.slug}`;
   assert.ok(indexablePaths.includes('/recipes'));
   assert.ok(staticPaths.includes('/recipes'));
+  assert.ok(indexablePaths.includes(articleRoute));
+  assert.ok(staticPaths.includes(articleRoute));
   assert.match(index, /Recipes &amp; articles/);
-  assert.ok(index.includes('data-testid="empty-published-posts"'));
-  assert.ok(index.includes('href="/soapmaking-library"'));
-  assert.ok(index.includes('href="/how-to-start-soapmaking"'));
+  assert.ok(index.includes(`data-testid="card-published-post-${post.slug}"`));
+  assert.ok(index.includes(`href="${articleRoute}"`));
+  assert.ok(index.includes(post.title));
+  assert.ok(!index.includes('data-testid="empty-published-posts"'));
   assert.equal((index.match(/<main(?:\s|>)/g) ?? []).length, 1);
+
+  const article = await htmlFor(articleRoute);
+  const articleSeo = pageSeo(articleRoute);
+  assert.equal(articleSeo.title, 'Beginner Cold Process Soap Recipe | SoapSpice');
+  assert.ok(articleSeo.title.length <= 60);
+  assert.equal(articleSeo.description, post.seoDescription);
+  assert.ok(articleSeo.description.length >= 130 && articleSeo.description.length <= 160);
+  assert.equal(articleSeo.canonical, `https://soapspice.com${articleRoute}/`);
+  assert.equal(articleSeo.image, 'https://soapspice.com/images/beginner-cold-process-soap-swirl.webp');
+  assert.ok(article.includes(`<title>${escape(articleSeo.title)}</title>`));
+  assert.ok(article.includes(`name="description" content="${escape(articleSeo.description)}"`));
+  assert.ok(article.includes(`property="og:image" content="${articleSeo.image}"`));
+  assert.ok(article.includes(`name="twitter:image" content="${articleSeo.image}"`));
+  assert.ok(article.includes(post.title));
+  assert.ok(article.includes('Cold-process soap formula'));
+  assert.ok(article.includes('200 g'));
+  assert.ok(article.includes('70.66 g'));
+  assert.ok(article.includes('160.95 g'));
+  assert.ok(article.includes('not physically batch-tested'));
+  assert.ok(article.includes('Always add sodium hydroxide slowly to the water'));
+  assert.ok(article.includes('4–6 weeks'));
+  assert.ok(article.includes('data-testid="recipe-formula"'));
+  assert.ok(article.includes('data-testid="recipe-validation-note"'));
+  assert.ok(article.includes('data-testid="link-recipe-calculator"'));
+  assert.ok(article.includes('id="post-shopping"'));
+  assert.ok(article.indexOf('id="post-shopping"') > article.indexOf('</article>'));
+  for (const item of [...post.ingredients, ...post.equipment]) {
+    assert.ok(article.includes(`data-testid="shopping-item-${post.ingredients.includes(item) ? 'ingredient' : 'equipment'}-${item.id}"`), item.id);
+  }
+  assert.ok(article.includes('As an Amazon Associate I earn from qualifying purchases.'));
+  assert.ok(article.includes('tag=soapspice1-20'));
+  assert.ok(article.includes('sponsored nofollow noopener'));
+  const articleSchema = JSON.parse(article.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
+  assert.ok(articleSchema['@graph'].some(entity => entity['@type'] === 'Article' && entity.headline === post.title && entity.image === articleSeo.image));
+  const catalog = JSON.parse(await readFile(new URL('../src/data/ingredient-catalog.json', import.meta.url)));
+  const oilRows = [
+    { id: 'olive-oil', name: 'Olive oil' },
+    { id: 'palm-oil', name: 'Palm oil (regular palm)' },
+    { id: 'coconut-oil-76', name: 'Coconut oil (76°)' },
+    { id: 'castor-oil', name: 'Castor oil' },
+  ];
+  const oils = oilRows.map(({ id, name }) => {
+    const formulaLine = post.recipeDetails.formula.find(item => item.name === name);
+    return { sap: catalog.find(item => item.id === id).naohSap, grams: Number.parseFloat(formulaLine.amount) };
+  });
+  const calculatedNaohExact = oils.reduce((sum, oil) => sum + oil.grams * oil.sap, 0) * 0.95;
+  const calculatedNaoh = Number(calculatedNaohExact.toFixed(2));
+  const calculatedWater = Number(((500 + calculatedNaohExact) * 0.22 / 0.78).toFixed(2));
+  assert.equal(calculatedNaoh, 70.66, 'the recipe NaOH amount should match SoapSpice SAP data at 5% superfat');
+  assert.equal(calculatedWater, 160.95, 'the recipe liquid amount should match SoapSpice’s disclosed 22% baseline');
+  const heroImage = await readFile(new URL('images/beginner-cold-process-soap-swirl.webp', output));
+  assert.deepEqual([...heroImage.subarray(0, 4)], [0x52, 0x49, 0x46, 0x46]);
+  assert.equal((article.match(/<main(?:\s|>)/g) ?? []).length, 1);
 
   const testPost = {
     slug: 'test-olive-oil-soap-recipe',

@@ -274,9 +274,28 @@
 .scp-byline-divider { width:4px; height:4px; border-radius:50%; background:#e1b54b; }
 .scp-article-figure { position:relative; overflow:hidden; max-width:930px; margin:32px auto 0; background:#e8eee2; }
 .scp-article-figure img { display:block; width:100%; max-height:490px; object-fit:cover; }
-.scp-article-figure figcaption { position:absolute; right:12px; bottom:12px; padding:6px 9px; background:rgb(255 253 247 / .92); color:#64766f; font-family:'Space Mono',monospace; font-size:8px; letter-spacing:.04em; }
+.scp-article-figure figcaption { padding:10px 13px; background:#f7f6ec; color:#64766f; font-size:11px; line-height:1.6; }
 .scp-article-layout { display:grid; max-width:1000px; margin:58px auto 0; grid-template-columns:minmax(0,1fr) 220px; align-items:start; gap:65px; }
 .scp-article-body { min-width:0; }
+.scp-recipe-formula { margin:0 0 40px; padding:23px; border:1px solid #dce4d6; background:#f8f8ef; }
+.scp-recipe-formula-header h2 { margin:7px 0 0; font-family:'Fraunces',Georgia,serif; font-size:29px; letter-spacing:-.04em; line-height:1.05; }
+.scp-recipe-summary { display:grid; margin:20px 0 0; grid-template-columns:repeat(auto-fit,minmax(112px,1fr)); gap:8px; }
+.scp-recipe-summary > div { min-width:0; padding:11px; border:1px solid #e4e7dc; background:#fffdf7; }
+.scp-recipe-summary dt { color:#698078; font-family:'Space Mono',monospace; font-size:8px; letter-spacing:.08em; text-transform:uppercase; }
+.scp-recipe-summary dd { margin:5px 0 0; color:#173d3c; font-size:12px; font-weight:700; line-height:1.45; }
+.scp-formula-table-wrap { margin-top:18px; overflow-x:auto; border:1px solid #e4e7dc; background:#fffdf7; }
+.scp-formula-table { width:100%; min-width:440px; border-collapse:collapse; text-align:left; }
+.scp-formula-table caption { padding:12px 13px 8px; color:#64766f; font-size:10px; text-align:left; caption-side:top; }
+.scp-formula-table thead th { padding:9px 12px; border-bottom:1px solid #dce4d6; color:#557168; font-family:'Space Mono',monospace; font-size:8px; letter-spacing:.06em; text-transform:uppercase; }
+.scp-formula-table tbody tr + tr { border-top:1px solid #edf0e8; }
+.scp-formula-table tbody th,.scp-formula-table tbody td { padding:10px 12px; color:#294d48; font-size:11px; line-height:1.5; vertical-align:top; }
+.scp-formula-table tbody th { font-weight:700; }
+.scp-formula-table tbody th small { display:block; max-width:270px; margin-top:2px; color:#718079; font-size:9px; font-weight:400; }
+.scp-formula-table tbody td:nth-child(2),.scp-formula-table tbody td:nth-child(3) { white-space:nowrap; }
+.scp-recipe-notes { display:grid; margin:15px 0 0; padding-left:18px; gap:7px; color:#5d7169; font-size:10px; line-height:1.6; }
+.scp-recipe-validation { margin:15px 0 0; padding:12px 13px; border-left:3px solid #df9a3d; background:#fff4df; color:#604824; font-size:10px; line-height:1.7; }
+.scp-recipe-calculator-link { display:inline-flex; min-height:42px; margin-top:16px; padding:0 15px; align-items:center; justify-content:center; gap:9px; background:var(--scp-teal); color:#fffdf7 !important; font-size:10px; font-weight:800; text-decoration:none; }
+.scp-recipe-calculator-link:hover { background:#075f60; }
 .scp-body-section { display:grid; margin:0 0 38px; grid-template-columns:36px minmax(0,1fr); gap:15px; }
 .scp-body-number { margin:7px 0 0; color:#d58a45; font-family:'Space Mono',monospace; font-size:9px; font-weight:700; letter-spacing:.04em; }
 .scp-body-number span { color:#b9c9bc; }

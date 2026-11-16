@@ -10,7 +10,7 @@ export const WEBSITE_ID = `${SITE_ORIGIN}/#website`;
 export const PUBLIC_CONTACT_EMAIL = 'contactus@soapspice.com';
 // This reflects the latest meaningful public-page metadata/content update.
 // Update it when indexable page content changes; don't stamp build time here.
-const SITEMAP_LAST_MODIFIED = '2026-11-15';
+const SITEMAP_LAST_MODIFIED = '2026-11-16';
 
 const pages: Record<string, { title: string; description: string }> = {
   '/': {
@@ -94,13 +94,14 @@ export function pageSeo(rawPath: string) {
     ? catalog.find(({ id }) => path === `/ingredients/${id}`)
     : undefined;
   const note = ingredient ? soapmakingNotes[ingredient.id as keyof typeof soapmakingNotes] : undefined;
+  const postTitleSource = post?.seoTitle?.trim() || (post ? `${post.title} | SoapSpice` : '');
   const postTitle = post
-    ? `${post.title} | SoapSpice`.length <= 60
-      ? `${post.title} | SoapSpice`
-      : `${post.title.slice(0, 44).trimEnd()}… | SoapSpice`
+    ? postTitleSource.length <= 60
+      ? postTitleSource
+      : `${postTitleSource.slice(0, 56).trimEnd()}…`
     : undefined;
   const postDescription = post
-    ? `${post.title}. ${post.excerpt} Explore the ingredient list, equipment notes, and safety context for this SoapSpice ${post.kind}.`
+    ? (post.seoDescription?.trim() || `${post.title}. ${post.excerpt} Explore the ingredient list, equipment notes, and safety context for this SoapSpice ${post.kind}.`)
       .replace(/\s+/g, ' ')
       .slice(0, 157)
       .trimEnd()
@@ -120,6 +121,9 @@ export function pageSeo(rawPath: string) {
     title: metadata?.title ?? 'Page Not Found | SoapSpice',
     description: metadata?.description ?? 'Find SoapSpice soapmaking guides, ingredients, and the cold-process soap calculator.',
     canonical,
+    image: post?.image?.src
+      ? new URL(post.image.src, SITE_ORIGIN).toString()
+      : `${SITE_ORIGIN}/images/soapspice-social-card.jpg`,
     robots: indexable ? 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1' : 'noindex, follow',
     indexable,
     structuredData: indexable ? {
@@ -204,7 +208,10 @@ export function pageSeo(rawPath: string) {
             headline: post.title,
             articleSection: post.kind,
             datePublished: post.publishedAt,
-            author: { '@type': post.author ? 'Person' : 'Organization', name: post.author ?? 'SoapSpice' },
+            author: {
+              '@type': post.author && post.author !== 'SoapSpice' ? 'Person' : 'Organization',
+              name: post.author ?? 'SoapSpice',
+            },
             ...(post.image ? { image: new URL(post.image.src, SITE_ORIGIN).toString() } : {}),
             ...(post.citations?.length ? { citation: post.citations.map((citation) => citation.url) } : {}),
           } : {}),
@@ -240,6 +247,7 @@ export function updatePageSeo(path: string) {
     const type = attribute === 'og' ? 'property' : 'name';
     meta(type, `${attribute}:title`, seo.title);
     meta(type, `${attribute}:description`, seo.description);
+    meta(type, `${attribute}:image`, seo.image);
   }
   meta('property', 'og:url', seo.canonical);
   let canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');

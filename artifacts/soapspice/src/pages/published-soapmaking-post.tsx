@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowUpRight, BookOpen, Check, ExternalLink, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ArrowUpRight, BookOpen, Check, ExternalLink, ShieldCheck } from 'lucide-react';
 import { Link, useParams } from 'wouter';
 import AmazonDisclosure from '@/components/AmazonDisclosure';
 import { getAmazonLink } from '@/lib/amazon-links';
@@ -97,13 +97,50 @@ export default function PublishedSoapmakingPostPage() {
             {post.image && (
               <figure className="scp-article-figure">
                 <img src={post.image.src} alt={post.image.alt} width={post.image.width} height={post.image.height} />
-                <figcaption>SoapSpice editorial image</figcaption>
+                <figcaption>{post.image.caption ?? 'SoapSpice editorial image'}</figcaption>
               </figure>
             )}
           </header>
 
           <div className="scp-article-layout">
             <div className="scp-article-body">
+              {post.recipeDetails && (
+                <section className="scp-recipe-formula" aria-labelledby="scp-recipe-formula-title" data-testid="recipe-formula">
+                  <header className="scp-recipe-formula-header">
+                    <p className="scp-section-label">The batch at a glance</p>
+                    <h2 id="scp-recipe-formula-title">Cold-process soap formula</h2>
+                  </header>
+                  <dl className="scp-recipe-summary">
+                    <div><dt>Yield</dt><dd>{post.recipeDetails.yield}</dd></div>
+                    <div><dt>Total oils</dt><dd>{post.recipeDetails.oilWeight}</dd></div>
+                    <div><dt>Superfat</dt><dd>{post.recipeDetails.superfat}</dd></div>
+                    <div><dt>Cure</dt><dd>{post.recipeDetails.cure}</dd></div>
+                    <div><dt>Fragrance</dt><dd>{post.recipeDetails.scent}</dd></div>
+                  </dl>
+                  <div className="scp-formula-table-wrap">
+                    <table className="scp-formula-table">
+                      <caption>Ingredients for one batch</caption>
+                      <thead><tr><th scope="col">Ingredient</th><th scope="col">Amount</th><th scope="col">Oil share</th></tr></thead>
+                      <tbody>
+                        {post.recipeDetails.formula.map((item) => (
+                          <tr key={item.name}>
+                            <th scope="row">{item.name}{item.note && <small>{item.note}</small>}</th>
+                            <td>{item.amount}</td>
+                            <td>{item.oilShare ?? '—'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <ul className="scp-recipe-notes">
+                    {post.recipeDetails.notes.map((note, index) => <li key={`${post.slug}-recipe-note-${index}`}>{note}</li>)}
+                  </ul>
+                  <p className="scp-recipe-validation" role="note" data-testid="recipe-validation-note">{post.recipeDetails.validationNote}</p>
+                  <Link href="/calculators/cold-process-soap" className="scp-recipe-calculator-link" data-testid="link-recipe-calculator">
+                    Recalculate this batch in SoapSpice <ArrowRight size={16} aria-hidden="true" />
+                  </Link>
+                </section>
+              )}
               {post.body.map((section, index) => (
                 <section key={`${post.slug}-section-${index}`} className="scp-body-section" data-testid={`article-section-${index + 1}`}>
                   <p className="scp-body-number">{String(index + 1).padStart(2, '0')} <span>/</span></p>

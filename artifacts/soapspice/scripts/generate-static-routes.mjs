@@ -27,8 +27,11 @@ const escape = value => value.replace(/[&<>"']/g, char => ({
 function documentFor(route) {
   const seo = pageSeo(route);
   let html = template.replace(/<title>[\s\S]*?<\/title>/, `<title>${escape(seo.title)}</title>`);
-  for (const key of ['description', 'og:description', 'twitter:description', 'og:title', 'twitter:title', 'robots']) {
-    const value = key === 'robots' ? seo.robots : key.endsWith('title') ? seo.title : seo.description;
+  for (const key of ['description', 'og:description', 'twitter:description', 'og:title', 'twitter:title', 'og:image', 'twitter:image', 'robots']) {
+    const value = key === 'robots' ? seo.robots
+      : key.endsWith('title') ? seo.title
+        : key.endsWith('image') ? seo.image
+          : seo.description;
     html = html.replace(new RegExp(`(<meta (?:name|property)="${key}" content=")[^"]*(")`), (_, before, after) => `${before}${escape(value)}${after}`);
   }
   html = html.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/, '');
