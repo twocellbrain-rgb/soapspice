@@ -14,12 +14,10 @@ function formatDate(date: string) {
 function ShoppingGroup({
   title,
   items,
-  postSlug,
   group,
 }: {
   title: string;
   items: Array<{ id: string; name: string; searchTerm: string; note?: string }>;
-  postSlug: string;
   group: 'ingredient' | 'equipment';
 }) {
   if (!items.length) return null;
@@ -30,31 +28,14 @@ function ShoppingGroup({
         <div><p className="scp-section-label">Shopping list</p><h3 id={`scp-shopping-${group}`}>{title}</h3></div>
       </div>
       <div className="scp-shopping-items">
-        {items.map((item) => {
-          const link = getAmazonLink(`soapspice-post-${postSlug}-${group}-${item.id}`, item.searchTerm);
-          return (
-            <article className="scp-shopping-item" key={item.id} data-testid={`shopping-item-${group}-${item.id}`}>
-              <div className="scp-shopping-item-copy">
-                <span className="scp-checkmark" aria-hidden="true"><Check size={14} /></span>
-                <div><h4>{item.name}</h4>{item.note && <p>{item.note}</p>}</div>
-              </div>
-              <div className="scp-shopping-cta">
-                <a
-                  className="amazon-price-button"
-                  href={link.href}
-                  target="_blank"
-                  rel={link.isAffiliate ? 'sponsored nofollow noopener' : 'nofollow noopener'}
-                  referrerPolicy="strict-origin-when-cross-origin"
-                  aria-label={`Check Amazon for price: ${item.name}${link.isAffiliate ? ', affiliate link, we may earn a commission' : ''} (opens in a new tab)`}
-                  data-testid={`link-amazon-${group}-${item.id}`}
-                >
-                  Check Amazon for price
-                </a>
-                {link.isAffiliate && <span className="amazon-affiliate-note">Affiliate link</span>}
-              </div>
-            </article>
-          );
-        })}
+        {items.map((item) => (
+          <article className="scp-shopping-item" key={item.id} data-testid={`shopping-item-${group}-${item.id}`}>
+            <div className="scp-shopping-item-copy">
+              <span className="scp-checkmark" aria-hidden="true"><Check size={14} /></span>
+              <div><h4>{item.name}</h4>{item.note && <p>{item.note}</p>}</div>
+            </div>
+          </article>
+        ))}
       </div>
     </section>
   );
@@ -77,6 +58,8 @@ export default function PublishedSoapmakingPostPage() {
       </div>
     );
   }
+
+  const shoppingLink = getAmazonLink(`soapspice-post-${post.slug}-shopping`, 'soap making supplies');
 
   return (
     <div className="scp-page" data-testid={`page-published-post-${post.slug}`}>
@@ -186,8 +169,22 @@ export default function PublishedSoapmakingPostPage() {
             </header>
             <AmazonDisclosure />
             <div className="scp-shopping-groups">
-              <ShoppingGroup title="Ingredients" items={post.ingredients} postSlug={post.slug} group="ingredient" />
-              <ShoppingGroup title="Equipment" items={post.equipment} postSlug={post.slug} group="equipment" />
+              <ShoppingGroup title="Ingredients" items={post.ingredients} group="ingredient" />
+              <ShoppingGroup title="Equipment" items={post.equipment} group="equipment" />
+            </div>
+            <div className="scp-shopping-action">
+              <a
+                className="amazon-price-button"
+                href={shoppingLink.href}
+                target="_blank"
+                rel={shoppingLink.isAffiliate ? 'sponsored nofollow noopener' : 'nofollow noopener'}
+                referrerPolicy="strict-origin-when-cross-origin"
+                aria-label={`Find what you need at Amazon${shoppingLink.isAffiliate ? ', affiliate link, we may earn a commission' : ''} (opens in a new tab)`}
+                data-testid="link-amazon-article-shopping"
+              >
+                Find what you need at Amazon
+              </a>
+              {shoppingLink.isAffiliate && <span className="amazon-affiliate-note">Affiliate link</span>}
             </div>
           </section>
         )}

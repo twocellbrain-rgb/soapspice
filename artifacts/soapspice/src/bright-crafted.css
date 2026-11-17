@@ -337,12 +337,12 @@
 .scp-shopping-group-heading .scp-section-label { font-size:7px; }
 .scp-shopping-group-heading h3 { margin:2px 0 0; font-family:'Fraunces',Georgia,serif; font-size:22px; letter-spacing:-.035em; }
 .scp-shopping-items { display:grid; }
-.scp-shopping-item { display:flex; min-height:93px; padding:14px 0; align-items:center; justify-content:space-between; gap:13px; border-bottom:1px solid #e1e5d9; }
+.scp-shopping-item { display:flex; min-height:0; padding:14px 0; align-items:center; justify-content:flex-start; gap:13px; border-bottom:1px solid #e1e5d9; }
 .scp-shopping-item-copy { display:flex; min-width:0; align-items:flex-start; gap:10px; }
 .scp-checkmark { display:grid; width:25px; height:25px; flex:none; margin-top:2px; place-items:center; border:1px solid #bfd8c6; border-radius:50%; color:var(--scp-teal); }
 .scp-shopping-item h4 { margin:0; font-family:'Fraunces',Georgia,serif; font-size:17px; letter-spacing:-.02em; line-height:1.15; }
 .scp-shopping-item-copy p { margin:4px 0 0; color:#718079; font-size:12px; line-height:1.55; }
-.scp-shopping-cta { display:flex; flex:none; flex-direction:column; align-items:center; gap:4px; }
+.scp-shopping-action { display:flex; margin-top:28px; flex-direction:column; align-items:center; gap:6px; }
 .scp-article-end { display:flex; margin:55px auto 0; flex-direction:column; align-items:center; text-align:center; }
 .scp-end-mark { display:block; width:12px; height:12px; border:2px solid #dc7d3d; border-radius:50%; box-shadow:0 0 0 4px #f2dfb4; }
 .scp-article-end p { margin:7px 0 13px; font-family:'Fraunces',Georgia,serif; font-size:22px; letter-spacing:-.03em; }
@@ -402,8 +402,7 @@
  .scp-post-card-copy { padding:13px 12px; }
  .scp-post-card-copy h3 { font-size:18px; }
  .scp-post-excerpt { margin:8px 0 13px; font-size:10px; }
- .scp-shopping-item { align-items:flex-start; flex-direction:column; }
- .scp-shopping-cta { align-items:flex-start; margin-left:35px; }
+  .scp-shopping-item { align-items:flex-start; }
  .scp-body-section { grid-template-columns:25px minmax(0,1fr); gap:10px; }
  .scp-body-section h2 { font-size:27px; }
  .scp-article-aside { grid-template-columns:1fr; }

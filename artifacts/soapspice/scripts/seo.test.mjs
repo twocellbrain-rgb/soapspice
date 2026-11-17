@@ -287,7 +287,11 @@ test('recipes index is crawlable and article shopping links follow the article b
     const detail = render(`/recipes/${testPost.slug}`);
     assert.ok(detail.includes(testPost.title));
     assert.ok(detail.includes('Plan the batch'));
-    assert.ok(detail.includes('Check Amazon for price'));
+    assert.ok(detail.includes('Find what you need at Amazon'));
+    assert.equal((detail.match(/data-testid="link-amazon-article-shopping"/g) ?? []).length, 1);
+    assert.ok(!detail.includes('Check Amazon for price'));
+    assert.ok(!detail.includes('data-testid="link-amazon-ingredient-'));
+    assert.ok(!detail.includes('data-testid="link-amazon-equipment-'));
     assert.ok(detail.includes('Affiliate link'));
     assert.ok(detail.includes('As an Amazon Associate I earn from qualifying purchases.'));
     assert.ok(detail.includes('tag=soapspice1-20'));
