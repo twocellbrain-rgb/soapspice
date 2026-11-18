@@ -303,6 +303,44 @@ test('recipes index is crawlable and article shopping links follow the article b
   }
 });
 
+test('lavender drop-swirl recipe is indexable and uses one Amazon article link', async () => {
+  const post = publishedSoapmakingPosts.find(entry => entry.slug === 'lavender-drop-swirl-cold-process-soap');
+  assert.ok(post);
+  const route = `/recipes/${post.slug}`;
+  const index = await htmlFor('/recipes');
+  const article = await htmlFor(route);
+  const seo = pageSeo(route);
+
+  assert.ok(indexablePaths.includes(route));
+  assert.ok(staticPaths.includes(route));
+  assert.ok(index.includes(`data-testid="card-published-post-${post.slug}"`));
+  assert.ok(sitemapXml().includes(`https://soapspice.com${route}/`));
+  assert.equal(seo.title, 'Lavender Drop Swirl Soap Recipe | SoapSpice');
+  assert.ok(seo.title.length <= 60);
+  assert.equal(seo.description, post.seoDescription);
+  assert.ok(seo.description.length >= 130 && seo.description.length <= 160);
+  assert.ok(article.includes(`<title>${escape(seo.title)}</title>`));
+  assert.ok(article.includes('Cream-colored soap bars with deep plum and soft lilac drop swirls'));
+  assert.ok(article.includes('200 g'));
+  assert.ok(article.includes('70.66 g'));
+  assert.ok(article.includes('160.95 g'));
+  assert.ok(article.includes('Use the final calculator amount'));
+  assert.ok(article.includes('light, medium, or strong'));
+  assert.ok(article.includes('IFRA maximums'));
+  assert.ok(article.includes('Slowly sprinkle the weighed NaOH into the distilled water'));
+  assert.ok(article.includes('Pour the lilac stream closer to the surface'));
+  assert.equal((article.match(/data-testid="link-amazon-article-shopping"/g) ?? []).length, 1);
+  assert.ok(!article.includes('data-testid="link-amazon-ingredient-'));
+  assert.ok(!article.includes('data-testid="link-amazon-equipment-'));
+  assert.ok(article.includes('Find what you need at Amazon'));
+  assert.ok(article.includes('Affiliate link'));
+  assert.ok(article.includes('As an Amazon Associate I earn from qualifying purchases.'));
+  assert.ok(article.indexOf('id="post-shopping"') > article.indexOf('</article>'));
+
+  const heroImage = await readFile(new URL('images/lavender-drop-swirl.jpeg', output));
+  assert.deepEqual([...heroImage.subarray(0, 3)], [0xff, 0xd8, 0xff]);
+});
+
 test('the first-batch shopping list uses calculator weights and links each item', () => {
   const formula = {
     name: 'Starter batch',
