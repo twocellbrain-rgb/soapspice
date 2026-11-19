@@ -10,7 +10,7 @@ export const WEBSITE_ID = `${SITE_ORIGIN}/#website`;
 export const PUBLIC_CONTACT_EMAIL = 'contactus@soapspice.com';
 // This reflects the latest meaningful public-page metadata/content update.
 // Update it when indexable page content changes; don't stamp build time here.
-const SITEMAP_LAST_MODIFIED = '2026-11-16';
+const SITEMAP_LAST_MODIFIED = '2026-11-19';
 
 const pages: Record<string, { title: string; description: string }> = {
   '/': {
