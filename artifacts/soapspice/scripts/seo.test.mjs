@@ -140,7 +140,7 @@ test('generated sitemap includes every indexable canonical page and excludes ses
   assert.equal(new Set(urls).size, urls.length);
   assert.equal(lastmods.length, urls.length);
   assert.ok(lastmods.every(date => /^\d{4}-\d{2}-\d{2}$/.test(date)));
-  assert.deepEqual([...new Set(lastmods)], ['2026-11-19'], 'keep sitemap dates aligned with the latest meaningful public content update');
+  assert.deepEqual([...new Set(lastmods)], ['2026-11-20'], 'keep sitemap dates aligned with the latest meaningful public content update');
   for (const route of staticPaths.filter(route => !indexablePaths.includes(route))) {
     assert.ok(!urls.includes(pageSeo(route).canonical), route);
   }
@@ -376,9 +376,50 @@ test('Caribbean sunset layered recipe is indexable and uses one Amazon article l
   assert.ok(article.indexOf('id="post-shopping"') > article.indexOf('</article>'));
   const schema = JSON.parse(article.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
   assert.ok(schema['@graph'].some(entity => entity['@type'] === 'Article' && entity.headline === post.title && entity.image === seo.image));
-  assert.ok(sitemapXml().includes('<lastmod>2026-11-19</lastmod>'));
+  assert.ok(sitemapXml().includes('<lastmod>2026-11-20</lastmod>'));
 
   const heroImage = await readFile(new URL('images/caribbean-sunset-layered-soap.jpg', output));
+  assert.deepEqual([...heroImage.subarray(0, 3)], [0xff, 0xd8, 0xff]);
+});
+
+test('unscented oatmeal recipe is indexable and uses one Amazon article link', async () => {
+  const post = publishedSoapmakingPosts.find(entry => entry.slug === 'unscented-oatmeal-cold-process-soap');
+  assert.ok(post);
+  const route = `/recipes/${post.slug}`;
+  const index = await htmlFor('/recipes');
+  const article = await htmlFor(route);
+  const seo = pageSeo(route);
+
+  assert.ok(indexablePaths.includes(route));
+  assert.ok(staticPaths.includes(route));
+  assert.ok(index.includes(`data-testid="card-published-post-${post.slug}"`));
+  assert.ok(sitemapXml().includes(`https://soapspice.com${route}/`));
+  assert.equal(seo.title, 'Unscented Oatmeal Soap Recipe | SoapSpice');
+  assert.ok(seo.title.length <= 60);
+  assert.equal(seo.description, post.seoDescription);
+  assert.ok(seo.description.length >= 130 && seo.description.length <= 160);
+  assert.ok(article.includes(`<title>${escape(seo.title)}</title>`));
+  assert.ok(article.includes('Illustration of unscented oatmeal soap bars with colloidal oatmeal alongside'));
+  assert.ok(article.includes('70.66 g'));
+  assert.ok(article.includes('160.95 g'));
+  assert.ok(article.includes('Colloidal oatmeal'));
+  assert.ok(article.includes('5 g'));
+  assert.ok(article.includes('This recipe is unscented and uncolored'));
+  assert.ok(article.includes('never pour water onto dry NaOH'));
+  assert.ok(article.includes('Stir in the oatmeal slurry until evenly distributed'));
+  assert.ok(article.includes('Weigh colloidal oatmeal separately at 1% of total oil weight'));
+  assert.ok(article.includes('4–6 weeks'));
+  assert.equal((article.match(/data-testid="link-amazon-article-shopping"/g) ?? []).length, 1);
+  assert.ok(!article.includes('data-testid="link-amazon-ingredient-'));
+  assert.ok(!article.includes('data-testid="link-amazon-equipment-'));
+  assert.ok(article.includes('Find what you need at Amazon'));
+  assert.ok(article.includes('Affiliate link'));
+  assert.ok(article.includes('As an Amazon Associate I earn from qualifying purchases.'));
+  assert.ok(article.indexOf('id="post-shopping"') > article.indexOf('</article>'));
+  const schema = JSON.parse(article.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
+  assert.ok(schema['@graph'].some(entity => entity['@type'] === 'Article' && entity.headline === post.title && entity.image === seo.image));
+
+  const heroImage = await readFile(new URL('images/unscented-oatmeal-soap.jpg', output));
   assert.deepEqual([...heroImage.subarray(0, 3)], [0xff, 0xd8, 0xff]);
 });
 
