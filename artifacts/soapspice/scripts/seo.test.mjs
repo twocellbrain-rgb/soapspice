@@ -416,11 +416,25 @@ test('unscented oatmeal recipe is indexable and uses one Amazon article link', a
   assert.ok(article.includes('Affiliate link'));
   assert.ok(article.includes('As an Amazon Associate I earn from qualifying purchases.'));
   assert.ok(article.indexOf('id="post-shopping"') > article.indexOf('</article>'));
+  assert.equal((article.match(/data-testid="article-step-image"/g) ?? []).length, 8, 'all eight step illustrations from the uploaded PDF should appear in the article');
   const schema = JSON.parse(article.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
   assert.ok(schema['@graph'].some(entity => entity['@type'] === 'Article' && entity.headline === post.title && entity.image === seo.image));
 
-  const heroImage = await readFile(new URL('images/unscented-oatmeal-soap.jpg', output));
-  assert.deepEqual([...heroImage.subarray(0, 3)], [0xff, 0xd8, 0xff]);
+  const imagePaths = [
+    'images/unscented-oatmeal-soap.jpg',
+    'images/oatmeal-soap-prepare-colloidal-oatmeal.jpg',
+    'images/oatmeal-soap-mix-lye-solution.jpg',
+    'images/oatmeal-soap-combine-oils.jpg',
+    'images/oatmeal-soap-blend-to-trace.jpg',
+    'images/oatmeal-soap-stir-oatmeal-slurry.jpg',
+    'images/oatmeal-soap-pour-mold.jpg',
+    'images/oatmeal-soap-cut-loaf.jpg',
+    'images/oatmeal-soap-cure-bars.jpg',
+  ];
+  for (const imagePath of imagePaths) {
+    const image = await readFile(new URL(imagePath, output));
+    assert.deepEqual([...image.subarray(0, 3)], [0xff, 0xd8, 0xff], `${imagePath} should be a valid JPEG`);
+  }
 });
 
 test('the first-batch shopping list uses calculator weights and links each item', () => {

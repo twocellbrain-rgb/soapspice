@@ -308,6 +308,13 @@
 .scp-steps { display:grid; margin:18px 0; padding:0; gap:0; list-style:none; }
 .scp-steps li { display:grid; padding:15px 0; grid-template-columns:33px 1fr; gap:9px; border-top:1px solid #e7e9dd; color:#4f6860; font-size:15px; line-height:1.75; }
 .scp-steps li > span { color:#b37432; font-family:'Space Mono',monospace; font-size:9px; font-weight:700; }
+.scp-step-content { min-width:0; }
+.scp-step-copy { margin:0 !important; }
+.scp-step-images { display:grid; margin-top:14px; grid-template-columns:minmax(0,1fr); gap:12px; }
+.scp-step-images.is-multi { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.scp-step-image { min-width:0; margin:0; overflow:hidden; border:1px solid #e2e6d9; background:#f7f6ec; }
+.scp-step-image img { display:block; width:100%; aspect-ratio:1; object-fit:cover; }
+.scp-step-image figcaption { padding:9px 11px; color:#64766f; font-size:11px; line-height:1.55; }
 .scp-article-aside { position:sticky; top:140px; }
 .scp-aside-card { padding:19px; border:1px solid #cbded0; background:#f1f6eb; }
 .scp-aside-icon { display:grid; width:38px; height:38px; margin-bottom:18px; place-items:center; border-radius:50%; background:var(--scp-teal); color:#fffaf0; }
@@ -387,6 +394,7 @@
  .scp-article-deck { font-size:16px; }
  .scp-article-figure { margin-top:25px; }
  .scp-article-layout { margin-top:39px; grid-template-columns:1fr; gap:30px; }
+ .scp-step-images.is-multi { grid-template-columns:minmax(0,1fr); }
  .scp-article-aside { position:static; display:grid; grid-template-columns:1fr 1fr; gap:13px; align-items:center; }
  .scp-aside-rule { grid-column:2; grid-row:1; margin:0; }
  .scp-aside-small { grid-column:2; grid-row:1; align-self:end; margin-top:23px; }

@@ -125,13 +125,44 @@ export default function PublishedSoapmakingPostPage() {
                 </section>
               )}
               {post.body.map((section, index) => (
-                <section key={`${post.slug}-section-${index}`} className="scp-body-section" data-testid={`article-section-${index + 1}`}>
+                <section
+                  key={`${post.slug}-section-${index}`}
+                  id={`article-${post.slug}-section-${index + 1}`}
+                  className="scp-body-section"
+                  aria-labelledby={`article-${post.slug}-section-${index + 1}-heading`}
+                  data-testid={`article-section-${index + 1}`}
+                >
                   <p className="scp-body-number">{String(index + 1).padStart(2, '0')} <span>/</span></p>
                   <div>
-                    <h2>{section.heading}</h2>
+                    <h2 id={`article-${post.slug}-section-${index + 1}-heading`}>{section.heading}</h2>
                     {section.paragraphs.map((paragraph, paragraphIndex) => <p key={`${post.slug}-paragraph-${index}-${paragraphIndex}`}>{paragraph}</p>)}
                     {section.bullets && section.bullets.length > 0 && <ul>{section.bullets.map((bullet, bulletIndex) => <li key={`${post.slug}-bullet-${index}-${bulletIndex}`}>{bullet}</li>)}</ul>}
-                    {section.steps && section.steps.length > 0 && <ol className="scp-steps">{section.steps.map((step, stepIndex) => <li key={`${post.slug}-step-${index}-${stepIndex}`}><span>{String(stepIndex + 1).padStart(2, '0')}</span>{step}</li>)}</ol>}
+                    {section.steps && section.steps.length > 0 && (
+                      <ol className="scp-steps">
+                        {section.steps.map((step, stepIndex) => {
+                          const text = typeof step === 'string' ? step : step.text;
+                          const images = typeof step === 'string' ? [] : step.images ?? [];
+                          return (
+                            <li key={`${post.slug}-step-${index}-${stepIndex}`}>
+                              <span>{String(stepIndex + 1).padStart(2, '0')}</span>
+                              <div className="scp-step-content">
+                                <p className="scp-step-copy">{text}</p>
+                                {images.length > 0 && (
+                                  <div className={`scp-step-images${images.length > 1 ? ' is-multi' : ''}`}>
+                                    {images.map((image, imageIndex) => (
+                                      <figure className="scp-step-image" key={`${post.slug}-step-image-${stepIndex}-${imageIndex}`} data-testid="article-step-image">
+                                        <img src={image.src} alt={image.alt} width={image.width} height={image.height} loading="lazy" />
+                                        <figcaption>{image.caption}</figcaption>
+                                      </figure>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </li>
+                          );
+                        })}
+                      </ol>
+                    )}
                   </div>
                 </section>
               ))}

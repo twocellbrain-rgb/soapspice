@@ -5,6 +5,14 @@ export type PublishedSoapmakingItem = {
   note?: string;
 };
 
+export type PublishedSoapmakingImage = {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+  caption: string;
+};
+
 export type PublishedSoapmakingPost = {
   slug: string;
   title: string;
@@ -14,13 +22,7 @@ export type PublishedSoapmakingPost = {
   excerpt: string;
   publishedAt: string;
   author?: string;
-  image?: {
-    src: string;
-    alt: string;
-    width: number;
-    height: number;
-    caption?: string;
-  };
+  image?: PublishedSoapmakingImage;
   recipeDetails?: {
     yield: string;
     oilWeight: string;
@@ -40,7 +42,10 @@ export type PublishedSoapmakingPost = {
     heading: string;
     paragraphs: string[];
     bullets?: string[];
-    steps?: string[];
+    steps?: Array<string | {
+      text: string;
+      images?: PublishedSoapmakingImage[];
+    }>;
   }>;
   ingredients: PublishedSoapmakingItem[];
   equipment: PublishedSoapmakingItem[];
@@ -597,12 +602,84 @@ export const publishedSoapmakingPosts: PublishedSoapmakingPost[] = [
         heading: 'Make the oatmeal soap in six steps',
         paragraphs: ['Prepare the mold and measure each ingredient before you begin. Keep protective gear on while handling the lye solution and raw batter.'],
         steps: [
-          'Set the silicone loaf mold on a level surface. Weigh the oils, NaOH, water, and colloidal oatmeal separately. Stir the 5 g of oatmeal into about 10 g of olive oil reserved from the measured 200 g until smooth.',
-          'Mix the lye solution. Slowly sprinkle the NaOH into the distilled water while stirring gently. Keep your face back from the rising vapors and let the solution cool in a secure, ventilated place.',
-          'Combine the oils. If using bulk palm oil, melt and stir it thoroughly before measuring. Gently melt the palm and coconut oils, then stir in the castor oil and remaining olive oil. Let both the oils and lye solution reach about 100–110°F (38–43°C), keeping the oils fully liquid.',
-          'Blend to light trace. Carefully pour the lye solution into the oils. Alternate short stick-blender pulses with hand stirring until the batter is uniform and a drizzle briefly leaves a faint line. Stir in the oatmeal slurry until evenly distributed.',
-          'Pour the batter into the mold and leave the loaf in a secure place. Check it after 24–48 hours. Wearing gloves, unmold and slice once it releases cleanly and holds its shape; if it sticks or dents easily, give it another day.',
-          'Cure for 4–6 weeks. Space the bars apart on a rack in a dry, ventilated spot away from direct sunlight. Leave room for air around each bar, especially in humid weather.',
+          {
+            text: 'Set the silicone loaf mold on a level surface. Weigh the oils, NaOH, water, and colloidal oatmeal separately. Stir the 5 g of oatmeal into about 10 g of olive oil reserved from the measured 200 g until smooth.',
+            images: [{
+              src: '/images/oatmeal-soap-prepare-colloidal-oatmeal.jpg',
+              alt: 'Gloved hands stirring colloidal oatmeal into a small amount of olive oil',
+              width: 615,
+              height: 615,
+              caption: 'AI-generated illustration: prepare a smooth oatmeal slurry with reserved olive oil.',
+            }],
+          },
+          {
+            text: 'Mix the lye solution. Slowly sprinkle the NaOH into the distilled water while stirring gently. Keep your face back from the rising vapors and let the solution cool in a secure, ventilated place.',
+            images: [{
+              src: '/images/oatmeal-soap-mix-lye-solution.jpg',
+              alt: 'Gloved hands adding sodium hydroxide to water in a heat-resistant pitcher',
+              width: 615,
+              height: 615,
+              caption: 'AI-generated illustration: add sodium hydroxide to water, never water to sodium hydroxide. Wear full protective gear.',
+            }],
+          },
+          {
+            text: 'Combine the oils. If using bulk palm oil, melt and stir it thoroughly before measuring. Gently melt the palm and coconut oils, then stir in the castor oil and remaining olive oil. Let both the oils and lye solution reach about 100–110°F (38–43°C), keeping the oils fully liquid.',
+            images: [{
+              src: '/images/oatmeal-soap-combine-oils.jpg',
+              alt: 'Melted oils being poured into a stainless-steel soapmaking pot',
+              width: 615,
+              height: 615,
+              caption: 'AI-generated illustration: combine the measured oils in a stainless-steel pot.',
+            }],
+          },
+          {
+            text: 'Blend to light trace. Carefully pour the lye solution into the oils. Alternate short stick-blender pulses with hand stirring until the batter is uniform and a drizzle briefly leaves a faint line. Stir in the oatmeal slurry until evenly distributed.',
+            images: [
+              {
+                src: '/images/oatmeal-soap-blend-to-trace.jpg',
+                alt: 'Immersion blender mixing soap batter in a stainless-steel pot',
+                width: 615,
+                height: 615,
+                caption: 'AI-generated illustration: alternate short blender pulses and hand stirring to reach light trace.',
+              },
+              {
+                src: '/images/oatmeal-soap-stir-oatmeal-slurry.jpg',
+                alt: 'Oatmeal slurry being folded into light-trace soap batter',
+                width: 615,
+                height: 615,
+                caption: 'AI-generated illustration: stir the oatmeal slurry through the batter evenly.',
+              },
+            ],
+          },
+          {
+            text: 'Pour the batter into the mold and leave the loaf in a secure place. Check it after 24–48 hours. Wearing gloves, unmold and slice once it releases cleanly and holds its shape; if it sticks or dents easily, give it another day.',
+            images: [
+              {
+                src: '/images/oatmeal-soap-pour-mold.jpg',
+                alt: 'Oatmeal soap batter being poured into a silicone loaf mold',
+                width: 615,
+                height: 615,
+                caption: 'AI-generated illustration: pour the batter into a level silicone loaf mold.',
+              },
+              {
+                src: '/images/oatmeal-soap-cut-loaf.jpg',
+                alt: 'A firm soap loaf being cut into bars with a wire cutter',
+                width: 615,
+                height: 615,
+                caption: 'AI-generated illustration: cut the loaf after it releases cleanly and holds its shape.',
+              },
+            ],
+          },
+          {
+            text: 'Cure for 4–6 weeks. Space the bars apart on a rack in a dry, ventilated spot away from direct sunlight. Leave room for air around each bar, especially in humid weather.',
+            images: [{
+              src: '/images/oatmeal-soap-cure-bars.jpg',
+              alt: 'Unscented oatmeal soap bars spaced apart on a wire curing rack',
+              width: 615,
+              height: 615,
+              caption: 'AI-generated illustration: leave air space around each bar during the cure.',
+            }],
+          },
         ],
       },
       {
