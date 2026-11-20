@@ -437,6 +437,96 @@ test('unscented oatmeal recipe is indexable and uses one Amazon article link', a
   }
 });
 
+test('all illustrations from uploaded recipe PDFs appear with accessible captions', async () => {
+  const sourceImagesBySlug = {
+    'beginner-cold-process-soap-recipe': [
+      '/images/beginner-cold-process-soap-swirl.webp',
+    ],
+    'one-oil-olive-oil-castile-soap': [
+      '/images/olive-castile-step-weigh-ingredients.jpg',
+      '/images/olive-castile-step-mix-lye-solution.jpg',
+      '/images/olive-castile-step-blend-trace.jpg',
+      '/images/olive-castile-step-pour-mold.jpg',
+      '/images/olive-castile-step-unmold-slice.jpg',
+      '/images/olive-castile-step-cure-rack.jpg',
+    ],
+    'lavender-drop-swirl-cold-process-soap': [
+      '/images/lavender-drop-swirl.jpeg',
+      '/images/lavender-drop-step-prepare-colorants.jpg',
+      '/images/lavender-drop-step-mix-lye-solution.jpg',
+      '/images/lavender-drop-step-combine-oils.jpg',
+      '/images/lavender-drop-step-blend-fragrance.jpg',
+      '/images/lavender-drop-step-divide-color.jpg',
+      '/images/lavender-drop-step-pour-swirl.jpg',
+      '/images/lavender-drop-step-cut-bars.jpg',
+      '/images/lavender-drop-step-cure-rack.jpg',
+    ],
+    'caribbean-sunset-layered-cold-process-soap': [
+      '/images/caribbean-sunset-layered-soap.jpg',
+      '/images/caribbean-sunset-step-prepare-colors.jpg',
+      '/images/caribbean-sunset-step-mix-lye.jpg',
+      '/images/caribbean-sunset-step-combine-oils.jpg',
+      '/images/caribbean-sunset-step-blend-batter.jpg',
+      '/images/caribbean-sunset-step-divide-colors.jpg',
+      '/images/caribbean-sunset-step-pour-coral.jpg',
+      '/images/caribbean-sunset-step-pour-gold.jpg',
+      '/images/caribbean-sunset-step-pour-cream.jpg',
+      '/images/caribbean-sunset-step-cut-loaf.jpg',
+      '/images/caribbean-sunset-step-cure-bars.jpg',
+    ],
+    'unscented-oatmeal-cold-process-soap': [
+      '/images/unscented-oatmeal-soap.jpg',
+      '/images/oatmeal-soap-prepare-colloidal-oatmeal.jpg',
+      '/images/oatmeal-soap-mix-lye-solution.jpg',
+      '/images/oatmeal-soap-combine-oils.jpg',
+      '/images/oatmeal-soap-blend-to-trace.jpg',
+      '/images/oatmeal-soap-stir-oatmeal-slurry.jpg',
+      '/images/oatmeal-soap-pour-mold.jpg',
+      '/images/oatmeal-soap-cut-loaf.jpg',
+      '/images/oatmeal-soap-cure-bars.jpg',
+    ],
+  };
+  const expectedStepImageCounts = {
+    'beginner-cold-process-soap-recipe': 0,
+    'one-oil-olive-oil-castile-soap': 6,
+    'lavender-drop-swirl-cold-process-soap': 8,
+    'caribbean-sunset-layered-cold-process-soap': 10,
+    'unscented-oatmeal-cold-process-soap': 8,
+  };
+
+  for (const [slug, expectedPaths] of Object.entries(sourceImagesBySlug)) {
+    const post = publishedSoapmakingPosts.find(entry => entry.slug === slug);
+    assert.ok(post, `Missing published article: ${slug}`);
+    const route = `/recipes/${slug}`;
+    const article = await htmlFor(route);
+    const stepImages = post.body.flatMap(section => section.steps?.flatMap(step =>
+      typeof step === 'string' ? [] : step.images ?? []
+    ) ?? []);
+    const allImages = [...(post.image ? [post.image] : []), ...stepImages];
+    const sourceImages = allImages.filter(image => expectedPaths.includes(image.src));
+
+    assert.equal(stepImages.length, expectedStepImageCounts[slug], `${slug} step illustrations`);
+    assert.equal(sourceImages.length, expectedPaths.length, `${slug} should reference every source illustration once`);
+    assert.equal(new Set(sourceImages.map(image => image.src)).size, expectedPaths.length, `${slug} source image paths should be unique`);
+
+    for (const expectedPath of expectedPaths) {
+      const image = sourceImages.find(candidate => candidate.src === expectedPath);
+      assert.ok(image, `${slug} is missing ${expectedPath}`);
+      assert.ok(article.includes(`src="${expectedPath}"`), `${slug} HTML is missing ${expectedPath}`);
+      assert.ok(article.includes(`alt="${escape(image.alt)}"`), `${slug} image needs descriptive alt text`);
+      assert.ok(article.includes(escape(image.caption)), `${slug} image needs a visible caption`);
+
+      const bytes = await readFile(new URL(expectedPath.slice(1), output));
+      if (expectedPath.endsWith('.webp')) {
+        assert.equal(bytes.toString('ascii', 0, 4), 'RIFF', `${expectedPath} should be WebP`);
+        assert.equal(bytes.toString('ascii', 8, 12), 'WEBP', `${expectedPath} should be WebP`);
+      } else {
+        assert.deepEqual([...bytes.subarray(0, 3)], [0xff, 0xd8, 0xff], `${expectedPath} should be JPEG`);
+      }
+    }
+  }
+});
+
 test('the first-batch shopping list uses calculator weights and links each item', () => {
   const formula = {
     name: 'Starter batch',

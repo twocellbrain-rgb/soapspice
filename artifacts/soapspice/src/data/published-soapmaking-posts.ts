@@ -69,10 +69,10 @@ export const publishedSoapmakingPosts: PublishedSoapmakingPost[] = [
     author: 'SoapSpice',
     image: {
       src: '/images/beginner-cold-process-soap-swirl.webp',
-      alt: 'AI-generated illustration of cream soap bars with sea-green and coral swirls',
+      alt: 'Two AI-generated views of cream soap bars with sea-green and coral swirls',
       width: 1400,
       height: 700,
-      caption: 'AI-generated illustration of the intended swirl and colors; the bars shown are illustrative, not a tested result of this formula.',
+      caption: 'AI-generated illustrations show the intended color palette and swirl; real results vary.',
     },
     recipeDetails: {
       yield: 'About 6–8 bars, depending on cut size',
@@ -249,12 +249,66 @@ export const publishedSoapmakingPosts: PublishedSoapmakingPost[] = [
         heading: 'Make olive oil soap in six steps',
         paragraphs: ['Gather everything first and work through these stages in order. Do not leave NaOH or raw soap batter unattended.'],
         steps: [
-          'Weigh the olive oil, distilled water, and NaOH separately. Tare the scale with each empty container. Put on splash goggles, gloves, and long sleeves before opening the NaOH.',
-          'Set the lye-safe pitcher on a stable surface. Slowly add the NaOH to the distilled water while stirring. Keep your face back, then leave the solution to cool in a secure, ventilated spot.',
-          'Once the solution is about 100–110°F (38–43°C), gently warm the olive oil to a similar temperature if needed. Carefully pour the solution into the oil. Keep the blender head submerged and alternate short pulses with hand stirring until a drizzle briefly leaves a faint line.',
-          'Pour the batter into a silicone loaf mold on a flat, level surface. Leave it undisturbed in a secure place while it firms.',
-          'Check the loaf after about 48 hours. Wearing gloves, gently peel back the mold. If the loaf dents or sticks, wait another day; slice once it releases cleanly and holds its shape.',
-          'Place the bars apart on a rack in a dry, airy place away from direct sunlight. Allow about six months of cure for a firmer, longer-lasting Castile bar; humid conditions need plenty of airflow.',
+          {
+            text: 'Weigh the olive oil, distilled water, and NaOH separately. Tare the scale with each empty container. Put on splash goggles, gloves, and long sleeves before opening the NaOH.',
+            images: [{
+              src: '/images/olive-castile-step-weigh-ingredients.jpg',
+              alt: 'Olive oil, a scale, water, and a loaf mold arranged for weighing soap ingredients',
+              width: 506,
+              height: 506,
+              caption: 'AI-generated guide illustration: weigh the oil, water, and sodium hydroxide separately.',
+            }],
+          },
+          {
+            text: 'Set the lye-safe pitcher on a stable surface. Slowly add the NaOH to the distilled water while stirring. Keep your face back, then leave the solution to cool in a secure, ventilated spot.',
+            images: [{
+              src: '/images/olive-castile-step-mix-lye-solution.jpg',
+              alt: 'Gloved hands slowly adding sodium hydroxide to water in a heat-resistant pitcher',
+              width: 506,
+              height: 506,
+              caption: 'AI-generated guide illustration: add sodium hydroxide to water, never water to sodium hydroxide.',
+            }],
+          },
+          {
+            text: 'Once the solution is about 100–110°F (38–43°C), gently warm the olive oil to a similar temperature if needed. Carefully pour the solution into the oil. Keep the blender head submerged and alternate short pulses with hand stirring until a drizzle briefly leaves a faint line.',
+            images: [{
+              src: '/images/olive-castile-step-blend-trace.jpg',
+              alt: 'An immersion blender mixing soap batter in a stainless-steel bowl',
+              width: 505,
+              height: 506,
+              caption: 'AI-generated guide illustration: blend until the batter reaches a uniform light trace.',
+            }],
+          },
+          {
+            text: 'Pour the batter into a silicone loaf mold on a flat, level surface. Leave it undisturbed in a secure place while it firms.',
+            images: [{
+              src: '/images/olive-castile-step-pour-mold.jpg',
+              alt: 'Soap batter being poured into a green silicone loaf mold',
+              width: 506,
+              height: 508,
+              caption: 'AI-generated guide illustration: pour the batter into a level loaf mold.',
+            }],
+          },
+          {
+            text: 'Check the loaf after about 48 hours. Wearing gloves, gently peel back the mold. If the loaf dents or sticks, wait another day; slice once it releases cleanly and holds its shape.',
+            images: [{
+              src: '/images/olive-castile-step-unmold-slice.jpg',
+              alt: 'A firm olive-oil soap loaf being cut into bars with a wire cutter',
+              width: 506,
+              height: 508,
+              caption: 'AI-generated guide illustration: unmold and slice once the loaf holds its shape.',
+            }],
+          },
+          {
+            text: 'Place the bars apart on a rack in a dry, airy place away from direct sunlight. Allow about six months of cure for a firmer, longer-lasting Castile bar; humid conditions need plenty of airflow.',
+            images: [{
+              src: '/images/olive-castile-step-cure-rack.jpg',
+              alt: 'Three pale Castile soap bars spaced on a wire curing rack',
+              width: 505,
+              height: 508,
+              caption: 'AI-generated guide illustration: leave air space around bars as they cure.',
+            }],
+          },
         ],
       },
       {
@@ -363,13 +417,85 @@ export const publishedSoapmakingPosts: PublishedSoapmakingPost[] = [
         heading: 'Make the lavender drop swirl',
         paragraphs: ['Set out the mold, prepared colors, and measured fragrance before you begin. Work carefully through each stage in order.'],
         steps: [
-          'Set the loaf mold on a level surface. Mix each mica separately with about 1 teaspoon of olive oil reserved from the measured 200 g. Weigh the final calculator fragrance amount into a separate cup.',
-          'Slowly sprinkle the weighed NaOH into the distilled water while gently stirring. Keep your face back from the rising vapors, then leave the solution to cool in a secure, ventilated area.',
-          'If using bulk palm oil, melt and stir it thoroughly before weighing. Melt the palm and coconut oils, then stir in the castor oil and remaining olive oil. Aim for roughly 100–110°F (38–43°C) for both oils and lye solution, with the oils fully liquid.',
-          'Pour the lye solution into the oils. Use short stick-blender pulses and hand stirring until the batter is uniformly emulsified and still fluid at light trace. Stir in the fragrance by hand, following the supplier’s acceleration guidance.',
-          'Pour about 100 g of batter into each spouted cup. Mix lilac into one and deep plum into the other. Pour the remaining cream-colored batter into the loaf mold.',
-          'Pour a thin plum stream along the loaf from several inches above the surface to push it deeper. Pour the lilac stream closer to the surface for a shallower ribbon. Repeat along different parts of the mold. Use remaining colored batter for a few lines on top, then lightly draw a skewer through the surface.',
-          'Check the loaf after 24–48 hours. With gloves on, unmold and slice when it releases cleanly and holds its shape. Space bars on a rack in a dry, ventilated spot away from direct sun for a 4–6 week cure.',
+          {
+            text: 'Set the loaf mold on a level surface. Mix each mica separately with about 1 teaspoon of olive oil reserved from the measured 200 g. Weigh the final calculator fragrance amount into a separate cup.',
+            images: [{
+              src: '/images/lavender-drop-step-prepare-colorants.jpg',
+              alt: 'Lilac and plum mica being mixed beside a purple silicone loaf mold',
+              width: 617,
+              height: 617,
+              caption: 'Guide illustration from the supplied recipe: prepare the mold and both mica colors.',
+            }],
+          },
+          {
+            text: 'Slowly sprinkle the weighed NaOH into the distilled water while gently stirring. Keep your face back from the rising vapors, then leave the solution to cool in a secure, ventilated area.',
+            images: [{
+              src: '/images/lavender-drop-step-mix-lye-solution.jpg',
+              alt: 'Gloved hands adding sodium hydroxide to distilled water in a lye-safe pitcher',
+              width: 617,
+              height: 617,
+              caption: 'Guide illustration from the supplied recipe: add sodium hydroxide to water and let it cool safely.',
+            }],
+          },
+          {
+            text: 'If using bulk palm oil, melt and stir it thoroughly before weighing. Melt the palm and coconut oils, then stir in the castor oil and remaining olive oil. Aim for roughly 100–110°F (38–43°C) for both oils and lye solution, with the oils fully liquid.',
+            images: [{
+              src: '/images/lavender-drop-step-combine-oils.jpg',
+              alt: 'Measured soapmaking oils being poured into a stainless-steel pot',
+              width: 617,
+              height: 617,
+              caption: 'Guide illustration from the supplied recipe: combine the measured oils.',
+            }],
+          },
+          {
+            text: 'Pour the lye solution into the oils. Use short stick-blender pulses and hand stirring until the batter is uniformly emulsified and still fluid at light trace. Stir in the fragrance by hand, following the supplier’s acceleration guidance.',
+            images: [{
+              src: '/images/lavender-drop-step-blend-fragrance.jpg',
+              alt: 'A stick blender mixing cream-colored soap batter in a stainless-steel pot',
+              width: 617,
+              height: 617,
+              caption: 'Guide illustration from the supplied recipe: blend to light trace, then stir in fragrance.',
+            }],
+          },
+          {
+            text: 'Pour about 100 g of batter into each spouted cup. Mix lilac into one and deep plum into the other. Pour the remaining cream-colored batter into the loaf mold.',
+            images: [{
+              src: '/images/lavender-drop-step-divide-color.jpg',
+              alt: 'Lilac and deep-plum soap batter in separate cups beside a loaf mold',
+              width: 617,
+              height: 617,
+              caption: 'Guide illustration from the supplied recipe: color two portions and keep the rest cream.',
+            }],
+          },
+          {
+            text: 'Pour a thin plum stream along the loaf from several inches above the surface to push it deeper. Pour the lilac stream closer to the surface for a shallower ribbon. Repeat along different parts of the mold. Use remaining colored batter for a few lines on top, then lightly draw a skewer through the surface.',
+            images: [{
+              src: '/images/lavender-drop-step-pour-swirl.jpg',
+              alt: 'A thin plum stream creating a drop swirl in a cream soap loaf',
+              width: 617,
+              height: 617,
+              caption: 'Guide illustration from the supplied recipe: pour the colored streams at different heights.',
+            }],
+          },
+          {
+            text: 'Check the loaf after 24–48 hours. With gloves on, unmold and slice when it releases cleanly and holds its shape. If it dents easily, check it again the next day. Space the bars on a rack in a dry, ventilated spot out of direct sun for a 4–6 week cure.',
+            images: [
+              {
+                src: '/images/lavender-drop-step-cut-bars.jpg',
+                alt: 'A firm lavender drop-swirl soap loaf being cut into bars',
+                width: 617,
+                height: 617,
+                caption: 'Guide illustration from the supplied recipe: slice the loaf once it holds its shape.',
+              },
+              {
+                src: '/images/lavender-drop-step-cure-rack.jpg',
+                alt: 'Lavender drop-swirl soap bars spaced on a wire curing rack',
+                width: 617,
+                height: 617,
+                caption: 'Guide illustration from the supplied recipe: leave airflow around curing bars.',
+              },
+            ],
+          },
         ],
       },
       {
@@ -479,13 +605,103 @@ export const publishedSoapmakingPosts: PublishedSoapmakingPost[] = [
         heading: 'Make the sunset layers step by step',
         paragraphs: ['Prepare the colors and mold before blending so you can pour each layer while the batter is workable.'],
         steps: [
-          'Set the loaf mold on a level surface. Weigh the oils, NaOH, and distilled water separately. Disperse each mica in about 1 teaspoon of olive oil reserved from the measured 200 g.',
-          'Mix the lye solution. Slowly sprinkle the NaOH into the distilled water while stirring gently. Keep your face back from the vapors and let the solution cool in a secure, ventilated place.',
-          'Melt and combine the oils. If using bulk palm oil, melt and stir it thoroughly before weighing. Gently melt the palm and coconut oils, then stir in the castor oil and the remaining olive oil. Aim for roughly 100–110°F (38–43°C) for both the oils and lye solution, with the oils fully liquid.',
-          'Blend the batter. Carefully pour the lye solution into the oils. Alternate short stick-blender pulses with hand stirring until the batter is uniform and a drizzle leaves a faint line, or light trace. Divide the batter into three roughly equal portions. Stir coral mica into one portion, golden-yellow mica into another, and leave the third plain.',
-          'Pour the coral base. Stir the coral portion until it reaches a soft pudding consistency, then pour it into the mold. If you want a gently wavy boundary, drag a spoon lightly over its surface.',
-          'Add the gold and cream layers. Wait until the coral can support a small spoonful with little mixing. Hold a spoon close to the surface and pour the gold batter over its back. Repeat with the cream layer once the gold can support it. Finish with shallow spoon ridges if desired.',
-          'Unmold, cut, and cure. Check the loaf after 24–48 hours. Wearing gloves, slice it when it releases cleanly and holds its shape; if it sticks or dents, wait another day. Cure the bars for 4–6 weeks on a rack in a dry, airy place away from direct sunlight.',
+          {
+            text: 'Set the loaf mold on a level surface. Weigh the oils, NaOH, and distilled water separately. Disperse each mica in about 1 teaspoon of olive oil reserved from the measured 200 g.',
+            images: [{
+              src: '/images/caribbean-sunset-step-prepare-colors.jpg',
+              alt: 'Coral-pink and golden-yellow mica being prepared beside a silicone loaf mold',
+              width: 613,
+              height: 613,
+              caption: 'AI-generated guide illustration: prepare the mold and two color dispersions.',
+            }],
+          },
+          {
+            text: 'Mix the lye solution. Slowly sprinkle the NaOH into the distilled water while stirring gently. Keep your face back from the vapors and let the solution cool in a secure, ventilated place.',
+            images: [{
+              src: '/images/caribbean-sunset-step-mix-lye.jpg',
+              alt: 'Gloved hands adding sodium hydroxide to water in a heat-resistant pitcher',
+              width: 613,
+              height: 613,
+              caption: 'AI-generated guide illustration: add sodium hydroxide to water and allow it to cool.',
+            }],
+          },
+          {
+            text: 'Melt and combine the oils. If using bulk palm oil, melt and stir it thoroughly before weighing. Gently melt the palm and coconut oils, then stir in the castor oil and the remaining olive oil. Aim for roughly 100–110°F (38–43°C) for both the oils and lye solution, with the oils fully liquid.',
+            images: [{
+              src: '/images/caribbean-sunset-step-combine-oils.jpg',
+              alt: 'Measured oils being poured into a stainless-steel soapmaking pot',
+              width: 613,
+              height: 613,
+              caption: 'AI-generated guide illustration: melt and combine the measured oils.',
+            }],
+          },
+          {
+            text: 'Blend the batter. Carefully pour the lye solution into the oils. Alternate short stick-blender pulses with hand stirring until the batter is uniform and a drizzle leaves a faint line, or light trace. Divide the batter into three roughly equal portions. Stir coral mica into one portion, golden-yellow mica into another, and leave the third plain.',
+            images: [
+              {
+                src: '/images/caribbean-sunset-step-blend-batter.jpg',
+                alt: 'A stick blender mixing cream soap batter in a stainless-steel pot',
+                width: 613,
+                height: 613,
+                caption: 'AI-generated guide illustration: blend the batter to light trace.',
+              },
+              {
+                src: '/images/caribbean-sunset-step-divide-colors.jpg',
+                alt: 'Three soap batter portions colored coral, gold, and cream in separate cups',
+                width: 617,
+                height: 609,
+                caption: 'AI-generated guide illustration: divide the batter and color two portions.',
+              },
+            ],
+          },
+          {
+            text: 'Pour the coral base. Stir the coral portion until it reaches a soft pudding consistency, then pour it into the mold. If you want a gently wavy boundary, drag a spoon lightly over its surface.',
+            images: [{
+              src: '/images/caribbean-sunset-step-pour-coral.jpg',
+              alt: 'Coral soap batter being poured into a loaf mold for the bottom layer',
+              width: 617,
+              height: 609,
+              caption: 'AI-generated guide illustration: pour the coral base layer.',
+            }],
+          },
+          {
+            text: 'Add the gold and cream layers. Wait until the coral can support a small spoonful with little mixing. Hold a spoon close to the surface and pour the gold batter over its back. Repeat with the cream layer once the gold can support it. Finish with shallow spoon ridges if desired.',
+            images: [
+              {
+                src: '/images/caribbean-sunset-step-pour-gold.jpg',
+                alt: 'Golden-yellow soap batter poured over the back of a spoon onto the coral layer',
+                width: 613,
+                height: 613,
+                caption: 'AI-generated guide illustration: use a spoon to pour the gold layer gently.',
+              },
+              {
+                src: '/images/caribbean-sunset-step-pour-cream.jpg',
+                alt: 'Cream-colored soap batter poured gently over the gold layer',
+                width: 613,
+                height: 613,
+                caption: 'AI-generated guide illustration: add the cream layer once the gold can support it.',
+              },
+            ],
+          },
+          {
+            text: 'Unmold, cut, and cure. Check the loaf after 24–48 hours. Wearing gloves, slice it when it releases cleanly and holds its shape; if it sticks or dents, wait another day. Cure the bars for 4–6 weeks on a rack in a dry, airy place away from direct sunlight.',
+            images: [
+              {
+                src: '/images/caribbean-sunset-step-cut-loaf.jpg',
+                alt: 'A firm layered soap loaf being cut across its short width',
+                width: 873,
+                height: 873,
+                caption: 'AI-generated guide illustration: cut the loaf once it releases and holds its shape.',
+              },
+              {
+                src: '/images/caribbean-sunset-step-cure-bars.jpg',
+                alt: 'Caribbean sunset soap bars spaced apart on a wire curing rack',
+                width: 873,
+                height: 873,
+                caption: 'AI-generated guide illustration: leave airflow around the bars during the cure.',
+              },
+            ],
+          },
         ],
       },
       {
