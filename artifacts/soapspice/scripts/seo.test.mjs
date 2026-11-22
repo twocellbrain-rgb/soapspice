@@ -140,7 +140,7 @@ test('generated sitemap includes every indexable canonical page and excludes ses
   assert.equal(new Set(urls).size, urls.length);
   assert.equal(lastmods.length, urls.length);
   assert.ok(lastmods.every(date => /^\d{4}-\d{2}-\d{2}$/.test(date)));
-  assert.deepEqual([...new Set(lastmods)], ['2026-11-20'], 'keep sitemap dates aligned with the latest meaningful public content update');
+  assert.deepEqual([...new Set(lastmods)], ['2026-11-22'], 'keep sitemap dates aligned with the latest meaningful public content update');
   for (const route of staticPaths.filter(route => !indexablePaths.includes(route))) {
     assert.ok(!urls.includes(pageSeo(route).canonical), route);
   }
@@ -376,7 +376,7 @@ test('Caribbean sunset layered recipe is indexable and uses one Amazon article l
   assert.ok(article.indexOf('id="post-shopping"') > article.indexOf('</article>'));
   const schema = JSON.parse(article.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
   assert.ok(schema['@graph'].some(entity => entity['@type'] === 'Article' && entity.headline === post.title && entity.image === seo.image));
-  assert.ok(sitemapXml().includes('<lastmod>2026-11-20</lastmod>'));
+  assert.ok(sitemapXml().includes('<lastmod>2026-11-22</lastmod>'));
 
   const heroImage = await readFile(new URL('images/caribbean-sunset-layered-soap.jpg', output));
   assert.deepEqual([...heroImage.subarray(0, 3)], [0xff, 0xd8, 0xff]);
@@ -437,6 +437,67 @@ test('unscented oatmeal recipe is indexable and uses one Amazon article link', a
   }
 });
 
+test('soapmaking oils article includes its PDF images, source links, and one Amazon affiliate link', async () => {
+  const post = publishedSoapmakingPosts.find(entry => entry.slug === 'soapmaking-oils-explained');
+  assert.ok(post);
+  const route = `/recipes/${post.slug}`;
+  const article = await htmlFor(route);
+  const index = await htmlFor('/recipes');
+  const seo = pageSeo(route);
+
+  assert.ok(indexablePaths.includes(route));
+  assert.ok(staticPaths.includes(route));
+  assert.ok(index.includes(`data-testid="card-published-post-${post.slug}"`));
+  assert.ok(index.includes(`href="${route}"`));
+  assert.ok(sitemapXml().includes(`https://soapspice.com${route}/`));
+  assert.equal(seo.title, 'Soapmaking Oils for Cold-Process Soap | SoapSpice');
+  assert.ok(seo.title.length <= 60);
+  assert.equal(seo.description, post.seoDescription);
+  assert.ok(seo.description.length >= 130 && seo.description.length <= 160);
+  assert.ok(article.includes(`<title>${escape(seo.title)}</title>`));
+  assert.ok(article.includes(`name="description" content="${escape(seo.description)}"`));
+  assert.equal(seo.canonical, `https://soapspice.com${route}/`);
+  assert.ok(article.includes(`property="og:image" content="${seo.image}"`));
+  assert.ok(article.includes(post.title));
+  assert.ok(article.includes('Five ingredients, different jobs'));
+  assert.ok(article.includes('Build an example in SoapSpice'));
+  assert.ok(article.includes('Olive oil'));
+  assert.ok(article.includes('Coconut oil (76°)'));
+  assert.ok(article.includes('69.52 g'));
+  assert.ok(article.includes('160.63 g'));
+  assert.ok(article.includes('Soap Queen’s beginner guide'));
+  assert.ok(article.includes('citation-context">This SoapSpice guide cites the sources'));
+  assert.equal((article.match(/data-testid="article-section-image"/g) ?? []).length, 5);
+  assert.equal((article.match(/data-testid="link-amazon-article-shopping"/g) ?? []).length, 1);
+  assert.ok(!article.includes('data-testid="link-amazon-ingredient-'));
+  assert.ok(!article.includes('data-testid="link-amazon-equipment-'));
+  assert.ok(article.includes('Find what you need at Amazon'));
+  assert.ok(article.includes('Affiliate link'));
+  assert.ok(article.includes('As an Amazon Associate I earn from qualifying purchases.'));
+  assert.ok(article.includes('tag=soapspice1-20'));
+  assert.ok(article.includes('sponsored nofollow noopener'));
+  assert.ok(article.includes('https://www.brambleberry.com/cold-process/formulating-cold-process-soap-recipes.html'));
+  assert.ok(article.includes('https://www.soapguild.org/tools-and-resources/resource-center/140/base-oils/'));
+
+  const catalog = JSON.parse(await readFile(new URL('../src/data/ingredient-catalog.json', import.meta.url)));
+  const oilWeights = [
+    ['olive-oil', 225],
+    ['palm-oil', 150],
+    ['coconut-oil-76', 100],
+    ['castor-oil', 25],
+  ];
+  const rawNaoh = oilWeights.reduce((sum, [id, grams]) => (
+    sum + grams * catalog.find(entry => entry.id === id).naohSap
+  ), 0);
+  const calculatedNaoh = Number((rawNaoh * 0.95).toFixed(2));
+  const calculatedWater = Number(((500 + rawNaoh * 0.95) * 0.22 / 0.78).toFixed(2));
+  assert.equal(calculatedNaoh, 69.52);
+  assert.equal(calculatedWater, 160.63);
+
+  const schema = JSON.parse(article.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
+  assert.ok(schema['@graph'].some(entity => entity['@type'] === 'Article' && entity.headline === post.title && entity.image === seo.image));
+});
+
 test('all illustrations from uploaded recipe PDFs appear with accessible captions', async () => {
   const sourceImagesBySlug = {
     'beginner-cold-process-soap-recipe': [
@@ -485,6 +546,14 @@ test('all illustrations from uploaded recipe PDFs appear with accessible caption
       '/images/oatmeal-soap-cut-loaf.jpg',
       '/images/oatmeal-soap-cure-bars.jpg',
     ],
+    'soapmaking-oils-explained': [
+      '/images/soapmaking-oils-explained-cover.jpg',
+      '/images/soapmaking-oils-olive-oil.jpg',
+      '/images/soapmaking-oils-coconut-oil.jpg',
+      '/images/soapmaking-oils-palm-oil.jpg',
+      '/images/soapmaking-oils-castor-oil.jpg',
+      '/images/soapmaking-oils-shea-butter.jpg',
+    ],
   };
   const expectedStepImageCounts = {
     'beginner-cold-process-soap-recipe': 0,
@@ -492,6 +561,10 @@ test('all illustrations from uploaded recipe PDFs appear with accessible caption
     'lavender-drop-swirl-cold-process-soap': 8,
     'caribbean-sunset-layered-cold-process-soap': 10,
     'unscented-oatmeal-cold-process-soap': 8,
+    'soapmaking-oils-explained': 0,
+  };
+  const expectedSectionImageCounts = {
+    'soapmaking-oils-explained': 5,
   };
 
   for (const [slug, expectedPaths] of Object.entries(sourceImagesBySlug)) {
@@ -502,10 +575,12 @@ test('all illustrations from uploaded recipe PDFs appear with accessible caption
     const stepImages = post.body.flatMap(section => section.steps?.flatMap(step =>
       typeof step === 'string' ? [] : step.images ?? []
     ) ?? []);
-    const allImages = [...(post.image ? [post.image] : []), ...stepImages];
+    const sectionImages = post.body.flatMap(section => section.images ?? []);
+    const allImages = [...(post.image ? [post.image] : []), ...sectionImages, ...stepImages];
     const sourceImages = allImages.filter(image => expectedPaths.includes(image.src));
 
     assert.equal(stepImages.length, expectedStepImageCounts[slug], `${slug} step illustrations`);
+    assert.equal(sectionImages.length, expectedSectionImageCounts[slug] ?? 0, `${slug} section illustrations`);
     assert.equal(sourceImages.length, expectedPaths.length, `${slug} should reference every source illustration once`);
     assert.equal(new Set(sourceImages.map(image => image.src)).size, expectedPaths.length, `${slug} source image paths should be unique`);
 

@@ -42,6 +42,12 @@ export type PublishedSoapmakingPost = {
     heading: string;
     paragraphs: string[];
     bullets?: string[];
+    images?: PublishedSoapmakingImage[];
+    table?: {
+      caption: string;
+      headers: string[];
+      rows: string[][];
+    };
     steps?: Array<string | {
       text: string;
       images?: PublishedSoapmakingImage[];
@@ -49,6 +55,7 @@ export type PublishedSoapmakingPost = {
   }>;
   ingredients: PublishedSoapmakingItem[];
   equipment: PublishedSoapmakingItem[];
+  citationContext?: string;
   citations?: Array<{
     title: string;
     url: string;
@@ -926,6 +933,210 @@ export const publishedSoapmakingPosts: PublishedSoapmakingPost[] = [
       { id: 'splash-goggles', name: 'Splash goggles', searchTerm: 'chemical splash safety goggles' },
       { id: 'chemical-gloves', name: 'Chemical-resistant gloves', searchTerm: 'chemical resistant gloves sodium hydroxide' },
       { id: 'long-sleeves', name: 'Long sleeves', searchTerm: 'protective long sleeve work shirt' },
+    ],
+  },
+  {
+    slug: 'soapmaking-oils-explained',
+    title: 'Soapmaking Oils Explained',
+    seoTitle: 'Soapmaking Oils for Cold-Process Soap | SoapSpice',
+    seoDescription: 'Learn how olive, coconut, palm, castor, and shea affect cold-process soap. Compare their roles and explore a balanced oil blend in SoapSpice.',
+    kind: 'article',
+    excerpt: 'What olive, coconut, palm, castor, and shea butter bring to your bar—and how to build a balanced cold-process blend.',
+    publishedAt: '2026-11-22',
+    author: 'SoapSpice',
+    image: {
+      src: '/images/soapmaking-oils-explained-cover.jpg',
+      alt: 'Olive oil, coconut oil, palm oil, castor oil, and shea butter arranged with finished soap bars',
+      width: 1660,
+      height: 929,
+      caption: 'The five oils and butters discussed in this SoapSpice guide.',
+    },
+    citationContext: 'This SoapSpice guide cites the sources used for its ingredient notes. Visit each publisher for its complete article and current recommendations.',
+    body: [
+      {
+        heading: 'Start with the bar you want',
+        paragraphs: [
+          'A beautiful soap starts with the oils underneath the color. A recipe that cuts neatly, lathers generously, and lasts between washes comes from choosing ingredients with complementary jobs. You can build that understanding with five familiar oils and butters.',
+          'Before opening the calculator, write a short brief: “a firm everyday bar,” “more time for swirls,” or “a small unscented batch.” Then choose a base blend and test it. Keep the oil percentages, water setting, process, and cure in your notes so you can understand the result.',
+          'Soapmaking uses sodium hydroxide to transform oils into soap. The raw oil’s feel is only part of the story. Judge the finished, cured bar by its lather, wash feel, release from the mold, and durability. [1]',
+        ],
+      },
+      {
+        heading: 'Five ingredients, different jobs',
+        paragraphs: ['Use this comparison to start a blend, then consider how each ingredient works with the others.'],
+        table: {
+          caption: 'Common contributions and questions to ask when choosing soapmaking oils',
+          headers: ['Ingredient', 'Main contribution', 'A useful question'],
+          rows: [
+            ['Olive oil', 'A slower-setting base with small, creamy lather', 'Am I allowing enough time to mature?'],
+            ['Coconut oil', 'Large bubbles, cleansing, and hardness', 'How does the cured blend feel in use?'],
+            ['Palm oil', 'Firmness and structure', 'Have I selected palm oil correctly?'],
+            ['Castor oil', 'Lather support at a small proportion', 'Is this a supporting ingredient?'],
+            ['Shea butter', 'Firmness and a richer lather character', 'What changes when I add a little butter?'],
+          ],
+        },
+      },
+      {
+        heading: 'Hard oils and soft oils',
+        paragraphs: [
+          'Soapmakers often call fats that are solid at typical room temperature “hard oils,” and liquid ones “soft oils.” Coconut, palm, and shea fall in the first group; olive and castor in the second. The terms help organize a blend, but the finished bar depends on the whole formula and its cure.',
+          'If you make soap in a warm climate, coconut oil may arrive liquid. That physical change does not turn ordinary coconut oil into fractionated coconut oil. Use the calculator entry that matches the actual product.',
+        ],
+      },
+      {
+        heading: 'Read the table as a design guide',
+        paragraphs: [
+          'The contributions overlap. Coconut and palm both help firmness but produce different soap profiles. Castor can support lather in a small amount, yet increasing it does not automatically make a better bar. Your goal is a blend whose ingredients work together. [2,3]',
+          'Percentages refer to the total oil weight. For 500 g of oils, 5% is 25 g. The lye, water, color, and fragrance are recorded separately.',
+        ],
+      },
+      {
+        heading: 'Choose your base and bubbles',
+        paragraphs: [
+          'Olive oil is a familiar foundation for cold-process soap. At very high proportions, expect patience: all-olive Castile soap is known for its long cure and small, sometimes slippery lather. [3] Choose it when you want olive oil as a substantial part of the base and can allow the soap time to develop. Select the matching olive oil entry and check supplier data; an oil change belongs in the calculator before it belongs in the pot.',
+          'Coconut oil helps create large bubbles and a hard, cleansing bar. High proportions can feel drying for some users. [3] It can be a bubbly part of a balanced blend, but more bubbles alone do not tell you how the full recipe will feel. Ordinary 76° coconut and fractionated coconut are different ingredients.',
+          'Palm oil supplies structure and helps bars release from the mold. It is often paired with coconut and liquid oils. [2] Choose it as a firming component in a multi-oil recipe. Palm oil and palm kernel oil require separate choices; for bulk palm oil, follow supplier directions for melting and mixing before portioning.',
+        ],
+        images: [
+          {
+            src: '/images/soapmaking-oils-olive-oil.jpg',
+            alt: 'Olive oil in a bowl beside green olives and an olive branch',
+            width: 500,
+            height: 500,
+            caption: 'Olive oil: a familiar liquid base that benefits from a patient cure at high proportions.',
+          },
+          {
+            src: '/images/soapmaking-oils-coconut-oil.jpg',
+            alt: 'Coconut oil in a bowl beside a split coconut',
+            width: 500,
+            height: 500,
+            caption: 'Coconut oil: contributes bubbles and cleansing in a balanced blend.',
+          },
+          {
+            src: '/images/soapmaking-oils-palm-oil.jpg',
+            alt: 'Palm oil in a bowl beside palm fruit and palm leaves',
+            width: 500,
+            height: 500,
+            caption: 'Palm oil: adds structure and helps a bar release from its mold.',
+          },
+        ],
+      },
+      {
+        heading: 'Support the lather and texture',
+        paragraphs: [
+          'Castor oil is commonly used as a supporting oil for lather. Bramble Berry suggests 2–5% as a lather option in its substitution guide. [2] Larger amounts can soften the bar, so weigh it carefully and keep the entire blend in view. [3]',
+          'Shea butter adds a firming butter component to cold-process soap. Soap Queen’s beginner guide recommends using it up to 15%; the best amount depends on the complete recipe. [4] It can be a useful small-batch variation. Fully melt and combine it as the recipe requires, and recalculate when replacing another oil with shea.',
+        ],
+        images: [
+          {
+            src: '/images/soapmaking-oils-castor-oil.jpg',
+            alt: 'Castor oil being poured from a small bottle into a bowl',
+            width: 500,
+            height: 500,
+            caption: 'Castor oil: commonly used in a small proportion to support lather.',
+          },
+          {
+            src: '/images/soapmaking-oils-shea-butter.jpg',
+            alt: 'Shea butter in a bowl beside whole and split shea nuts',
+            width: 500,
+            height: 500,
+            caption: 'Shea butter: a solid fat to explore in a carefully recalculated blend.',
+          },
+        ],
+      },
+      {
+        heading: 'Keep a useful comparison notebook',
+        paragraphs: [
+          'Use the same mold and bar thickness. Label each batch with the formula and date. After curing, compare the bars with the same water and wash method. Record bubble size, creaminess, hardness, and how the bar dries between uses. A clear test question helps: “What changes when 5% of the olive oil becomes shea?”',
+          'Make that variation only after recalculating it. The comparison is about learning the blend, not adding a new oil to an already weighed batch.',
+        ],
+      },
+      {
+        heading: 'Build an example in SoapSpice',
+        paragraphs: [
+          'This 500 g example uses olive as the base, palm for structure, coconut for bubbles, and castor for lather support. It is a teaching formula, with a design goal of a firm everyday bar. Its finished performance still needs a physical test batch.',
+        ],
+        table: {
+          caption: 'A 500 g teaching blend using the SoapSpice calculator entries',
+          headers: ['Calculator entry', 'Share of oils', 'Weight'],
+          rows: [
+            ['Olive oil', '45%', '225 g'],
+            ['Palm oil', '30%', '150 g'],
+            ['Coconut oil (76°)', '20%', '100 g'],
+            ['Castor oil', '5%', '25 g'],
+            ['Total oils', '100%', '500 g'],
+          ],
+        },
+      },
+      {
+        heading: 'Enter, validate, and record',
+        paragraphs: [
+          'The earlier SoapSpice check for this blend recorded 69.52 g sodium hydroxide (NaOH) at 5% superfat and 160.63 g distilled water. Recheck the current calculator result and supplier specifications before weighing.',
+          'SoapSpice assumes 100% NaOH purity and estimates water at about 22% of the complete batch. A different purity or oil SAP value needs attention before making. These values explain the example; use a complete cold-process method and lye-handling instructions for the actual batch.',
+        ],
+        steps: [
+          'Open the SoapSpice cold-process calculator and select grams.',
+          'Add the four oil entries exactly as listed and enter 225, 150, 100, and 25 g.',
+          'Set superfat to 5%, select distilled water, and choose unscented for the example.',
+          'Select Validate formula. Confirm the result and verify supplier specifications before weighing.',
+        ],
+      },
+      {
+        heading: 'Try a shea variation on paper first',
+        paragraphs: [
+          'Replace 25 g of olive oil with 25 g of shea butter: use 200 g olive oil, 150 g palm, 100 g coconut, 25 g castor, and 25 g shea. The total stays 500 g, with shea at 5%. Run this new formula through SoapSpice for fresh lye and water amounts. Test it separately and compare after curing. [2]',
+        ],
+      },
+      {
+        heading: 'Can I swap oils gram for gram?',
+        paragraphs: [
+          'An equal weight keeps the batch size the same, but the lye requirement and bar properties may change. Enter the new oil and weight in the calculator and validate the whole formula again. Even similar oils deserve a fresh calculation. [2]',
+        ],
+      },
+      {
+        heading: 'Do I need expensive specialty oils?',
+        paragraphs: [
+          'Start with ingredients you can identify, source consistently, and measure accurately. A simple formula makes it easier to understand what changed. Add a specialty ingredient when you have a specific test in mind.',
+        ],
+      },
+      {
+        heading: 'How much superfat should I choose?',
+        paragraphs: [
+          'Use the setting in a suitable recipe and keep it consistent when comparing oil blends. Changing superfat at the same time changes another variable, making the comparison harder to interpret.',
+        ],
+      },
+      {
+        heading: 'What about fragrance and color?',
+        paragraphs: [
+          'Treat them as recorded additions. Reserve oil for mica from the measured oil total and return it with the color. Choose the exact fragrance supplier product, verify its soap usage guidance, and revalidate the formula. Fragrance behavior can affect the time available for a swirl.',
+        ],
+      },
+      {
+        heading: 'Store ingredients for the next batch',
+        paragraphs: [
+          'Keep labels, lot details, and supplier specifications with your recipe records. Follow the supplier’s storage advice, close containers promptly, and inspect ingredients before using. Choose a cool, dark place appropriate to the product.',
+        ],
+      },
+    ],
+    ingredients: [
+      { id: 'olive-oil', name: 'Olive oil · 225 g in example', searchTerm: 'olive oil for cold process soap making', note: 'The example uses regular olive oil; choose the calculator entry that matches your product.' },
+      { id: 'palm-oil', name: 'Palm oil · 150 g in example', searchTerm: 'regular palm oil for soap making', note: 'Use regular palm oil, not palm kernel oil.' },
+      { id: 'coconut-oil-76', name: 'Coconut oil (76°) · 100 g in example', searchTerm: '76 degree coconut oil for soap making', note: 'Ordinary 76° coconut oil differs from fractionated coconut oil.' },
+      { id: 'castor-oil', name: 'Castor oil · 25 g in example', searchTerm: 'castor oil for cold process soap making' },
+      { id: 'shea-butter', name: 'Shea butter · optional variation', searchTerm: 'shea butter for cold process soap making', note: 'Recalculate the formula before substituting shea for another oil.' },
+      { id: 'sodium-hydroxide', name: 'Sodium hydroxide (NaOH) · recalculate before weighing', searchTerm: 'sodium hydroxide beads soap making', note: 'The example assumes 100% purity. Follow the supplier’s handling instructions.' },
+      { id: 'distilled-water', name: 'Distilled water · recalculate before weighing', searchTerm: 'distilled water soap making' },
+    ],
+    equipment: [
+      { id: 'digital-scale', name: 'Digital scale', searchTerm: 'digital scale for soap making' },
+      { id: 'soap-mold', name: 'Soap mold', searchTerm: 'soap mold for cold process soap making', note: 'Use the same mold and bar thickness when comparing batches.' },
+      { id: 'batch-notebook', name: 'Batch notebook', searchTerm: 'soap making batch notebook', note: 'Record the formula, date, cure, and observations.' },
+    ],
+    citations: [
+      { title: 'Formulating Cold Process Soap Recipes — Bramble Berry', url: 'https://www.brambleberry.com/cold-process/formulating-cold-process-soap-recipes.html' },
+      { title: 'How to Substitute Oil in Cold Process Recipes — Bramble Berry', url: 'https://www.brambleberry.com/cold-process/how-to-substitute-oil-in-cold-process-recipes.html' },
+      { title: 'Base Oils — Handcrafted Soap & Cosmetic Guild', url: 'https://www.soapguild.org/tools-and-resources/resource-center/140/base-oils/' },
+      { title: 'Common Soapmaking Oils — Soap Queen', url: 'https://soapqueen.com/bath-and-body-tutorials/tips-and-tricks/free-beginners-guide-to-soapmaking-common-soapmaking-oils/' },
     ],
   },
 ];

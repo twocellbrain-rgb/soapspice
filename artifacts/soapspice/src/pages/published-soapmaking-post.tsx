@@ -136,7 +136,36 @@ export default function PublishedSoapmakingPostPage() {
                   <div>
                     <h2 id={`article-${post.slug}-section-${index + 1}-heading`}>{section.heading}</h2>
                     {section.paragraphs.map((paragraph, paragraphIndex) => <p key={`${post.slug}-paragraph-${index}-${paragraphIndex}`}>{paragraph}</p>)}
+                    {section.table && (
+                      <div className="scp-formula-table-wrap">
+                        <table className="scp-formula-table scp-content-table">
+                          <caption>{section.table.caption}</caption>
+                          <thead>
+                            <tr>{section.table.headers.map((header) => <th scope="col" key={header}>{header}</th>)}</tr>
+                          </thead>
+                          <tbody>
+                            {section.table.rows.map((row, rowIndex) => (
+                              <tr key={`${post.slug}-table-row-${index}-${rowIndex}`}>
+                                {row.map((cell, cellIndex) => cellIndex === 0
+                                  ? <th scope="row" key={`${rowIndex}-${cellIndex}`}>{cell}</th>
+                                  : <td key={`${rowIndex}-${cellIndex}`}>{cell}</td>)}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
                     {section.bullets && section.bullets.length > 0 && <ul>{section.bullets.map((bullet, bulletIndex) => <li key={`${post.slug}-bullet-${index}-${bulletIndex}`}>{bullet}</li>)}</ul>}
+                    {section.images && section.images.length > 0 && (
+                      <div className="scp-step-images is-multi" role="group" aria-label={`Illustrations for ${section.heading}`}>
+                        {section.images.map((image, imageIndex) => (
+                          <figure className="scp-step-image" key={`${post.slug}-section-image-${index}-${imageIndex}`} data-testid="article-section-image">
+                            <img src={image.src} alt={image.alt} width={image.width} height={image.height} loading="lazy" />
+                            <figcaption>{image.caption}</figcaption>
+                          </figure>
+                        ))}
+                      </div>
+                    )}
                     {section.steps && section.steps.length > 0 && (
                       <ol className="scp-steps">
                         {section.steps.map((step, stepIndex) => {
@@ -172,7 +201,7 @@ export default function PublishedSoapmakingPostPage() {
                   <div>
                     <p className="scp-section-label">Follow the source</p>
                     <h2 id="scp-citations-title">Further reading</h2>
-                    <p className="scp-citation-context">This post uses a SoapSpice-written summary. Visit the publisher for its original content and instructions.</p>
+                    <p className="scp-citation-context">{post.citationContext ?? 'This post uses a SoapSpice-written summary. Visit the publisher for its original content and instructions.'}</p>
                     <ul>{post.citations.map((citation, index) => <li key={`${post.slug}-citation-${index}`}><a href={citation.url} target="_blank" rel="noopener noreferrer">{citation.title}<ArrowUpRight size={14} aria-hidden="true" /><span className="scp-sr-only"> (opens in a new tab)</span></a></li>)}</ul>
                   </div>
                 </aside>
