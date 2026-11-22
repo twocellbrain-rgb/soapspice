@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, ArrowUpRight, BookOpen, Check, ExternalLink, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, Check, ShieldCheck } from 'lucide-react';
 import { Link, useParams } from 'wouter';
 import AmazonDisclosure from '@/components/AmazonDisclosure';
 import { getAmazonLink } from '@/lib/amazon-links';
@@ -197,12 +197,12 @@ export default function PublishedSoapmakingPostPage() {
               ))}
               {post.citations && post.citations.length > 0 && (
                 <aside className="scp-citations" aria-labelledby="scp-citations-title" data-testid="post-citations">
-                  <div className="scp-citation-mark"><ExternalLink size={17} aria-hidden="true" /></div>
+                  <div className="scp-citation-mark"><BookOpen size={17} aria-hidden="true" /></div>
                   <div>
                     <p className="scp-section-label">Follow the source</p>
                     <h2 id="scp-citations-title">Further reading</h2>
-                    <p className="scp-citation-context">{post.citationContext ?? 'This post uses a SoapSpice-written summary. Visit the publisher for its original content and instructions.'}</p>
-                    <ul>{post.citations.map((citation, index) => <li key={`${post.slug}-citation-${index}`}><a href={citation.url} target="_blank" rel="noopener noreferrer">{citation.title}<ArrowUpRight size={14} aria-hidden="true" /><span className="scp-sr-only"> (opens in a new tab)</span></a></li>)}</ul>
+                    <p className="scp-citation-context">{post.citationContext ?? 'This post uses a SoapSpice-written summary. Source titles are shown for attribution; external website links are hidden.'}</p>
+                    <ul>{post.citations.map((citation, index) => <li key={`${post.slug}-citation-${index}`}><span>{citation.title}</span></li>)}</ul>
                   </div>
                 </aside>
               )}

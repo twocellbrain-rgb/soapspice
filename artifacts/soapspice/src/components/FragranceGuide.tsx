@@ -51,7 +51,7 @@ export default function FragranceGuide({ fragrances, totalOilGrams, naohGrams, u
             <div key={fragrance.id} className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] p-4 sm:p-5" data-testid={`guide-fragrance-${fragrance.id}`}>
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h4 className="font-display text-xl">{fragrance.name}</h4>
-                {sourceIsLink && <a href={fragrance.ifraSourceUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-[hsl(var(--primary))] underline underline-offset-2">Supplier IFRA statement ↗</a>}
+                {sourceIsLink && <span className="text-xs font-semibold text-[hsl(var(--primary))]">Supplier IFRA statement on file · external link hidden</span>}
               </div>
               <p className="mt-1 text-xs text-[hsl(var(--muted-foreground))]">
                 Guide batch: {displayAmount(guide.unscentedBatchGrams)} {unit}, before fragrance.

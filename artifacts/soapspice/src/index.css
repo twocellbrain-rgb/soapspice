@@ -143,6 +143,12 @@
 .animate-rise-delay-2 { animation-delay: 180ms; }
 .animate-rise-delay-3 { animation-delay: 270ms; }
 
+/* Keep non-Amazon outbound anchors out of the interface; affiliate actions remain clickable. */
+a[href^="http://"]:not([href^="http://soapspice.com" i]):not([href^="http://www.soapspice.com" i]):not(.amazon-price-button):not([rel~="sponsored"][href*="amazon." i]):not([rel~="sponsored"][href*="amzn." i]),
+a[href^="https://"]:not([href^="https://soapspice.com" i]):not([href^="https://www.soapspice.com" i]):not(.amazon-price-button):not([rel~="sponsored"][href*="amazon." i]):not([rel~="sponsored"][href*="amzn." i]) {
+  display: none !important;
+}
+
 @media print {
   @page { size: letter; margin: 0.5in; }
   html, body { background: white !important; color: #111 !important; }

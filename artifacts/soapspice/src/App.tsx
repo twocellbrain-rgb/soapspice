@@ -7,7 +7,6 @@ import {
   BookOpen,
   Check,
   CircleAlert,
-  ExternalLink,
   FlaskConical,
   Leaf,
   Menu,
@@ -335,7 +334,7 @@ function IngredientDetailPage() {
             <div className="mt-5 grid gap-5">
               <div className="border-b border-white/15 pb-5"><span className="text-sm text-white/65">NaOH SAP value</span><strong className="mt-1 block font-data text-4xl">{ingredient.naohSap.toFixed(3)}</strong><span className="text-xs text-white/55">g NaOH / g fat</span></div>
               <div className="border-b border-white/15 pb-5"><span className="text-sm text-white/65">KOH SAP value</span><strong className="mt-1 block font-data text-4xl">{ingredient.kohSap.toFixed(3)}</strong><span className="text-xs text-white/55">g KOH / g fat</span></div>
-              <div><span className="text-sm text-white/65">SAP reference source</span><a href={ingredient.sapSourceUrl} target="_blank" rel="noreferrer" className="mt-2 flex items-start gap-2 text-sm font-bold leading-5 text-[hsl(var(--accent))] hover:underline" data-testid="link-ingredient-source">{ingredient.sapSourceTitle}<ExternalLink size={14} className="mt-0.5 shrink-0" /></a></div>
+              <div><span className="text-sm text-white/65">SAP reference source</span><span className="mt-2 block text-sm font-bold leading-5 text-[hsl(var(--accent))]" data-testid="text-ingredient-source">{ingredient.sapSourceTitle}</span><span className="mt-1 block text-xs text-white/60">Source website link hidden</span></div>
               <p className="text-xs leading-5 text-white/70">Reference values can differ from a supplier’s exact oil. Confirm product grade and SAP before measuring NaOH.</p>
             </div>
           </aside>
@@ -712,7 +711,7 @@ function CalculatorPage({ mode = 'edit' }: { mode?: 'edit' | 'results' }) {
               {oils.map((oil) => {
                 const amount = oilInputUnit === 'percent' ? oil.percentage : oilInputUnit === 'oz' ? oil.weight / GRAMS_PER_OUNCE : oil.weight;
                 return <div key={oil.id} className="mb-3 grid gap-3 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] p-3 sm:grid-cols-[minmax(0,1fr)_145px_38px] sm:items-center">
-                  <div><div className="flex items-center gap-2 font-bold">{oil.name}<span className="rounded-full bg-[hsl(var(--secondary))] px-2 py-0.5 text-[9px] uppercase tracking-wider text-[hsl(var(--secondary-foreground))]">{ingredientMap.get(oil.id)?.category ?? 'Missing'}</span></div>{ingredientMap.get(oil.id) ? <a href={ingredientMap.get(oil.id)?.sapSourceUrl} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-[11px] text-[hsl(var(--primary))] hover:underline" data-testid={`link-source-${oil.id}`}>SAP {ingredientMap.get(oil.id)?.naohSap.toFixed(3)} <ExternalLink size={11} /></a> : <span className="text-xs text-red-700">Not in current catalog · replace to calculate</span>}<p className="mt-1 font-data text-[11px] text-[hsl(var(--muted-foreground))]">{oil.percentage.toFixed(1)}% · {oil.weight.toFixed(1)} g · {(oil.weight / GRAMS_PER_OUNCE).toFixed(2)} oz</p></div>
+                  <div><div className="flex items-center gap-2 font-bold">{oil.name}<span className="rounded-full bg-[hsl(var(--secondary))] px-2 py-0.5 text-[9px] uppercase tracking-wider text-[hsl(var(--secondary-foreground))]">{ingredientMap.get(oil.id)?.category ?? 'Missing'}</span></div>{ingredientMap.get(oil.id) ? <span className="mt-1 inline-flex items-center gap-1 text-[11px] text-[hsl(var(--primary))]" data-testid={`text-source-${oil.id}`}>SAP {ingredientMap.get(oil.id)?.naohSap.toFixed(3)}</span> : <span className="text-xs text-red-700">Not in current catalog · replace to calculate</span>}<p className="mt-1 font-data text-[11px] text-[hsl(var(--muted-foreground))]">{oil.percentage.toFixed(1)}% · {oil.weight.toFixed(1)} g · {(oil.weight / GRAMS_PER_OUNCE).toFixed(2)} oz</p></div>
                   <label className="flex items-center gap-2 sm:block"><span className="text-xs text-[hsl(var(--muted-foreground))] sm:hidden">{oilInputUnit === 'percent' ? 'Percent' : oilInputUnit === 'g' ? 'Grams' : 'Ounces'}</span><input type="number" min="0" step="any" value={Number.isFinite(amount) ? Number(amount.toFixed(oilInputUnit === 'percent' ? 2 : 3)) : 0} onChange={(event) => changeOilAmount(oil.id, Number(event.target.value))} className="h-10 w-full rounded-xl border border-[hsl(var(--input))] bg-white px-3 text-sm font-data outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]" data-testid={`input-amount-${oil.id}`} /></label>
                   <button type="button" onClick={() => removeOil(oil.id)} className="flex h-9 w-9 items-center justify-center rounded-full text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--destructive)/.1)] hover:text-[hsl(var(--destructive))]" aria-label={`Remove ${oil.name}`} data-testid={`button-remove-${oil.id}`}><Trash2 size={16} /></button>
                 </div>;

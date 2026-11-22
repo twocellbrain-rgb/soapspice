@@ -8,6 +8,7 @@ const escape = value => value.replace(/[&<>"']/g, char => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
 })[char]);
 const htmlFor = route => readFile(new URL(`${route === '/' ? '' : route.slice(1) + '/'}index.html`, output), 'utf8');
+const visibleMarkup = html => html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
 
 test('every route contains real React-rendered HTML, unique metadata, and one canonical URL', async () => {
   const titles = new Set();
@@ -75,6 +76,27 @@ test('public pages allow search snippets and identify the soap making calculator
   assert.match(pageSeo('/calculators/cold-process-soap').title, /Soap Making Calculator/);
 });
 
+test('only Amazon affiliate links can navigate to external websites', async () => {
+  for (const route of staticPaths) {
+    const html = visibleMarkup(await htmlFor(route));
+    for (const match of html.matchAll(/<a\b[^>]*>/gi)) {
+      const anchor = match[0];
+      const href = anchor.match(/\bhref="([^"]+)"/i)?.[1]?.replaceAll('&amp;', '&');
+      if (!href || !/^https?:\/\//i.test(href)) continue;
+      const url = new URL(href);
+      if (['soapspice.com', 'www.soapspice.com'].includes(url.hostname)) continue;
+      const isAmazon = url.hostname === 'link.amazon'
+        || /(^|\.)amazon\.[a-z.]+$/i.test(url.hostname)
+        || /(^|\.)amzn\.(to|com)$/i.test(url.hostname);
+      assert.ok(isAmazon, `Non-Amazon external link remains visible on ${route}: ${url.hostname}`);
+      assert.ok(
+        /class="[^"]*amazon-price-button|rel="[^"]*\bsponsored\b/i.test(anchor),
+        `External Amazon links must be affiliate actions: ${route}`,
+      );
+    }
+  }
+});
+
 test('calculator offers a four-step guide with working jump links', async () => {
   const html = await htmlFor('/calculators/cold-process-soap');
   assert.ok(html.includes('aria-label="Calculator steps"'));
@@ -111,6 +133,7 @@ test('all 42 ingredient pages expose names, SAP values, and source citations wit
   }
   for (const ingredient of catalog) {
     const html = await htmlFor(`/ingredients/${ingredient.id}`);
+    const visible = visibleMarkup(html);
     const renderedText = html
       .replace(/<!--[\s\S]*?-->/g, '')
       .replace(/&#x27;/g, "'")
@@ -119,7 +142,8 @@ test('all 42 ingredient pages expose names, SAP values, and source citations wit
     const note = notes[ingredient.id];
     assert.ok(html.includes(escape(ingredient.name)), ingredient.id);
     assert.ok(html.includes(ingredient.naohSap.toFixed(3)), ingredient.id);
-    assert.ok(html.includes(escape(ingredient.sapSourceUrl)), ingredient.id);
+    assert.ok(html.includes(escape(ingredient.sapSourceTitle)), ingredient.id);
+    assert.ok(!visible.includes(escape(ingredient.sapSourceUrl)), `External source URL should not be visible: ${ingredient.id}`);
     assert.ok(html.includes('Use in calculator'), ingredient.id);
     assert.ok(renderedText.includes(note.coldProcessEffect), `Soap effect missing: ${ingredient.id}`);
     assert.ok(renderedText.includes(note.workabilityNote), `Workability note missing: ${ingredient.id}`);
@@ -174,14 +198,21 @@ test('About and Contact pages are linked, crawlable, and represented in llms.txt
 
 test('the public soapmaking library is crawlable and displays cited resources with local images', async () => {
   const html = await htmlFor('/soapmaking-library');
+  const visible = visibleMarkup(html);
   assert.equal((html.match(/<main(?:\s|>)/g) ?? []).length, 1, 'the page should not nest main landmarks');
-  assert.ok(html.includes('Visit the publisher for its complete content'));
+  assert.match(visible, /links to other websites are hidden/i);
+  assert.ok(visible.includes('Browse this library'));
+  assert.ok(!visible.includes('Search DuckDuckGo'));
   assert.ok(html.includes('Private to this browser'));
   assert.ok(html.includes('External publisher'));
   for (const resource of soapmakingLibraryResources) {
     assert.ok(html.includes(escape(resource.title)), resource.id);
     assert.ok(html.includes(escape(resource.summary)), resource.id);
-    assert.ok(html.includes(resource.href), resource.id);
+    if (resource.contentMode === 'source-link') {
+      assert.ok(!visible.includes(resource.href), `External publisher URL should not be visible: ${resource.id}`);
+    } else {
+      assert.ok(visible.includes(`href="${resource.href}"`), resource.id);
+    }
     assert.ok(html.includes(resource.image.replace(/^images\//, '/images/')), resource.id);
     await readFile(new URL(resource.image, output));
   }
@@ -550,7 +581,11 @@ test('soft soap troubleshooting article includes its full guidance, PDF images, 
   assert.ok(article.includes('tag=soapspice1-20'));
   assert.ok(article.includes('sponsored nofollow noopener'));
   assert.ok(article.indexOf('id="post-shopping"') > article.indexOf('</article>'));
-  for (const citation of post.citations) assert.ok(article.includes(citation.url), citation.title);
+  const visibleArticle = visibleMarkup(article);
+  for (const citation of post.citations) {
+    assert.ok(visibleArticle.includes(escape(citation.title)), citation.title);
+    assert.ok(!visibleArticle.includes(citation.url), `External citation link should be hidden: ${citation.title}`);
+  }
 
   const catalog = JSON.parse(await readFile(new URL('../src/data/ingredient-catalog.json', import.meta.url)));
   const oilWeights = [

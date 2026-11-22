@@ -190,8 +190,7 @@ export default function FragranceSection({
                 {selectedSupplier ? (
                   <p className="mt-2 text-xs leading-5 text-[hsl(var(--primary))]" data-testid={`supplier-source-${row.id}`}>
                     <strong>{selectedSupplier.ifraMaxPercent}% IFRA 51 Category 9 (soap)</strong> · SKU {selectedSupplier.sku} · statement assessed {selectedSupplier.assessedOn}.{' '}
-                    <a href={selectedSupplier.productUrl} target="_blank" rel="noopener noreferrer" className="font-semibold underline underline-offset-2">Supplier product</a> ·{' '}
-                    <a href={selectedSupplier.ifraUrl} target="_blank" rel="noopener noreferrer" className="font-semibold underline underline-offset-2">IFRA statement</a>.
+                    Supplier product and IFRA statement references are on file; external website links are hidden.
                     {' '}Recheck the current statement before making a batch.
                   </p>
                 ) : (
@@ -258,16 +257,13 @@ export default function FragranceSection({
                     <label htmlFor={`fragrance-ifra-source-${row.id}`} className="mb-2 block text-xs font-bold text-[hsl(var(--foreground))]">Supplier IFRA document link <span className="font-normal text-[hsl(var(--muted-foreground))]">(optional)</span></label>
                   )}
                   {selectedSupplier ? (
-                    <a
+                    <span
                       id={`fragrance-ifra-source-${row.id}`}
-                      href={selectedSupplier.ifraUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`${fieldClass} inline-flex items-center font-semibold text-[hsl(var(--primary))] underline underline-offset-2`}
-                      data-testid={`link-fragrance-ifra-source-${row.id}`}
+                      className={`${fieldClass} inline-flex items-center font-semibold text-[hsl(var(--muted-foreground))]`}
+                      data-testid={`text-fragrance-ifra-source-${row.id}`}
                     >
-                      View linked supplier statement ↗
-                    </a>
+                      Supplier statement on file · external link hidden
+                    </span>
                   ) : (
                     <input
                       id={`fragrance-ifra-source-${row.id}`}

@@ -72,7 +72,7 @@ export default function FirstBatchMethod({ isExample }: { isExample: boolean }) 
         </ol>
       )}
       <p className="fb-method-source">
-        Learn the technique: <a href="https://lovelygreens.com/natural-soapmaking-for-beginners-make/" target="_blank" rel="noopener noreferrer">Beginner cold-process soapmaking guide (opens in a new tab)</a>.
+        Suggested reading: Beginner cold-process soapmaking guide. External website links are hidden.
         {' '}This is a general method reference, not the source of the calculator’s formula.
       </p>
     </section>
