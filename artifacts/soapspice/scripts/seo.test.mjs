@@ -1015,3 +1015,46 @@ test('mango and coral swirl recipe is crawlable and uses every supplied illustra
   assert.equal(Number(exactNaoh.toFixed(2)), 69.52, 'listed NaOH should match current SoapSpice SAP data at 5% superfat');
   assert.equal(Number(((500 + exactNaoh) * 0.22 / 0.78).toFixed(2)), 160.63, 'listed water should match the calculator baseline');
 });
+
+test('soap batter thickening guide is crawlable, cautious, and includes every supplied image', async () => {
+  const post = publishedSoapmakingPosts.find(entry => entry.slug === 'soap-batter-thickening-too-fast');
+  assert.ok(post, 'the uploaded troubleshooting guide should be published');
+  const route = `/recipes/${post.slug}`;
+  assert.ok(indexablePaths.includes(route));
+  assert.ok(staticPaths.includes(route));
+  assert.ok((await readFile(new URL('sitemap.xml', output), 'utf8')).includes(pageSeo(route).canonical));
+
+  const article = await htmlFor(route);
+  const seo = pageSeo(route);
+  assert.equal(seo.title, 'Soap Batter Thickening Too Fast? | SoapSpice');
+  assert.ok(seo.description.length >= 130 && seo.description.length <= 160);
+  assert.equal(seo.canonical, `https://soapspice.com${route}/`);
+  assert.equal(seo.image, 'https://soapspice.com/images/soap-batter-thickening-cover.jpeg');
+  for (const phrase of [
+    'Possible false trace',
+    'Possible ricing',
+    'Separation or incomplete emulsion',
+    'Raw soap remains caustic',
+    'do not touch, taste',
+    'Do not add unmeasured water, oil, alcohol, or extra lye',
+    'Curing does not neutralize excess lye',
+    'soap-mold',
+  ]) assert.ok(article.includes(phrase), `Troubleshooting guidance missing: ${phrase}`);
+  assert.ok(article.includes('Find what you need at Amazon'));
+  assert.ok(article.includes('As an Amazon Associate I earn from qualifying purchases.'));
+  assert.equal((article.match(/data-testid="link-amazon-article-shopping"/g) ?? []).length, 1);
+
+  const images = [
+    post.image,
+    ...post.body.flatMap(section => [
+      ...(section.images ?? []),
+      ...(section.steps ?? []).flatMap(step => typeof step === 'string' ? [] : step.images ?? []),
+    ]),
+  ];
+  assert.equal(images.length, 6, 'the cover and all five illustration placements should be included');
+  assert.equal(new Set(images.map(image => image.src)).size, 5, 'all distinct illustrations supplied in the PDF should be used');
+  for (const image of images) {
+    assert.ok(article.includes(`src="${image.src}"`), `Image should appear in the rendered guide: ${image.src}`);
+    await readFile(new URL(`.${image.src}`, output));
+  }
+});
