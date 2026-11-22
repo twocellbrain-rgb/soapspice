@@ -962,3 +962,56 @@ test('Hostinger static hosting emits baseline browser security headers', async (
   assert.match(htaccess, /Referrer-Policy "strict-origin-when-cross-origin"/);
   assert.match(htaccess, /Permissions-Policy "camera=\(\), microphone=\(\), geolocation=\(\)"/);
 });
+
+test('mango and coral swirl recipe is crawlable and uses every supplied illustration', async () => {
+  const post = publishedSoapmakingPosts.find(entry => entry.slug === 'mango-coral-swirl-cold-process-soap');
+  assert.ok(post, 'the owner-provided recipe should be published');
+  const route = `/recipes/${post.slug}`;
+  assert.ok(indexablePaths.includes(route));
+  assert.ok(staticPaths.includes(route));
+  assert.ok((await readFile(new URL('sitemap.xml', output), 'utf8')).includes(pageSeo(route).canonical));
+
+  const article = await htmlFor(route);
+  const seo = pageSeo(route);
+  assert.equal(seo.title, 'Mango & Coral Swirl Soap Recipe | SoapSpice');
+  assert.ok(seo.description.length >= 130 && seo.description.length <= 160);
+  assert.equal(seo.canonical, `https://soapspice.com${route}/`);
+  assert.equal(seo.image, 'https://soapspice.com/images/mango-coral-swirl-cover.jpeg');
+  assert.ok(article.includes(post.title));
+  assert.ok(article.includes('69.52 g'));
+  assert.ok(article.includes('160.63 g'));
+  assert.ok(article.includes('30.2% lye concentration'));
+  assert.ok(article.includes('always lye into water'));
+  assert.match(article, /unscented/i);
+  assert.ok(article.includes('data-testid="link-amazon-article-shopping"'));
+  assert.ok(article.includes('Find what you need at Amazon'));
+  assert.ok(article.includes('As an Amazon Associate I earn from qualifying purchases.'));
+  assert.equal((article.match(/data-testid="article-step-image"/g) ?? []).length, 8);
+
+  const images = [
+    post.image,
+    ...post.body.flatMap(section => [
+      ...(section.images ?? []),
+      ...(section.steps ?? []).flatMap(step => typeof step === 'string' ? [] : step.images ?? []),
+    ]),
+  ];
+  assert.equal(images.length, 9, 'the cover and all eight supplied process illustrations should be included');
+  for (const image of images) {
+    assert.ok(article.includes(`src="${image.src}"`), `Image should appear in the rendered recipe: ${image.src}`);
+    await readFile(new URL(`.${image.src}`, output));
+  }
+
+  const catalog = JSON.parse(await readFile(new URL('../src/data/ingredient-catalog.json', import.meta.url)));
+  const oils = [
+    ['olive-oil', 225],
+    ['palm-oil', 150],
+    ['coconut-oil-76', 100],
+    ['castor-oil', 25],
+  ];
+  const exactNaoh = oils.reduce((sum, [id, grams]) => {
+    const ingredient = catalog.find(item => item.id === id);
+    return sum + ingredient.naohSap * grams;
+  }, 0) * 0.95;
+  assert.equal(Number(exactNaoh.toFixed(2)), 69.52, 'listed NaOH should match current SoapSpice SAP data at 5% superfat');
+  assert.equal(Number(((500 + exactNaoh) * 0.22 / 0.78).toFixed(2)), 160.63, 'listed water should match the calculator baseline');
+});
