@@ -1,8 +1,16 @@
-import { ArrowLeft, ArrowRight, BookOpen, Check, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ArrowUpRight, BookOpen, Check, ExternalLink, ShieldCheck } from 'lucide-react';
 import { Link, useParams } from 'wouter';
 import AmazonDisclosure from '@/components/AmazonDisclosure';
 import { getAmazonLink } from '@/lib/amazon-links';
 import { publishedSoapmakingPosts } from '@/data/published-soapmaking-posts';
+
+const latestArticleSlugs = new Set(
+  [...publishedSoapmakingPosts]
+    .filter((entry) => entry.kind === 'article')
+    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
+    .slice(0, 2)
+    .map((entry) => entry.slug),
+);
 
 function formatDate(date: string) {
   const parsed = new Date(`${date}T12:00:00`);
@@ -195,14 +203,14 @@ export default function PublishedSoapmakingPostPage() {
                   </div>
                 </section>
               ))}
-              {post.citations && post.citations.length > 0 && (
+              {post.citations && post.citations.length > 0 && !latestArticleSlugs.has(post.slug) && (
                 <aside className="scp-citations" aria-labelledby="scp-citations-title" data-testid="post-citations">
-                  <div className="scp-citation-mark"><BookOpen size={17} aria-hidden="true" /></div>
+                  <div className="scp-citation-mark"><ExternalLink size={17} aria-hidden="true" /></div>
                   <div>
                     <p className="scp-section-label">Follow the source</p>
                     <h2 id="scp-citations-title">Further reading</h2>
-                    <p className="scp-citation-context">{post.citationContext ?? 'This post uses a SoapSpice-written summary. Source titles are shown for attribution; external website links are hidden.'}</p>
-                    <ul>{post.citations.map((citation, index) => <li key={`${post.slug}-citation-${index}`}><span>{citation.title}</span></li>)}</ul>
+                    <p className="scp-citation-context">{post.citationContext ?? 'This post uses a SoapSpice-written summary. Visit the publisher for its original content and instructions.'}</p>
+                    <ul>{post.citations.map((citation, index) => <li key={`${post.slug}-citation-${index}`}><a href={citation.url} target="_blank" rel="noopener noreferrer">{citation.title}<ArrowUpRight size={14} aria-hidden="true" /><span className="scp-sr-only"> (opens in a new tab)</span></a></li>)}</ul>
                   </div>
                 </aside>
               )}

@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import {
   ArrowDownRight,
+  ArrowUpRight,
   BookOpen,
+  ExternalLink,
   FileText,
   Search,
   ShieldCheck,
@@ -59,6 +61,7 @@ function kindLabel(kind: SoapmakingLibraryKind) {
 export default function SoapmakingLibraryPage() {
   const [search, setSearch] = useState('');
   const [kindFilter, setKindFilter] = useState<'all' | SoapmakingLibraryKind>('all');
+  const [webQuery, setWebQuery] = useState('');
   const [saved, setSaved] = useState<SavedCitation[]>([]);
   const [storageReady, setStorageReady] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
@@ -152,6 +155,8 @@ export default function SoapmakingLibraryPage() {
     persist(saved.filter((item) => item.id !== id), 'Citation removed from this browser.');
   }
 
+  const externalSearchUrl = `https://duckduckgo.com/?q=${encodeURIComponent(webQuery.trim() || 'soapmaking safety recipes ingredients')}`;
+
   return (
     <div className="sl-page">
       <header className="sl-hero">
@@ -159,8 +164,8 @@ export default function SoapmakingLibraryPage() {
           <div className="sl-hero-copy">
             <p className="sl-eyebrow"><span /> A working shelf for curious makers</p>
             <h1>Good sources<br /><em>make better batches.</em></h1>
-            <p className="sl-lede">A practical reading shelf for recipes, ingredient references, and safer making. SoapSpice guides are clearly marked; source titles remain credited while external website links are hidden.</p>
-            <div className="sl-hero-proof"><ShieldCheck size={17} aria-hidden="true" /><span>Check the source note. Verify the details. Make with care.</span></div>
+            <p className="sl-lede">A practical reading shelf for recipes, ingredient references, and safer making. SoapSpice guides are clearly marked; outside sources stay linked to their publishers.</p>
+            <div className="sl-hero-proof"><ShieldCheck size={17} aria-hidden="true" /><span>Follow the citation. Check the details. Make with care.</span></div>
           </div>
           <aside className="sl-shelf-art" aria-label="Library note">
             <div className="sl-shelf-stamp"><BookOpen size={27} aria-hidden="true" /></div>
@@ -174,11 +179,19 @@ export default function SoapmakingLibraryPage() {
       <div className="sl-main">
         <section className="sl-search-panel" aria-labelledby="sl-search-title">
           <div className="sl-search-copy">
-            <span className="sl-section-kicker">On this shelf</span>
-            <h2 id="sl-search-title">Find soapmaking resources</h2>
-            <p>Use the search and topic filters below to explore SoapSpice guides and source summaries. Links to other websites are hidden.</p>
+            <span className="sl-section-kicker">Beyond this shelf</span>
+            <h2 id="sl-search-title">Search the wider web</h2>
+            <p>Explore soapmaking sources on DuckDuckGo. Search results open in a new tab and are not collected by SoapSpice.</p>
           </div>
-          <a className="sl-resource-link" href="#sl-library-title">Browse this library <ArrowDownRight size={16} aria-hidden="true" /></a>
+          <form className="sl-web-search" onSubmit={(event) => {
+            event.preventDefault();
+            window.open(externalSearchUrl, '_blank', 'noopener,noreferrer');
+          }}>
+            <label className="sl-sr-only" htmlFor="sl-public-search">Search soapmaking sources on the web</label>
+            <div className="sl-search-input-wrap"><Search size={18} aria-hidden="true" /><input id="sl-public-search" value={webQuery} onChange={(event) => setWebQuery(event.target.value)} placeholder="Try “olive oil soap recipe”" /></div>
+            <button type="submit" className="sl-search-button">Search DuckDuckGo <ArrowUpRight size={16} aria-hidden="true" /></button>
+          </form>
+          <p className="sl-search-note">External search opens DuckDuckGo in a new tab.</p>
         </section>
 
         <section className="sl-library" aria-labelledby="sl-library-title">
@@ -186,7 +199,7 @@ export default function SoapmakingLibraryPage() {
             <div><span className="sl-section-kicker">The SoapSpice reading shelf</span><h2 id="sl-library-title">Soapmaking library</h2></div>
             <span className="sl-count">{filteredResources.length} {filteredResources.length === 1 ? 'resource' : 'resources'}</span>
           </div>
-          <p className="sl-library-intro">Start with our guides and SoapSpice-written summaries of selected outside sources.</p>
+          <p className="sl-library-intro">Start with our guides, then follow carefully selected citations to their original publishers.</p>
 
           <div className="sl-library-controls">
             <label className="sl-library-search"><Search size={17} aria-hidden="true" /><span className="sl-sr-only">Search the library</span><input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search titles, publishers, topics…" /></label>
@@ -212,9 +225,11 @@ export default function SoapmakingLibraryPage() {
                       <h3>{resource.title}</h3>
                       <p className="sl-publisher">Published by <strong>{resource.publisher}</strong></p>
                       <p className="sl-summary">{resource.summary}</p>
-                       {external && <p className="sl-citation-note">Summary by SoapSpice. The original publisher is credited; its website link is hidden.</p>}
+                      {external && <p className="sl-citation-note">Summary by SoapSpice. Visit the publisher for its complete content and instructions.</p>}
                       <div className="sl-tags" aria-label="Topics">{resource.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
-                       {!external && (
+                      {external ? (
+                        <a className="sl-resource-link" href={resource.href} target="_blank" rel="noopener noreferrer">Visit {resource.publisher} <ExternalLink size={15} aria-hidden="true" /><span className="sl-sr-only"> (opens in a new tab)</span></a>
+                      ) : (
                         <Link className="sl-resource-link" href={resource.href}>Read this SoapSpice guide <ArrowDownRight size={16} aria-hidden="true" /></Link>
                       )}
                     </div>
@@ -240,7 +255,7 @@ export default function SoapmakingLibraryPage() {
           </div>
           <div className="sl-personal-callout">
             <FileText size={22} aria-hidden="true" />
-             <p>Save a publisher URL, a short description, and your own notes. These details stay in this browser’s local storage; they are not sent to SoapSpice. Saved URLs are not clickable.</p>
+            <p>Save a publisher link, a short description, and your own notes. These details stay in this browser’s local storage; they are not sent to SoapSpice.</p>
             <button type="button" className="sl-add-toggle" onClick={() => { setFormOpen((open) => !open); setFormError(''); setNotice(''); }} aria-expanded={formOpen}>{formOpen ? 'Close form' : 'Add a private citation'}</button>
           </div>
           {notice && <p className="sl-storage-status" role="status">{notice}</p>}
@@ -272,7 +287,7 @@ export default function SoapmakingLibraryPage() {
                   {item.notes && <div className="sl-notes"><span>Private note</span><p>{item.notes}</p></div>}
                   <div className="sl-tags">{item.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
                   <div className="sl-saved-foot">
-                     <span>Publisher URL saved privately</span>
+                    <a href={item.href} target="_blank" rel="noopener noreferrer">Open publisher <ExternalLink size={14} aria-hidden="true" /><span className="sl-sr-only"> (opens in a new tab)</span></a>
                     <button type="button" onClick={() => removeCitation(item.id)} aria-label={`Remove ${item.title}`}><Trash2 size={14} aria-hidden="true" /> Remove</button>
                   </div>
                 </article>
@@ -281,7 +296,7 @@ export default function SoapmakingLibraryPage() {
           ) : (
             <div className="sl-personal-empty">
               <BookOpen size={22} aria-hidden="true" />
-               <div><strong>{saved.length ? 'No private citations match these filters.' : 'Your private shelf is ready.'}</strong><p>{saved.length ? 'Try another search or kind.' : 'Save citation details and personal notes here; outside websites will not be linked.'}</p></div>
+              <div><strong>{saved.length ? 'No private citations match these filters.' : 'Your private shelf is ready.'}</strong><p>{saved.length ? 'Try another search or kind.' : 'Add a citation to keep a useful publisher link and personal notes close at hand.'}</p></div>
               {saved.length > 0 && <button type="button" onClick={() => { setSearch(''); setKindFilter('all'); }}>Clear filters</button>}
             </div>
           )}
@@ -289,7 +304,7 @@ export default function SoapmakingLibraryPage() {
 
         <aside className="sl-library-note">
           <ShieldCheck size={23} aria-hidden="true" />
-          <div><strong>References are a starting point, not a safety check.</strong><p>External summaries are brief SoapSpice descriptions, not publisher text. Verify every quantity and use appropriate cold-process safety practices. Amazon affiliate shopping links remain available elsewhere on SoapSpice; see our site disclosure for details.</p></div>
+          <div><strong>References are a starting point, not a safety check.</strong><p>External summaries are brief SoapSpice descriptions, not publisher text. Follow the publisher for complete instructions, verify every quantity, and use appropriate cold-process safety practices. Product links elsewhere on SoapSpice may include affiliate relationships; see our site disclosure for details.</p></div>
         </aside>
       </div>
     </div>
