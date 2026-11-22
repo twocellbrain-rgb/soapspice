@@ -1061,3 +1061,53 @@ test('soap batter thickening guide is crawlable, cautious, and includes every su
     await readFile(new URL(`.${image.src}`, output));
   }
 });
+
+test('Christmas ribbon swirl recipe includes its formula, safety steps, Amazon link, and every PDF image', async () => {
+  const post = publishedSoapmakingPosts.find(entry => entry.slug === 'christmas-ribbon-swirl-soap-recipe');
+  assert.ok(post, 'the uploaded Christmas recipe should be published');
+  const route = `/recipes/${post.slug}`;
+  assert.ok(indexablePaths.includes(route));
+  assert.ok(staticPaths.includes(route));
+  assert.ok((await readFile(new URL('sitemap.xml', output), 'utf8')).includes(pageSeo(route).canonical));
+
+  const article = await htmlFor(route);
+  const seo = pageSeo(route);
+  assert.equal(seo.title, 'Christmas Ribbon Swirl Soap Recipe | SoapSpice');
+  assert.ok(seo.description.length >= 130 && seo.description.length <= 160);
+  assert.equal(seo.canonical, `https://soapspice.com${route}/`);
+  assert.equal(seo.image, 'https://soapspice.com/images/christmas-ribbon-swirl-cover.jpeg');
+  for (const phrase of [
+    '225 g',
+    '150 g',
+    '100 g',
+    '25 g',
+    '69.52 g',
+    '160.63 g',
+    '4–6 weeks',
+    'never pour water onto dry NaOH',
+    'one broad, gentle sweep',
+    'The recipe is unscented',
+  ]) assert.ok(article.includes(phrase), `Recipe content missing: ${phrase}`);
+
+  assert.equal((article.match(/data-testid="link-amazon-article-shopping"/g) ?? []).length, 1);
+  assert.ok(article.includes('Find what you need at Amazon'));
+  assert.ok(article.includes('As an Amazon Associate I earn from qualifying purchases.'));
+  assert.ok(article.includes('tag=soapspice1-20'));
+  assert.ok(article.includes('sponsored nofollow noopener'));
+  assert.ok(!article.includes('data-testid="link-amazon-ingredient-'));
+  assert.ok(!article.includes('data-testid="link-amazon-equipment-'));
+
+  const images = [
+    post.image,
+    ...post.body.flatMap(section => [
+      ...(section.images ?? []),
+      ...(section.steps ?? []).flatMap(step => typeof step === 'string' ? [] : step.images ?? []),
+    ]),
+  ];
+  assert.equal(images.length, 11, 'the cover and all ten process illustrations should be included');
+  assert.equal(new Set(images.map(image => image.src)).size, 11, 'all eleven supplied images should be used once');
+  for (const image of images) {
+    assert.ok(article.includes(`src="${image.src}"`), `Image should appear in the rendered recipe: ${image.src}`);
+    await readFile(new URL(`.${image.src}`, output));
+  }
+});
