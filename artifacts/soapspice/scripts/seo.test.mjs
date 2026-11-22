@@ -16,6 +16,9 @@ test('every route contains real React-rendered HTML, unique metadata, and one ca
   for (const route of staticPaths) {
     const html = await htmlFor(route);
     const seo = pageSeo(route);
+    assert.equal((html.match(/https:\/\/www\.googletagmanager\.com\/gtm\.js\?id=GTM-PQ92DJ5B/g) ?? []).length, 1, `Google tag should appear exactly once: ${route}`);
+    assert.match(html, /<head>\s*<script async src="https:\/\/www\.googletagmanager\.com\/gtm\.js\?id=GTM-PQ92DJ5B"><\/script>/, `Google tag should load immediately after <head>: ${route}`);
+    assert.ok(html.includes("gtag('js', new Date());"), `Google tag initialization missing: ${route}`);
     assert.match(html, /<div id="root"><(?:link|div|section|main)/, route);
     assert.match(html, /<h1[\s>]/, route);
     assert.ok(html.includes(`<title>${escape(seo.title)}</title>`), route);
