@@ -498,6 +498,79 @@ test('soapmaking oils article includes its PDF images, source links, and one Ama
   assert.ok(schema['@graph'].some(entity => entity['@type'] === 'Article' && entity.headline === post.title && entity.image === seo.image));
 });
 
+test('soft soap troubleshooting article includes its full guidance, PDF images, and one Amazon link', async () => {
+  const post = publishedSoapmakingPosts.find(entry => entry.slug === 'why-is-my-soap-still-soft');
+  assert.ok(post);
+  const route = `/recipes/${post.slug}`;
+  const article = await htmlFor(route);
+  const index = await htmlFor('/recipes');
+  const seo = pageSeo(route);
+
+  assert.ok(indexablePaths.includes(route));
+  assert.ok(staticPaths.includes(route));
+  assert.ok(index.includes(`data-testid="card-published-post-${post.slug}"`));
+  assert.ok(index.includes(`href="${route}"`));
+  assert.ok(sitemapXml().includes(`https://soapspice.com${route}/`));
+  assert.equal(seo.title, 'Why Is My Soap Still Soft? 7 Causes | SoapSpice');
+  assert.ok(seo.title.length <= 60);
+  assert.equal(seo.description, post.seoDescription);
+  assert.ok(seo.description.length >= 130 && seo.description.length <= 157);
+  assert.ok(article.includes(`<title>${escape(seo.title)}</title>`));
+  assert.ok(article.includes(`name="description" content="${escape(seo.description)}"`));
+  assert.equal(seo.canonical, `https://soapspice.com${route}/`);
+  assert.ok(article.includes(`property="og:image" content="${seo.image}"`));
+  assert.ok(article.includes(post.title));
+  for (const heading of [
+    'Start with three checks',
+    '1. You may be checking too soon',
+    '2. The batch may contain more water',
+    '3. The oil blend may set slowly',
+    '4. More oil may have stayed in the recipe',
+    '5. The batter may have reached false trace',
+    'What should light trace look like?',
+    '6. The weighed batch may differ from the formula',
+    '7. Moisture may not escape easily',
+    'Already cured, then turned mushy?',
+    'Check the recipe in SoapSpice',
+    'Keep a useful next-batch record',
+  ]) assert.ok(article.includes(heading), heading);
+  assert.ok(article.includes('Softness or firmness alone cannot establish that a batch is suitable for use.'));
+  assert.ok(article.includes('Keep a seeping or separated batch away from skin, children, and pets.'));
+  assert.ok(article.includes('extra sodium hydroxide is not a water-removal shortcut'));
+  assert.ok(article.includes('a calculator result does not diagnose an existing loaf.'));
+  assert.ok(article.includes('69.52 g'));
+  assert.ok(article.includes('160.63 g'));
+  assert.equal((article.match(/data-testid="article-section-image"/g) ?? []).length, 7);
+  assert.equal((article.match(/data-testid="link-amazon-article-shopping"/g) ?? []).length, 1);
+  assert.ok(!article.includes('data-testid="link-amazon-ingredient-'));
+  assert.ok(!article.includes('data-testid="link-amazon-equipment-'));
+  assert.ok(article.includes('Find what you need at Amazon'));
+  assert.ok(article.includes('Affiliate link'));
+  assert.ok(article.includes('As an Amazon Associate I earn from qualifying purchases.'));
+  assert.ok(article.includes('tag=soapspice1-20'));
+  assert.ok(article.includes('sponsored nofollow noopener'));
+  assert.ok(article.indexOf('id="post-shopping"') > article.indexOf('</article>'));
+  for (const citation of post.citations) assert.ok(article.includes(citation.url), citation.title);
+
+  const catalog = JSON.parse(await readFile(new URL('../src/data/ingredient-catalog.json', import.meta.url)));
+  const oilWeights = [
+    ['olive-oil', 225],
+    ['palm-oil', 150],
+    ['coconut-oil-76', 100],
+    ['castor-oil', 25],
+  ];
+  const rawNaoh = oilWeights.reduce((sum, [id, grams]) => (
+    sum + grams * catalog.find(entry => entry.id === id).naohSap
+  ), 0);
+  const calculatedNaoh = Number((rawNaoh * 0.95).toFixed(2));
+  const calculatedWater = Number(((500 + rawNaoh * 0.95) * 0.22 / 0.78).toFixed(2));
+  assert.equal(calculatedNaoh, 69.52);
+  assert.equal(calculatedWater, 160.63);
+
+  const schema = JSON.parse(article.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
+  assert.ok(schema['@graph'].some(entity => entity['@type'] === 'Article' && entity.headline === post.title && entity.image === seo.image));
+});
+
 test('all illustrations from uploaded recipe PDFs appear with accessible captions', async () => {
   const sourceImagesBySlug = {
     'beginner-cold-process-soap-recipe': [
@@ -554,6 +627,15 @@ test('all illustrations from uploaded recipe PDFs appear with accessible caption
       '/images/soapmaking-oils-castor-oil.jpg',
       '/images/soapmaking-oils-shea-butter.jpg',
     ],
+    'why-is-my-soap-still-soft': [
+      '/images/why-is-my-soap-still-soft-cover.jpg',
+      '/images/soft-soap-extra-water.jpg',
+      '/images/soft-soap-oil-blend.jpg',
+      '/images/soft-soap-extra-oil.jpg',
+      '/images/soft-soap-false-trace.jpg',
+      '/images/soft-soap-weighing-record.jpg',
+      '/images/soft-soap-curing-rack.jpg',
+    ],
   };
   const expectedStepImageCounts = {
     'beginner-cold-process-soap-recipe': 0,
@@ -562,9 +644,14 @@ test('all illustrations from uploaded recipe PDFs appear with accessible caption
     'caribbean-sunset-layered-cold-process-soap': 10,
     'unscented-oatmeal-cold-process-soap': 8,
     'soapmaking-oils-explained': 0,
+    'why-is-my-soap-still-soft': 0,
   };
   const expectedSectionImageCounts = {
     'soapmaking-oils-explained': 5,
+    'why-is-my-soap-still-soft': 7,
+  };
+  const expectedImagePlacementCounts = {
+    'why-is-my-soap-still-soft': 8,
   };
 
   for (const [slug, expectedPaths] of Object.entries(sourceImagesBySlug)) {
@@ -581,16 +668,16 @@ test('all illustrations from uploaded recipe PDFs appear with accessible caption
 
     assert.equal(stepImages.length, expectedStepImageCounts[slug], `${slug} step illustrations`);
     assert.equal(sectionImages.length, expectedSectionImageCounts[slug] ?? 0, `${slug} section illustrations`);
-    assert.equal(sourceImages.length, expectedPaths.length, `${slug} should reference every source illustration once`);
-    assert.equal(new Set(sourceImages.map(image => image.src)).size, expectedPaths.length, `${slug} source image paths should be unique`);
+    assert.equal(sourceImages.length, expectedImagePlacementCounts[slug] ?? expectedPaths.length, `${slug} should preserve the PDF's image placements`);
+    assert.equal(new Set(sourceImages.map(image => image.src)).size, expectedPaths.length, `${slug} should include each unique source image`);
 
-    for (const expectedPath of expectedPaths) {
-      const image = sourceImages.find(candidate => candidate.src === expectedPath);
-      assert.ok(image, `${slug} is missing ${expectedPath}`);
-      assert.ok(article.includes(`src="${expectedPath}"`), `${slug} HTML is missing ${expectedPath}`);
+    for (const image of sourceImages) {
+      assert.ok(article.includes(`src="${image.src}"`), `${slug} HTML is missing ${image.src}`);
       assert.ok(article.includes(`alt="${escape(image.alt)}"`), `${slug} image needs descriptive alt text`);
       assert.ok(article.includes(escape(image.caption)), `${slug} image needs a visible caption`);
+    }
 
+    for (const expectedPath of expectedPaths) {
       const bytes = await readFile(new URL(expectedPath.slice(1), output));
       if (expectedPath.endsWith('.webp')) {
         assert.equal(bytes.toString('ascii', 0, 4), 'RIFF', `${expectedPath} should be WebP`);

@@ -1139,4 +1139,209 @@ export const publishedSoapmakingPosts: PublishedSoapmakingPost[] = [
       { title: 'Common Soapmaking Oils — Soap Queen', url: 'https://soapqueen.com/bath-and-body-tutorials/tips-and-tricks/free-beginners-guide-to-soapmaking-common-soapmaking-oils/' },
     ],
   },
+  {
+    slug: 'why-is-my-soap-still-soft',
+    title: 'Why Is My Soap Still Soft?',
+    seoTitle: 'Why Is My Soap Still Soft? 7 Causes | SoapSpice',
+    seoDescription: 'Troubleshoot soft cold-process soap with seven causes, checks for water, oils, mixing, and curing, plus practical steps before changing a formula.',
+    kind: 'article',
+    excerpt: 'A soft loaf may simply need more time, but extra liquid, formula changes, separation, or damp curing conditions need a closer check. Learn how to assess it safely.',
+    publishedAt: '2026-11-22',
+    author: 'SoapSpice',
+    image: {
+      src: '/images/why-is-my-soap-still-soft-cover.jpg',
+      alt: 'Gloved hands gently checking a pale cold-process soap loaf in its silicone mold',
+      width: 617,
+      height: 617,
+      caption: 'A freshly molded loaf may still need time to release cleanly.',
+    },
+    citationContext: 'This SoapSpice troubleshooting guide cites its source materials. A soft or separated batch needs assessment based on its ingredients, process, and appearance; softness alone cannot establish that it is suitable to use.',
+    body: [
+      {
+        heading: 'Start with three checks',
+        paragraphs: [
+          'If the corners still dent or the loaf clings to a silicone mold, pause before changing the formula. Softness can come from normal setting time, the recipe, or how the soap is stored.',
+          'Wear gloves when inspecting fresh soap. Keep a seeping or separated batch away from skin, children, and pets. Review the recipe and seek experienced troubleshooting help before using or trying to salvage a questionable batch. Softness or firmness alone cannot establish that a batch is suitable for use.',
+        ],
+        bullets: [
+          'Age: How long has the batch been in the mold or curing?',
+          'Appearance: Is it uniform, or are there liquid pockets, oily pools, or separate layers?',
+          'Records: Do the weighed ingredients match the formula?',
+        ],
+      },
+      {
+        heading: '1. You may be checking too soon',
+        paragraphs: [
+          'What to look for: The fresh loaf is uniform but dents when the mold is peeled away.',
+          'For this batch: Leave it supported in the mold and check again the next day. Cut it only when it releases cleanly.',
+          'Next time: Record the unmolding time. A 24–48 hour check is a starting point, not a deadline. After cutting, allow a normal 4–6 week cure; some formulas need longer. [1]',
+        ],
+        images: [{
+          src: '/images/why-is-my-soap-still-soft-cover.jpg',
+          alt: 'Gloved hands easing the silicone mold away from a newly made soap loaf',
+          width: 617,
+          height: 617,
+          caption: 'Illustration: wait until the loaf releases cleanly before cutting.',
+        }],
+      },
+      {
+        heading: '2. The batch may contain more water',
+        paragraphs: [
+          'What to look for: The recorded liquid exceeds the formula, including water added with other ingredients.',
+          'For this batch: If the recipe is otherwise correct and the loaf is uniform, allow more time and assess its progress.',
+          'Next time: Weigh all liquids. Change the water only through a considered formula adjustment; adding extra sodium hydroxide is not a water-removal shortcut. [1]',
+        ],
+        images: [{
+          src: '/images/soft-soap-extra-water.jpg',
+          alt: 'A digital scale, water pitcher, and notebook ready for checking soap batch measurements',
+          width: 617,
+          height: 617,
+          caption: 'Illustration: compare every weighed liquid with the batch formula.',
+        }],
+      },
+      {
+        heading: '3. The oil blend may set slowly',
+        paragraphs: [
+          'What to look for: The recipe contains a large share of liquid oils.',
+          'For this batch: Allow for a slower release from the mold and longer maturation.',
+          'Next time: Compare the oil proportions before choosing a new formula. A higher hard-oil share generally helps early firmness, but every substitution needs a fresh lye calculation. [2]',
+        ],
+        images: [{
+          src: '/images/soft-soap-oil-blend.jpg',
+          alt: 'Bowls of liquid and solid soapmaking oils arranged for a balanced blend',
+          width: 617,
+          height: 617,
+          caption: 'Illustration: the oil blend can affect how quickly a loaf firms.',
+        }],
+      },
+      {
+        heading: '4. More oil may have stayed in the recipe',
+        paragraphs: [
+          'What to look for: High superfat, unrecorded oil, or generous oil-based mica dispersions.',
+          'For this batch: Audit every addition before deciding whether the formula needs attention.',
+          'Next time: Take color-dispersing oil from the weighed recipe total and return it with the color. Keep fragrance within its product-specific usage guidance. [1]',
+        ],
+        images: [{
+          src: '/images/soft-soap-extra-oil.jpg',
+          alt: 'A measured oil portion being poured into a small cup for a color dispersion',
+          width: 617,
+          height: 617,
+          caption: 'Illustration: count dispersion oil as part of the recipe’s total oil.',
+        }],
+      },
+      {
+        heading: '5. The batter may have reached false trace',
+        paragraphs: [
+          'What to look for: Batter thickened unusually quickly as solid fats cooled, or later developed oil streaks and separation.',
+          'For this batch: A separated loaf needs investigation. Set it aside and review the recorded temperatures and mixing notes.',
+          'Next time: Fully melt solid oils and keep them liquid while combining. Blend and stir until the batter is evenly emulsified. Thickness caused by cooling fats can mimic trace. [3]',
+        ],
+        images: [{
+          src: '/images/soft-soap-false-trace.jpg',
+          alt: 'A maker checking the temperature of melted oils beside a pitcher of water',
+          width: 617,
+          height: 617,
+          caption: 'Illustration: check oil temperatures so cooled fats do not mimic trace.',
+        }],
+      },
+      {
+        heading: 'What should light trace look like?',
+        paragraphs: [
+          'Look for uniform batter without free oil streaks. A faint drizzle may briefly show on the surface. Trace develops differently with different oils, temperatures, fragrances, and water amounts, so appearance and stability matter more than a fixed blending time. [3]',
+        ],
+      },
+      {
+        heading: '6. The weighed batch may differ from the formula',
+        paragraphs: [
+          'What to look for: An oil was substituted, the wrong units were used, an ingredient was missed, or the scale was not tared.',
+          'For this batch: Reconstruct the actual gram weights. Keep a questionable batch aside until the discrepancy is understood.',
+          'Next time: Check units, tare between ingredients, and verify the scale with an appropriate check weight. Recalculate for the exact oil identities and supplier sodium hydroxide purity. [4]',
+        ],
+        images: [{
+          src: '/images/soft-soap-weighing-record.jpg',
+          alt: 'A digital scale, soapmaking notes, and containers used to review measured ingredients',
+          width: 617,
+          height: 617,
+          caption: 'Illustration: compare scale readings and batch notes with the formula.',
+        }],
+      },
+      {
+        heading: '7. Moisture may not escape easily',
+        paragraphs: [
+          'What to look for: Bars are tightly packed, boxed early, or curing in a damp room.',
+          'For this batch: Space bars on a suitable rack in a dry area with airflow. In humid weather, a dehumidifier may help.',
+          'Next time: Choose the curing space before making the batch. Avoid sealing fresh bars in airtight packaging. After curing, use a draining dish between washes. [5,6]',
+        ],
+        images: [{
+          src: '/images/soft-soap-curing-rack.jpg',
+          alt: 'Freshly cut soap bars spaced apart on a wire curing rack',
+          width: 617,
+          height: 617,
+          caption: 'Illustration: leave room for airflow around bars during curing.',
+        }],
+      },
+      {
+        heading: 'Already cured, then turned mushy?',
+        paragraphs: [
+          'Check where the bar rests between uses. Standing water can soften a well-cured bar. Move it to a draining dish and let it dry. [6]',
+        ],
+      },
+      {
+        heading: 'Check the recipe in SoapSpice',
+        paragraphs: [
+          'Use the SoapSpice cold-process calculator to audit a formula. Enter the oil amounts actually weighed and compare them with your batch sheet before changing anything.',
+          'This 500 g example uses four oils. Its calculator check assumes 100% sodium hydroxide purity, a 5% superfat, distilled water, and an estimated liquid amount near 22% of the complete batch. Recheck the live result and supplier specifications before making.',
+          'The example helps audit calculator inputs; a calculator result does not diagnose an existing loaf.',
+        ],
+        table: {
+          caption: 'A 500 g oil example for checking formula inputs',
+          headers: ['Oil', 'Weight', 'Share'],
+          rows: [
+            ['Olive oil', '225 g', '45%'],
+            ['Palm oil', '150 g', '30%'],
+            ['Coconut oil (76°)', '100 g', '20%'],
+            ['Castor oil', '25 g', '5%'],
+            ['Total oils', '500 g', '100%'],
+          ],
+        },
+        bullets: [
+          'Select grams, enter these exact oil weights, set 5% superfat, choose distilled water, and leave fragrance off.',
+          'Validate the formula. The earlier SoapSpice check returned 69.52 g sodium hydroxide (NaOH) and 160.63 g distilled water.',
+          'Recheck the current result and verify supplier specifications before weighing. These example amounts are not a diagnosis or a substitute for safe handling instructions.',
+        ],
+      },
+      {
+        heading: 'Keep a useful next-batch record',
+        paragraphs: [
+          'Write down each oil and gram weight, sodium hydroxide purity, water weight, superfat setting, color and fragrance additions, mixing temperatures, time to trace, mold type, unmolding date, and curing location. Change one deliberate variable at a time so the next result is easier to interpret.',
+        ],
+      },
+    ],
+    ingredients: [
+      { id: 'olive-oil', name: 'Olive oil · 225 g example blend', searchTerm: 'olive oil for cold process soap making', note: 'This amount is only for the article’s 500 g example, not a recommended change to an existing batch.' },
+      { id: 'palm-oil', name: 'Palm oil · 150 g example blend', searchTerm: 'regular palm oil for soap making', note: 'Use the exact oil identity selected in the formula.' },
+      { id: 'coconut-oil-76', name: 'Coconut oil (76°) · 100 g example blend', searchTerm: '76 degree coconut oil for soap making' },
+      { id: 'castor-oil', name: 'Castor oil · 25 g example blend', searchTerm: 'castor oil for cold process soap making' },
+      { id: 'sodium-hydroxide', name: 'Sodium hydroxide (NaOH)', searchTerm: 'sodium hydroxide beads for soap making', note: 'Recalculate the exact batch; the 69.52 g example assumes 100% purity and the listed oils.' },
+      { id: 'distilled-water', name: 'Distilled water', searchTerm: 'distilled water for soap making', note: 'The 160.63 g amount is only for the article’s example formula.' },
+      { id: 'fragrance-oil', name: 'Fragrance oil · optional', searchTerm: 'soap making fragrance oil cold process', note: 'Not used in the unscented example. Follow the exact supplier’s usage guidance.' },
+    ],
+    equipment: [
+      { id: 'digital-scale', name: 'Digital scale', searchTerm: 'digital scale for soap making ingredients', note: 'Use a suitable scale and tare between ingredients.' },
+      { id: 'thermometer', name: 'Thermometer', searchTerm: 'thermometer for cold process soap making' },
+      { id: 'stick-blender', name: 'Stick blender', searchTerm: 'stick blender for cold process soap making' },
+      { id: 'curing-rack', name: 'Curing rack', searchTerm: 'wire curing rack for handmade soap' },
+      { id: 'draining-soap-dish', name: 'Draining soap dish', searchTerm: 'draining soap dish handmade bar soap' },
+      { id: 'splash-goggles', name: 'Splash goggles', searchTerm: 'chemical splash safety goggles' },
+      { id: 'chemical-gloves', name: 'Chemical-resistant gloves', searchTerm: 'chemical resistant gloves sodium hydroxide' },
+    ],
+    citations: [
+      { title: 'Soft Soap: Setting Time, Water, Superfat and Additives — Soap Queen', url: 'https://soapqueen.com/bath-and-body-tutorials/tips-and-tricks/cold-process-soap-soft/' },
+      { title: 'Formulating Cold Process Soap Recipes — Bramble Berry', url: 'https://www.brambleberry.com/soap/formulating-cold-process-soap-recipes.html' },
+      { title: 'All About Trace — Bramble Berry', url: 'https://www.brambleberry.com/cold-process/trace.html' },
+      { title: 'Troubleshooting Lye-Heavy Soap — Bramble Berry', url: 'https://www.brambleberry.com/soap/troubleshooting-lye-heavy-soap.html' },
+      { title: 'Storing Handmade Soap and Curing Conditions — Soap Queen', url: 'https://soapqueen.com/bath-and-body-tutorials/tips-and-tricks/how-to-store-handmade-bath-products/' },
+      { title: 'Making Soap Last Longer in the Shower — Soap Queen', url: 'https://soapqueen.com/bath-and-body-tutorials/tips-and-tricks/make-soap-last-longer-shower/' },
+    ],
+  },
 ];
