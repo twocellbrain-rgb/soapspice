@@ -144,7 +144,7 @@ test('generated sitemap includes every indexable canonical page and excludes ses
   assert.equal(new Set(urls).size, urls.length);
   assert.equal(lastmods.length, urls.length);
   assert.ok(lastmods.every(date => /^\d{4}-\d{2}-\d{2}$/.test(date)));
-  assert.deepEqual([...new Set(lastmods)], ['2026-11-23'], 'keep sitemap dates aligned with the latest meaningful public content update');
+  assert.deepEqual([...new Set(lastmods)], ['2026-11-24'], 'keep sitemap dates aligned with the latest meaningful public content update');
   for (const route of staticPaths.filter(route => !indexablePaths.includes(route))) {
     assert.ok(!urls.includes(pageSeo(route).canonical), route);
   }
@@ -410,7 +410,7 @@ test('Caribbean sunset layered recipe is indexable and uses one Amazon article l
   assert.ok(article.indexOf('id="post-shopping"') > article.indexOf('</article>'));
   const schema = JSON.parse(article.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
   assert.ok(schema['@graph'].some(entity => entity['@type'] === 'Article' && entity.headline === post.title && entity.image === seo.image));
-  assert.ok(sitemapXml().includes('<lastmod>2026-11-23</lastmod>'));
+  assert.ok(sitemapXml().includes('<lastmod>2026-11-24</lastmod>'));
 
   const heroImage = await readFile(new URL('images/caribbean-sunset-layered-soap.jpg', output));
   assert.deepEqual([...heroImage.subarray(0, 3)], [0xff, 0xd8, 0xff]);
@@ -1156,6 +1156,58 @@ test('Christmas confetti recipe separates cured chips from its lye formula and i
     ]),
   ];
   assert.equal(images.length, 9, 'the cover and all eight step illustrations should be included');
+  assert.equal(new Set(images.map(image => image.src)).size, 9, 'all nine distinct PDF images should be used once');
+  for (const image of images) {
+    assert.ok(article.includes(`src="${image.src}"`), `Image should appear in the rendered recipe: ${image.src}`);
+    await readFile(new URL(`.${image.src}`, output));
+  }
+});
+
+test('gingerbread-inspired oatmeal recipe includes its formula, safe method, affiliate link, and all PDF images', async () => {
+  const post = publishedSoapmakingPosts.find(entry => entry.slug === 'gingerbread-inspired-oatmeal-soap-recipe');
+  assert.ok(post, 'the uploaded oatmeal recipe should be published');
+  const route = `/recipes/${post.slug}`;
+  assert.ok(indexablePaths.includes(route));
+  assert.ok(staticPaths.includes(route));
+  assert.ok((await readFile(new URL('sitemap.xml', output), 'utf8')).includes(pageSeo(route).canonical));
+
+  const article = await htmlFor(route);
+  const seo = pageSeo(route);
+  assert.equal(seo.title, 'Gingerbread Oatmeal Soap Recipe | SoapSpice');
+  assert.ok(seo.description.length >= 130 && seo.description.length <= 160);
+  assert.equal(seo.canonical, `https://soapspice.com${route}/`);
+  assert.equal(seo.image, 'https://soapspice.com/images/gingerbread-oatmeal-cover.jpeg');
+  for (const phrase of [
+    '500 g',
+    '225 g',
+    '150 g',
+    '100 g',
+    '25 g',
+    '69.52 g',
+    '160.63 g',
+    '2 g cosmetic colloidal oatmeal',
+    '15 g olive oil reserved from the measured 225 g',
+    '5 g of that same measured olive oil',
+    'never pour water onto dry NaOH',
+    'unscented',
+    '4–6 weeks',
+  ]) assert.ok(article.includes(phrase), `Gingerbread oatmeal recipe guidance missing: ${phrase}`);
+  assert.equal((article.match(/data-testid="link-amazon-article-shopping"/g) ?? []).length, 1);
+  assert.ok(article.includes('Find what you need at Amazon'));
+  assert.ok(article.includes('As an Amazon Associate I earn from qualifying purchases.'));
+  assert.ok(article.includes('tag=soapspice1-20'));
+  assert.ok(article.includes('sponsored nofollow noopener'));
+  assert.ok(!article.includes('data-testid="link-amazon-ingredient-'));
+  assert.ok(!article.includes('data-testid="link-amazon-equipment-'));
+
+  const images = [
+    post.image,
+    ...post.body.flatMap(section => [
+      ...(section.images ?? []),
+      ...(section.steps ?? []).flatMap(step => typeof step === 'string' ? [] : step.images ?? []),
+    ]),
+  ];
+  assert.equal(images.length, 9, 'the cover and all eight process illustrations should be included');
   assert.equal(new Set(images.map(image => image.src)).size, 9, 'all nine distinct PDF images should be used once');
   for (const image of images) {
     assert.ok(article.includes(`src="${image.src}"`), `Image should appear in the rendered recipe: ${image.src}`);
