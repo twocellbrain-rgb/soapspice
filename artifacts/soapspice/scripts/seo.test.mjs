@@ -1214,3 +1214,57 @@ test('gingerbread-inspired oatmeal recipe includes its formula, safe method, aff
     await readFile(new URL(`.${image.src}`, output));
   }
 });
+
+test('candy-cane stripe soap recipe includes its five-layer formula, safe method, affiliate link, and all PDF images', async () => {
+  const post = publishedSoapmakingPosts.find(entry => entry.slug === 'candy-cane-stripe-soap-recipe');
+  assert.ok(post, 'the uploaded candy-cane stripe recipe should be published');
+  const route = `/recipes/${post.slug}`;
+  assert.ok(indexablePaths.includes(route));
+  assert.ok(staticPaths.includes(route));
+  assert.ok((await readFile(new URL('sitemap.xml', output), 'utf8')).includes(pageSeo(route).canonical));
+
+  const article = await htmlFor(route);
+  const seo = pageSeo(route);
+  assert.equal(seo.title, 'Candy Cane Stripe Soap Recipe | SoapSpice');
+  assert.ok(seo.description.length >= 130 && seo.description.length <= 160);
+  assert.equal(seo.canonical, `https://soapspice.com${route}/`);
+  assert.equal(seo.image, 'https://soapspice.com/images/candy-cane-stripe-cover.jpeg');
+  for (const phrase of [
+    '500 g',
+    '225 g',
+    '150 g',
+    '100 g',
+    '25 g',
+    '69.52 g',
+    '160.63 g',
+    '5 g from the measured 225 g olive oil',
+    '60% ivory and 40% red',
+    'ivory, red, ivory, red, ivory',
+    'never pour water onto dry NaOH',
+    '0 g — unscented',
+    '4–6 weeks',
+    'A layer sinks or breaks through',
+  ]) assert.ok(article.includes(phrase), `Candy-cane stripe recipe guidance missing: ${phrase}`);
+
+  assert.equal((article.match(/data-testid="link-amazon-article-shopping"/g) ?? []).length, 1);
+  assert.ok(article.includes('Find what you need at Amazon'));
+  assert.ok(article.includes('As an Amazon Associate I earn from qualifying purchases.'));
+  assert.ok(article.includes('tag=soapspice1-20'));
+  assert.ok(article.includes('sponsored nofollow noopener'));
+  assert.ok(!article.includes('data-testid="link-amazon-ingredient-'));
+  assert.ok(!article.includes('data-testid="link-amazon-equipment-'));
+
+  const images = [
+    post.image,
+    ...post.body.flatMap(section => [
+      ...(section.images ?? []),
+      ...(section.steps ?? []).flatMap(step => typeof step === 'string' ? [] : step.images ?? []),
+    ]),
+  ];
+  assert.equal(images.length, 9, 'the cover and all eight process illustrations should be included');
+  assert.equal(new Set(images.map(image => image.src)).size, 9, 'all nine distinct PDF images should be used once');
+  for (const image of images) {
+    assert.ok(article.includes(`src="${image.src}"`), `Image should appear in the rendered recipe: ${image.src}`);
+    await readFile(new URL(`.${image.src}`, output));
+  }
+});
