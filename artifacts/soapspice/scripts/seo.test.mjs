@@ -1322,3 +1322,60 @@ test('midnight snowbank soap recipe includes its three-color formula, safe metho
     await readFile(new URL(`.${image.src}`, output));
   }
 });
+
+test('Three Kings gold and myrrh recipe includes its exact formula, scent cautions, Amazon link, and every PDF image', async () => {
+  const post = publishedSoapmakingPosts.find(entry => entry.slug === 'three-kings-gold-myrrh-soap-recipe');
+  assert.ok(post, 'the uploaded Three Kings recipe should be published');
+  const route = `/recipes/${post.slug}`;
+  assert.ok(indexablePaths.includes(route));
+  assert.ok(staticPaths.includes(route));
+  assert.ok((await readFile(new URL('sitemap.xml', output), 'utf8')).includes(pageSeo(route).canonical));
+
+  const article = await htmlFor(route);
+  const seo = pageSeo(route);
+  assert.equal(seo.title, 'Three Kings Gold & Myrrh Soap Recipe | SoapSpice');
+  assert.ok(seo.description.length >= 130 && seo.description.length <= 160);
+  assert.equal(seo.canonical, `https://soapspice.com${route}/`);
+  assert.equal(seo.image, 'https://soapspice.com/images/three-kings-gold-myrrh-cover.jpeg');
+  for (const phrase of [
+    '500 g',
+    '250 g',
+    '125 g',
+    '100 g',
+    '25 g',
+    '67.69 g',
+    '164.61 g',
+    '15.92 g',
+    '11.14 g',
+    '4.78 g',
+    'V000177',
+    '26.20%',
+    'current supplier certificate',
+    'never pour water onto dry NaOH',
+    'do not apply vinegar to skin',
+    '4–6 weeks',
+    'The whole bar looks gray-brown',
+  ]) assert.ok(article.includes(phrase), `Three Kings recipe guidance missing: ${phrase}`);
+
+  assert.equal((article.match(/data-testid="link-amazon-article-shopping"/g) ?? []).length, 1);
+  assert.ok(article.includes('Find what you need at Amazon'));
+  assert.ok(article.includes('As an Amazon Associate I earn from qualifying purchases.'));
+  assert.ok(article.includes('tag=soapspice1-20'));
+  assert.ok(article.includes('sponsored nofollow noopener'));
+  assert.ok(!article.includes('data-testid="link-amazon-ingredient-'));
+  assert.ok(!article.includes('data-testid="link-amazon-equipment-'));
+
+  const images = [
+    post.image,
+    ...post.body.flatMap(section => [
+      ...(section.images ?? []),
+      ...(section.steps ?? []).flatMap(step => typeof step === 'string' ? [] : step.images ?? []),
+    ]),
+  ];
+  assert.equal(images.length, 9, 'the cover and all eight process illustrations should be included');
+  assert.equal(new Set(images.map(image => image.src)).size, 9, 'all nine distinct PDF images should be used once');
+  for (const image of images) {
+    assert.ok(article.includes(`src="${image.src}"`), `Image should appear in the rendered recipe: ${image.src}`);
+    await readFile(new URL(`.${image.src}`, output));
+  }
+});
